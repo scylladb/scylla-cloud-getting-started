@@ -209,7 +209,7 @@ Row {
 ### 3.4 Updating Data
 
 Ok, almost there! Now we're going to learn about `UPDATE` but here's a disclaimer: 
-> INSERT and UPDATES are not equals!
+> INSERT and UPDATES are not the same!
 
 There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
