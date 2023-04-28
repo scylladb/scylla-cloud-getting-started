@@ -1,10 +1,10 @@
 # Quick Start: JavaScript w/ NodeJs
 
-In this tutorial we're gonna build a simple Media Player to store our songs and build playlists
+In this tutorial you'll build a Media Player to store your songs and build playlists.
 
 ## 1. Getting the Driver
 
-Install the available driver for JavaScript maintained by [DataStax](https://github.com/datastax/nodejs-driver/).
+Install the [JavaScript Cassandra driver](https://github.com/datastax/nodejs-driver/) that also works with ScyllaDB.
 ```sh
 $ npm install cassandra-driver
 
@@ -13,7 +13,7 @@ $ yarn install cassandra-driver
 
 ## 2. Connecting to the Cluster
 
-Make sure to get the right credentials on your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
+Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
 
 ```js
 const cluster = new cassandra.Client({
@@ -24,11 +24,11 @@ const cluster = new cassandra.Client({
 })
 ```
 
-> If the connection got refused, check if you IP Address is added into allowed ips.
+> If the connection gets refused, check if your IP Address is added to the list of allowed IP addresses.
 
 ## 3. Handling Queries
 
-At NodeJS driver you can use the function inside your cluster connection called `execute(query)` and build the query you want to execute inside your database/keyspace.
+With the NodeJS driver, you can use the function inside your cluster connection called `execute(query)` and build the query you want to execute inside your database/keyspace.
 
 ```js
 const cluster = new cassandra.Client({
@@ -45,7 +45,7 @@ results.rows.forEach(row => console.log(JSON.stringify(row)))
 
 ### 3.1 Creating a Keyspace
 
-The `keyspace` inside the ScyllaDB ecossystem can be interpreted as your `database` or `collection`.
+The `keyspace` inside the ScyllaDB ecosystem can be interpreted as your `database` or `collection`.
 
 On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
 
@@ -75,8 +75,8 @@ runKeyspace();
 
 ### 3.2 Creating a Table
 
-A table is used to store part or all the data of your app (depends on how you will build it). 
-Remember to add your `keyspace` into your connection and let's create a table to store our liked songs.
+A table is used to store part or all of your app data (depending on how structure your database schema). 
+Add the `keyspace` as a parameter in the connection object and define a CQL string that creates a table to store your favorite songs.
 
 ```js
 async function runKeyspace (keyspace = null) {
@@ -109,7 +109,7 @@ runKeyspace('media_player');
 
 ### 3.3 Inserting data
 
-Now that we have the keyspace and a table inside of it, we need to bring some good songs and populate it. 
+Now that you have created a keyspace and a table, you need to insert some songs to populate the table. 
 
 ```js
 async function insertSongs () {
@@ -188,7 +188,7 @@ const listSongs = async () => {
 }
 ```
 
-The result will look like this:
+The result looks like this:
 
 ```log
 $ node index.js 
@@ -208,12 +208,12 @@ Row {
 
 ### 3.4 Updating Data
 
-Ok, almost there! Now we're going to learn about update but here's a disclaimer: 
+Ok, almost there! Now we're going to learn about `UPDATE` but here's a disclaimer: 
 > INSERT and UPDATES are not equals!
 
 There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
-If you want to read more about it, [click here.](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
+Read more about [`INSERT` and `UPDATE`](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
 
 As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check the snippet below: 
 
@@ -243,7 +243,7 @@ const updateSong = async (songToUpdate) => {
     await cluster.shutdown()
 }
 ```
-After inserted, let's query for the ID and see the results:
+After the data gets inserted, query all columns and filter by the ID:
 ```
 scylla@cqlsh:media_player> select * from songs where id = d754f8d5-e037-4898-af75-44587b9cc424;
 
@@ -253,7 +253,7 @@ scylla@cqlsh:media_player> select * from songs where id = d754f8d5-e037-4898-af7
  d754f8d5-e037-4898-af75-44587b9cc424 | 2023-03-02 23:10:00.000000+0000 |        null |   null |                            null | Glimpse of US - Inutilismo
 ```
 
-It only "updated" the field `title` and `updated_at` (that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
+It only updated the field `title` and `updated_at` (the Clustering Key) and since we didn't input the rest of the data, it will not be replicated as expected.
 
 
 ### 3.5 Deleting Data
@@ -261,10 +261,10 @@ It only "updated" the field `title` and `updated_at` (that is our Clustering Key
 Last things last! Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
 
 ```sql 
-// Deleting a ROW
+// Deletes a single row
 DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 
-// Deleting a COLUMN 
+// Deletes a whole column
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
