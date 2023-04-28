@@ -1,6 +1,4 @@
-<p align="center">
-    <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/u792bp8mle5zooqqlcy5.png" alt="">
-</p>
+
 
 # Getting started with ScyllaDB Cloud
 
