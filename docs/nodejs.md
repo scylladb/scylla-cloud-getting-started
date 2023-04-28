@@ -215,7 +215,7 @@ There's a myth in Scylla/Cassandra community that it's the same for the fact tha
 
 Read more about [`INSERT` and `UPDATE`](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
 
-As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check the snippet below: 
+As you can see, the `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). Check the snippet below: 
 
 ```js
 const songToUpdate = {
