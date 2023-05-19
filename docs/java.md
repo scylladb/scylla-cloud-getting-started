@@ -320,7 +320,7 @@ Last things last! Let's understand what we can DELETE with this statement. There
 // Deletes a single row
 DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 
-// Deletes a whole column
+// Deletes a cell
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
