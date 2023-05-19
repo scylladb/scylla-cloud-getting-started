@@ -119,7 +119,7 @@ class Main {
 }
 ```
 
-> After that you probably will need to re-create your connection poiting which `keyspace` you want to use.
+After that you probably will need to re-create your connection poiting which `keyspace` you want to use.
 
 ### 3.2 Creating a Table
 
