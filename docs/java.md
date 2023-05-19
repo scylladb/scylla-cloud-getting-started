@@ -206,7 +206,7 @@ class Main {
 
 ### 3.3 Reading data
 
-Since probably we added more than 3 songs into our database, let's list it into our terminal.
+Let's read the songs from the database and print them to the terminal.
 
 ```java
 import com.datastax.driver.core.Cluster;
