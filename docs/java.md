@@ -83,7 +83,7 @@ class Main {
 
 ### 3.1 Creating a Keyspace
 
-The `keyspace` inside the ScyllaDB ecosystem can be interpreted as your `database` or `collection`.
+A Keyspace in ScyllaDB is a collection of tables with attributes which define how data is replicated on nodes. 
 
 On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
 
