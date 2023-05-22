@@ -85,7 +85,7 @@ class Main {
 
 A Keyspace in ScyllaDB is a collection of tables with attributes which define how data is replicated on nodes. 
 
-On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
+You don't need a keyspace on your connection boot, but you'll need it to create a table.
 
 ```java
 import com.datastax.driver.core.Cluster;
@@ -253,14 +253,9 @@ class Main {
 
 ### 3.4 Updating Data
 
-Ok, almost there! Now we're going to learn about `UPDATE` but here's a disclaimer: 
-> INSERT and UPDATES are not the same!
+The `UPDATE` query in the fact is equals to `INSERT` regarding the syntax. Uou just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
-There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
-
-Read more about [`INSERT` and `UPDATE`](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
-
-As you can see, the `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). Check the snippet below: 
+The `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). See the snippet below: 
 
 
 ```java
@@ -324,7 +319,7 @@ DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
-If you want to delete a specific cell, you also should pass as parameter the `Clustering Key` and be very specific in which column you want to delete something. 
+If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
 On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM <table>" it will delete ALL the rows that you stored with that ID. 
 
 ```java
