@@ -1,6 +1,6 @@
 # Quick Start: Java with ScyllaDB
 
-In this tutorial you'll build a Media Player to store your songs and build playlists.
+In this tutorial, you'll build a Media Player to store your songs and build playlists.
 
 ## 1. Getting the Driver
 
@@ -123,7 +123,7 @@ After that you probably will need to re-create your connection poiting which `ke
 
 ### 3.2 Creating a Table
 
-A table is used to store part or all of your app data (depending on how structure your database schema). 
+A table stores part or all of your app data (depending on how you structure your database schema). 
 Add the `keyspace` as a parameter in the connection object and define a CQL string that creates a table to store your favorite songs.
 
 ```java
@@ -309,12 +309,12 @@ id | updated_at                      | album       | artist | created_at        
  1 | 2023-03-02 23:10:00.000000+0000 |        null |   null |                            null | Glimpse of US - Inutilismo
 ```
 
-It only updated the field `title` and `updated_at` (the Clustering Key) and since we didn't input the rest of the data, it will not be replicated as expected.
+It only updated the field `title` and `updated_at` (the Clustering Key), and since we didn't input the rest of the data, it will not be replicated as expected.
 
 
 ### 3.5 Deleting Data
 
-Last things last! Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
+Last things last! Let's understand what we can DELETE with this statement. There's the regular `DELETE` statement that focuses on `ROWS` and the other one that deletes data only from `COLUMNS`. The syntax is very similar.
 
 ```sql 
 // Deletes a single row
@@ -324,7 +324,7 @@ DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
-If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
+If you want to delete a specific cell, you also should pass as parameter the `Clustering Key` and be very specific in which column you want to delete something. 
 On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM <table>" it will delete ALL the rows that you stored with that ID. 
 
 ```java
@@ -365,9 +365,9 @@ class Main {
 
 Yay! You now have the knowledge to use the basics of ScyllaDB with Java.
 
-There is a simple project with this structure that you can check it out [here](https://github.com/DanielHe4rt/scylladb-java-getting-started).
+There is a simple project with this structure that you can check out [here](https://github.com/DanielHe4rt/scylladb-java-getting-started).
 
-If you thinks that something can be improved, please open an issue and let's make it happen!
+If you think that something can be improved, please open an issue, and let's make it happen!
 
 
 Did you like the content? [Tweet about it](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fscylladb%2Fscylla-cloud-getting-started&via=scylladb%20%40danielhe4rtless&text=Just%20finished%20the%20ScyllaDB%20Hello%20World%20in%20Java&hashtags=scylladb%20%23java)!
