@@ -27,7 +27,7 @@ Install the [Java ScyllaDB Driver](https://java-driver.docs.scylladb.com/scylla-
 
 ## 2. Connecting to the Cluster
 
-Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
+Get your database credentials from your [ScyllaDB Cloud Cluster View](https://cloud.scylladb.com/clusters) in the tab `Connect`.
 
 ```java
 import com.datastax.driver.core.Cluster;  
