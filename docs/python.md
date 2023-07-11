@@ -25,8 +25,6 @@ pip install scylla-driver
 Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
 
 ```python
-
-
 cluster = Cluster(
     contact_points=[
         "your-node-url-1.clusters.scylla.cloud",
@@ -78,6 +76,9 @@ The `keyspace` inside the ScyllaDB ecosystem can be interpreted as your `databas
 On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
 
 ```python
+from cassandra.cluster import Cluster
+from datetime import datetime 
+from cassandra.auth import PlainTextAuthProvider
 
 cluster = Cluster(
     contact_points=[
@@ -113,6 +114,9 @@ A table is used to store part or all of your app data (depending on how structur
 Add the `keyspace` as a parameter in the connection object and define a CQL string that creates a table to store your favorite songs.
 
 ```python
+from cassandra.cluster import Cluster
+from datetime import datetime 
+from cassandra.auth import PlainTextAuthProvider
 cluster = Cluster(
     contact_points=[
         "your-node-url-1.clusters.scylla.cloud",
@@ -143,35 +147,39 @@ session.execute(tableQuery)
 Now that you have created a keyspace and a table, you need to insert some songs to populate the table. 
 
 ```python
+from cassandra.cluster import Cluster
+import datetime
+from cassandra.auth import PlainTextAuthProvider
+import uuid
 
 cluster = Cluster(
     contact_points=[
-        "node-0.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
-        "node-1.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud", 
-        "node-2.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud"
+        "your-node-url-1.clusters.scylla.cloud",
+        "your-node-url-2.clusters.scylla.cloud", 
+        "your-node-url-3.clusters.scylla.cloud",
     ],
-    auth_provider=PlainTextAuthProvider(username='scylla', password='r4GnOL2QSDi1wqF')
+    auth_provider=PlainTextAuthProvider(username='scylla', password='your-awesome-password')
 )
 
 session = cluster.connect('media_player')
 
 songList = [
     {
-        "id": 'd754f8d5-e037-4898-af75-44587b9cc424',
-        "title": 'Stairway to Heaven',
-        "album": 'Led Zeppelin III',
-        "artist": 'Led Zeppelin',
-        "createdAt": datetime.datetime.now(),
-    },
-    {
-        "id": uuid4(),
+        "id": uuid.UUID('d754f8d5-e037-4898-af75-44587b9cc424'),
         "title": 'Glimpse of Us',
         "album": 'Smithereens',
         "artist": 'Joji',
         "createdAt": datetime.datetime.now(),
     },
     {
-        "id": uuid4(),
+        "id": uuid.uuid4(),
+        "title": 'Stairway to Heaven',
+        "album": 'Led Zeppelin III',
+        "artist": 'Led Zeppelin',
+        "createdAt": datetime.datetime.now(),
+    },
+    {
+        "id": uuid.uuid4(),
         "title": 'Vegas',
         "album": 'From Movie ELVIS',
         "artist": 'Doja Cat',
@@ -193,11 +201,17 @@ for music in songList:
 Since probably we added more than 3 songs into our database, let's list it into our terminal.
 
 ```python
+from cassandra.cluster import Cluster
+from datetime import datetime 
+from cassandra.auth import PlainTextAuthProvider
+
 cluster = Cluster(
     contact_points=[
-        "node-0.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
+        "your-node-url-1.clusters.scylla.cloud",
+        "your-node-url-2.clusters.scylla.cloud", 
+        "your-node-url-3.clusters.scylla.cloud",
     ],
-    auth_provider=PlainTextAuthProvider(username='scylla', password='r4GnOL2QSDi1wqF')
+    auth_provider=PlainTextAuthProvider(username='scylla', password='your-awesome-password')
 )
 
 session = cluster.connect('media_player')
@@ -220,42 +234,47 @@ Vegas
 
 ### 3.4 Updating Data
 
-Ok, almost there! Now we're going to learn about `UPDATE` but here's a disclaimer: 
-> INSERT and UPDATES are not the same!
+The `UPDATE` query in the fact is equals to `INSERT` regarding the syntax. Uou just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
-There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
+The `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). See the snippet below: 
 
-Read more about [`INSERT` and `UPDATE`](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
+```py
+from cassandra.cluster import Cluster
+from datetime import datetime 
+from cassandra.auth import PlainTextAuthProvider
+import uuid
 
-As you can see, the `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). Check the snippet below: 
-
-```js
-const songToUpdate = {
-    id: 'd754f8d5-e037-4898-af75-44587b9cc424',
-    title: 'Glimpse of Us',
-    album: 'Smithereens',
-    artist: 'Joji',
-};
-
-const updateSong = async (songToUpdate) => {
-    const cluster = new cassandra.Client({
-        contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
-        localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
-        keyspace: 'media_player'
-    })
-
-    let results = await cluster.execute("SELECT * FROM songs");
-    let rows = results.rows;
-
-    let songToUpdate = rows.find((row) => row.id.toString() === song.id)
-    
-    let query = await cluster.execute(`UPDATE songs set title = 'Glimpse of US - Inutilismo' where id = ${songToUpdate.id} AND updated_at = '2023-03-02 23:10:00.00+0000';`);
-
-    await cluster.shutdown()
+songToUpdate = {
+    "id": uuid.UUID('d754f8d5-e037-4898-af75-44587b9cc424'),
+    "title": 'Glimpse of Us',
+    "album": '2022 Em Uma Música',
+    "artist": 'Lucas Inutilismo',
+    "createdAt": datetime.now()
 }
+
+cluster = Cluster(
+    contact_points=[
+        "your-node-url-1.clusters.scylla.cloud",
+        "your-node-url-2.clusters.scylla.cloud", 
+        "your-node-url-3.clusters.scylla.cloud",
+    ],
+    auth_provider=PlainTextAuthProvider(username='scylla', password='your-awesome-password')
+)
+
+session = cluster.connect('media_player')
+
+
+session.execute("""
+    UPDATE songs SET 
+        title = %(title)s, 
+        album = %(album)s,
+        artist = %(artist)s
+    WHERE id = %(id)s AND created_at = %(createdAt)s
+""", songToUpdate)
 ```
+
 After the data gets inserted, query all columns and filter by the ID:
+
 ```
 scylla@cqlsh:media_player> select * from songs where id = d754f8d5-e037-4898-af75-44587b9cc424;
 
@@ -270,7 +289,7 @@ It only updated the field `title` and `updated_at` (the Clustering Key) and sinc
 
 ### 3.5 Deleting Data
 
-Last things last! Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
+Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
 
 ```sql 
 // Deletes a single row
@@ -283,39 +302,45 @@ DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
 On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM <table>" it will delete ALL the rows that you stored with that ID. 
 
-```js
-const deleteColumnFromSong = async (song) => {
-    const cluster = new cassandra.Client({
-        contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
-        localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
-        keyspace: 'media_player'
-    })
+```py
+from cassandra.cluster import Cluster
+from datetime import datetime 
+from cassandra.auth import PlainTextAuthProvider
+import uuid
 
-    await cluster.execute(`DELETE artist FROM songs WHERE id = ${song.id} AND updated_at = '${song.updatedAt}'`)
-    await cluster.shutdown()
+songToDelete = {
+    "id": uuid.UUID('d754f8d5-e037-4898-af75-44587b9cc424'),
+    "title": 'Glimpse of Us',
+    "album": '2022 Em Uma Música',
+    "artist": 'Lucas Inutilismo',
+    "createdAt": datetime.now()
 }
 
-const deleteSong = async (song) => {
-    const cluster = new cassandra.Client({
-        contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
-        localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
-        keyspace: 'media_player'
-    })
+cluster = Cluster(
+    contact_points=[
+        "your-node-url-1.clusters.scylla.cloud",
+        "your-node-url-2.clusters.scylla.cloud", 
+        "your-node-url-3.clusters.scylla.cloud",
+    ],
+    auth_provider=PlainTextAuthProvider(username='scylla', password='your-awesome-password')
+)
 
-    await cluster.execute(`DELETE FROM songs WHERE id = ${song.id}`)
-    await cluster.shutdown()
-}
+session = cluster.connect('media_player')
+
+
+deleteQuery = session.prepare("DELETE FROM songs WHERE id = ? ")
+session.execute(deleteQuery, [songToDelete['id']])
+
 ```
 
 ## Conclusion
 
-Yay! You now have the knowledge to use the basics of ScyllaDB with NodeJS.
+Yay! You now have the knowledge to use the basics of ScyllaDB with Python.
 
 If you thinks that something can be improved, please open an issue and let's make it happen!
 
+There is a sample project that you can learn more about the concepts and also have a good time testing our ScyllaDB Cloud Cluster, check it out [here](../python/README.MD).
 
-Did you like the content? [Tweet about it](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fscylladb%2Fscylla-cloud-getting-started&via=scylladb%20%40danielhe4rtless&text=Just%20finished%20the%20ScyllaDB%20Hello%20World%20in%20NodeJs&hashtags=scylladb%20%23nodejs)!
+Did you like the content? [Tweet about it](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fscylladb%2Fscylla-cloud-getting-started&via=scylladb%20%40danielhe4rtless&text=Just%20finished%20the%20ScyllaDB%20Hello%20World%20in%20Python&hashtags=scylladb%20%23python)!
 
 
