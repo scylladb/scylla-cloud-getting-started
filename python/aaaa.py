@@ -20,6 +20,17 @@ cluster = Cluster(
 
 session = cluster.connect('media_player')
 
+songToUpdate = {
+    "id": uuid.UUID('d754f8d5-e037-4898-af75-44587b9cc424'),
+    "title": 'Glimpse of Us',
+    "album": '2022 Em Uma Música',
+    "artist": 'Lucas Inutilismo',
+    "createdAt": datetime.now()
+}
 
-deleteQuery = session.prepare("DELETE FROM songs WHERE id = ? ")
-session.execute(deleteQuery, [songToDelete['id']])
+session.execute("""
+    UPDATE songs SET 
+        title = %(title)s, 
+        album = %(album)s
+    WHERE id = %(id)s AND created_at = %(createdAt)s
+""", songToUpdate)
