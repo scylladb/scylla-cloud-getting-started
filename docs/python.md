@@ -2,11 +2,36 @@
 
 In this tutorial you'll build a Media Player to store your songs and build playlists.
 
-## 1. Getting the Driver
+- [Quick Start: Python](#quick-start-python)
+  - [1. Getting the Development Environment Ready](#1-getting-the-development-environment-ready)
+    - [1.1 Prerequisites:](#11-prerequisites)
+    - [2.2 Setup the environment](#22-setup-the-environment)
+  - [2. Connecting to the Cluster](#2-connecting-to-the-cluster)
+  - [3. Handling Queries](#3-handling-queries)
+    - [3.1 Creating a Keyspace](#31-creating-a-keyspace)
+    - [3.2 Creating a Table](#32-creating-a-table)
+    - [3.3 Inserting data](#33-inserting-data)
+    - [3.3 Reading data](#33-reading-data)
+    - [3.4 Updating Data](#34-updating-data)
+    - [3.5 Deleting Data](#35-deleting-data)
+  - [4. Conclusion](#4-conclusion)
 
-### Prerequisites:
+
+## 1. Getting the Development Environment Ready
+
+### 1.1 Prerequisites:
 * [Python 3.7+](https://www.python.org/downloads/)
 * [Virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
+
+
+### 2.2 Setup the environment
+
+Create a new folder for the sample project:
+
+```sh
+mkdir scylladb-cloud-python
+cd scylladb-cloud-python
+```
 
 Create a new virtual environment and activate it:
 ```bash
@@ -333,7 +358,7 @@ session.execute(deleteQuery, [songToDelete['id']])
 
 ```
 
-## Conclusion
+## 4. Conclusion
 
 Yay! You now have the knowledge to use the basics of ScyllaDB with Python.
 
