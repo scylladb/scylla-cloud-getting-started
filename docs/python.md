@@ -50,6 +50,8 @@ pip install scylla-driver
 Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
 
 ```python
+from cassandra.cluster import Cluster 
+from cassandra.auth import PlainTextAuthProvider
 cluster = Cluster(
     contact_points=[
         "your-node-url-1.clusters.scylla.cloud",
@@ -67,6 +69,8 @@ cluster = Cluster(
 With the Python driver, you can use the function inside your cluster connection called `execute(query)` and build the query you want to execute inside your database/keyspace. You also can use the `execute_async()` to asyncronous queries.
 
 ```python
+from cassandra.cluster import Cluster
+from cassandra.auth import PlainTextAuthProvider
 cluster = Cluster(
     contact_points=[
         "your-node-url-1.clusters.scylla.cloud",
