@@ -177,7 +177,7 @@ Now that you have created a keyspace and a table, you need to insert some songs 
 
 ```python
 from cassandra.cluster import Cluster
-import datetime
+from datetime import datetime
 from cassandra.auth import PlainTextAuthProvider
 import uuid
 
@@ -198,21 +198,21 @@ songList = [
         "title": 'Glimpse of Us',
         "album": 'Smithereens',
         "artist": 'Joji',
-        "createdAt": datetime.datetime.now(),
+        "createdAt": datetime.now(),
     },
     {
         "id": uuid.uuid4(),
         "title": 'Stairway to Heaven',
         "album": 'Led Zeppelin III',
         "artist": 'Led Zeppelin',
-        "createdAt": datetime.datetime.now(),
+        "createdAt": datetime.now(),
     },
     {
         "id": uuid.uuid4(),
         "title": 'Vegas',
         "album": 'From Movie ELVIS',
         "artist": 'Doja Cat',
-        "createdAt": datetime.datetime.now(),
+        "createdAt": datetime.now(),
     },
 ];
 
@@ -273,14 +273,6 @@ from datetime import datetime
 from cassandra.auth import PlainTextAuthProvider
 import uuid
 
-songToUpdate = {
-    "id": uuid.UUID('d754f8d5-e037-4898-af75-44587b9cc424'),
-    "title": 'Glimpse of Us',
-    "album": '2022 Em Uma Música',
-    "artist": 'Lucas Inutilismo',
-    "createdAt": datetime.now()
-}
-
 cluster = Cluster(
     contact_points=[
         "your-node-url-1.clusters.scylla.cloud",
@@ -292,6 +284,13 @@ cluster = Cluster(
 
 session = cluster.connect('media_player')
 
+songToUpdate = {
+    "id": uuid.UUID('d754f8d5-e037-4898-af75-44587b9cc424'),
+    "title": 'Glimpse of Us',
+    "album": '2022 Em Uma Música',
+    "artist": 'Lucas Inutilismo',
+    "createdAt": datetime.now()
+}
 
 session.execute("""
     UPDATE songs SET 
@@ -307,13 +306,16 @@ After the data gets inserted, query all columns and filter by the ID:
 ```
 scylla@cqlsh:media_player> select * from songs where id = d754f8d5-e037-4898-af75-44587b9cc424;
 
- id                                   | updated_at                      | album       | artist | created_at                      | title
---------------------------------------+---------------------------------+-------------+--------+---------------------------------+----------------------------
- d754f8d5-e037-4898-af75-44587b9cc424 | 2023-03-02 22:00:00.000000+0000 | Smithereens |   Joji | 2023-03-02 22:00:00.000000+0000 |              Glimpse of Us
- d754f8d5-e037-4898-af75-44587b9cc424 | 2023-03-02 23:10:00.000000+0000 |        null |   null |                            null | Glimpse of US - Inutilismo
+ id                                   | created_at                      | album              | artist           | title
+--------------------------------------+---------------------------------+--------------------+------------------+---------------
+ d754f8d5-e037-4898-af75-44587b9cc424 | 2023-07-11 14:22:43.329000+0000 |        Smithereens |             Joji | Glimpse of Us
+ d754f8d5-e037-4898-af75-44587b9cc424 | 2023-07-11 14:23:31.630000+0000 | 2022 Em Uma Música | Lucas Inutilismo | Glimpse of Us
+ d754f8d5-e037-4898-af75-44587b9cc424 | 2023-07-11 14:23:51.996000+0000 | 2022 Em Uma Música |             null | Glimpse of Us
+
+(3 rows)
 ```
 
-It only updated the field `title` and `updated_at` (the Clustering Key) and since we didn't input the rest of the data, it will not be replicated as expected.
+In the snippet above, we updated the data fully but as you can see in the `SELECT` query, I ran one more update but without the `artist` column. So, as said before: the only "not nullable" fields are the `Partition Keys` and `Clustering Keys`.
 
 
 ### 3.5 Deleting Data
@@ -329,7 +331,7 @@ DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
 If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
-On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM <table>" it will delete ALL the rows that you stored with that ID. 
+On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM keyspace.table_name" it will delete ALL the rows that you stored with that ID. 
 
 ```py
 from cassandra.cluster import Cluster
