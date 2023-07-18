@@ -10,6 +10,7 @@ You can find language-specific implementations in their corresponding folder:
 
 - [NodeJS](/docs/nodejs.md)
 - [Java](/docs/java.md)
+- [Python](/docs/python.md)
 - PHP (Not Implemented)
 - Ruby (Not Implemented)
 - Rust (Not implemented)
