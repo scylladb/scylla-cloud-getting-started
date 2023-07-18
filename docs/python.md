@@ -368,7 +368,7 @@ session.execute(deleteQuery, [songToDelete['id']])
 
 Yay! You now have the knowledge to use the basics of ScyllaDB with Python.
 
-If you thinks that something can be improved, please open an issue and let's make it happen!
+If you think something can be improved, please open an issue and let's make it happen!
 
 There is a sample project that you can learn more about the concepts and also have a good time testing our ScyllaDB Cloud Cluster, check it out [here](../python/README.MD).
 
