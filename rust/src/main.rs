@@ -1,24 +1,26 @@
 mod commands;
 mod database;
 mod songs;
+mod datetime;
 
 use database::Database;
-use std::io;
+use std::{io, sync::Arc};
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), anyhow::Error> {
     display_help();
-    let mut database = Database::new();
+    let mut database = Database::new().await;
 
     loop {
         let command = get_command();
 
-        match command.as_str().trim() {
-            "!add" => commands::add_song(&mut database),
-            "!list" => commands::list_songs(&database),
-            "!delete" => commands::delete_song(&mut database),
-            "!stress" => commands::stress(&mut database),
+        let _ = match command.as_str().trim() {
+            "!add" => commands::add_song(&mut database).await,
+            "!list" => commands::list_songs(&database).await,
+            "!delete" => commands::delete_song(&mut database).await,
+            "!stress" => commands::stress(Arc::new(Database::new().await)).await,
             "!q" => panic!("cya"),
-            _ => {}
+            _ => Ok(())
         };
     }
 }
