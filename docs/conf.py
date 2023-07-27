@@ -9,11 +9,11 @@ from sphinx_scylladb_theme.utils import multiversion_regex_builder
 
 # Build documentation for the following tags and branches
 TAGS = []
-BRANCHES = ["master"]
+BRANCHES = ["main"]
 # Set the latest version.
-LATEST_VERSION = "master"
+LATEST_VERSION = "main"
 # Set which versions are not released yet.
-UNSTABLE_VERSIONS = ["master"]
+UNSTABLE_VERSIONS = ["main"]
 # Set which versions are deprecated
 DEPRECATED_VERSIONS = []
 
@@ -63,12 +63,12 @@ html_theme = 'sphinx_scylladb_theme'
 #
 html_theme_options = {
     'conf_py_path': 'docs/',
-    'default_branch': 'master',
-    'github_issues_repository': 'scylladb/care-pet',
-    'github_repository': 'scylladb/care-pet',
+    'default_branch': 'main',
+    'github_issues_repository': 'scylladb/scylla-cloud-getting-started',
+    'github_repository': 'scylladb/scylla-cloud-getting-started',
     'hide_edit_this_page_button': 'false',
     'hide_feedback_buttons': 'false',
-    'site_description': 'ScyllaDB IoT Example Documentation',
+    'site_description': 'ScyllaDB Cloud Example Documentation',
     "versions_unstable": UNSTABLE_VERSIONS,
     "versions_deprecated": DEPRECATED_VERSIONS,
 }
