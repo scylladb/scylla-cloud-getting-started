@@ -36,7 +36,7 @@
   :class: large-4
   :anchor: Get Started
 
-  Create an IoT app from scratch and configure it to use ScyllaDB as the backend datastore.
+  Create a Sandbox Cluster configure it to use ScyllaDB as the backend datastore.
 
 .. topic-box::
   :title: Design and Data Model
@@ -55,21 +55,6 @@
   :anchor: Read the article
 
   The Care-Pet Example blog walks you through the example and adds additional information. 
-
-.. topic-box::
-  :title: Terraform integration
-  :icon: scylla-icon scylla-icon--cloud
-  :link: deploy-in-cloud
-  :class: large-12
-  :anchor: Deploy in the cloud
-
-  Spin up a new ScyllaDB Cloud cluster with Terraform and get started with this example in a cloud environment.
-
-.. topic-box::
-  :title: Build with Go
-  :image: /_static/img/programming_languages/go-lang.png
-  :link: build-with-go
-  :class: large-4
 
 .. topic-box::
   :title: Build with Java
@@ -93,12 +78,6 @@
   :title: Build with Python
   :image: /_static/img/programming_languages/python.png
   :link: build-with-python
-  :class: large-4
-
-.. topic-box::
-  :title: Build with PHP
-  :image: /_static/img/programming_languages/php.png
-  :link: build-with-php
   :class: large-4
 
 .. raw:: html
