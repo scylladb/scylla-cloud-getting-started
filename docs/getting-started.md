@@ -45,48 +45,6 @@ remain available and continue to provide service. You can learn more about
 Scylla high availability in [this lesson](https://university.scylladb.com/courses/scylla-essentials-overview/lessons/high-availability/). 
 
 
-### Deploying the Application in ScyllaDB Cloud
-
-Using the ScyllaDB Cloud [Terraform provider](https://registry.terraform.io/providers/scylladb/scylladbcloud/latest/docs), you can easily spin up new ScyllaDB Cloud clusters. Complete this tutorial quicker by creating a new `t3.micro` cluster (the smallest instance) in ScyllaDB Cloud. Go to [Deploy in ScyllaDB Cloud with Terraform](/deploy-in-cloud.md) for instructions.
-
-### Deploying the Application Locally
-
-1. Check out the care-pet repository from GitHub and go to the directory of
-   the language you want to use (Go, Java, etc.):
-    
-    ```
-    git clone git@github.com:scylladb/care-pet.git
-    cd go
-    ```
-
-1. Create a local ScyllaDB cluster consisting of three nodes:
-
-    ```
-    docker-compose up -d
-    ```
-
-   Docker-compose will spin up a ScyllaDB cluster consisting of three nodes:
-   carepet-scylla1, carepet-scylla2 and carepet-scylla3. The process will
-   take about two minutes.
-
-1. Check the status of the cluster:
-
-    ```
-    docker exec -it carepet-scylla1 nodetool status
-    ```
-
-1. Continue by following the instructions for the programming language you're using. See [Build the Application with Your Programming Language](#build-the-application-with-your-programming-language).
-
-### Build the Application with Your Programming Language
-
-- [Build with Go](/build-with-go.md)
-- [Build with Java](/build-with-java.md)
-- [Build with JavaScript](/build-with-javascript.md)
-- [Build with PHP](/build-with-php.md)
-- [Build with Rust](/build-with-rust.md)
-- [Build with Python](/build-with-python.md)
-
-
 ### Additional Resources
 
 -   [Scylla Essentials](https://university.scylladb.com/courses/scylla-essentials-overview/) course on Scylla University. It provides an introduction to Scylla and explains the basics.

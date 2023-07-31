@@ -190,7 +190,7 @@ const listSongs = async () => {
 
 The result looks like this:
 
-```log
+```
 $ node index.js 
 
 Row {
