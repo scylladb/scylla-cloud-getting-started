@@ -8,9 +8,6 @@ This project is designed to help you build a "Media Player App" that can handle 
 
 You can find language-specific implementations in their corresponding folder:
 
-- [NodeJS](/docs/nodejs.md)
-- [Java](/docs/java.md)
-- [Python](/docs/python.md)
-- PHP (Not Implemented)
-- Ruby (Not Implemented)
-- Rust (Not implemented)
+- [NodeJS](/docs/build-with-javascript.md)
+- [Java](/docs/build-with-java.md)
+- [Python](/docs/build-with-python.md)
