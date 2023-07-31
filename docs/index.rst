@@ -61,12 +61,6 @@
   :image: /_static/img/programming_languages/java.png
   :link: build-with-java
   :class: large-4
-
-.. topic-box::
-  :title: Build with Rust
-  :image: /_static/img/programming_languages/rust.png
-  :link: build-with-rust
-  :class: large-4
   
 .. topic-box::
   :title: Build with JavaScript
@@ -89,15 +83,10 @@
    :hidden:
 
    Getting Started with CarePet: A sample IoT App <getting-started>
-   Deploy in cloud <deploy-in-cloud>
-   Design and Data Model <design-and-data-model>
-   Build with Go <build-with-go>
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
    Build with Python <build-with-python>
-   Build with PHP <build-with-php>
-   Build with Rust <build-with-rust>
-   Care-Pet GitHub Repository <https://github.com/scylladb/care-pet>
+   Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
    Care-Pet Blog <https://www.scylladb.com/2020/09/09/carepet-an-example-iot-use-case-for-hands-on-app-developers/>
 
 
