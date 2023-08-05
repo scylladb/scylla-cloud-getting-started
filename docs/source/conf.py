@@ -62,7 +62,7 @@ html_theme = 'sphinx_scylladb_theme'
 # documentation.
 #
 html_theme_options = {
-    'conf_py_path': 'docs/',
+    'conf_py_path': 'docs/source',
     'default_branch': 'main',
     'github_issues_repository': 'scylladb/scylla-cloud-getting-started',
     'github_repository': 'scylladb/scylla-cloud-getting-started',

@@ -5,7 +5,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = $(POETRY) run sphinx-build
 PAPER         =
 BUILDDIR      = _build
-SOURCEDIR     = .
+SOURCEDIR     = ./source/
 
 # Internal variables
 PAPEROPT_a4     = -D latex_paper_size=a4

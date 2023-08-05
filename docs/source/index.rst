@@ -10,7 +10,7 @@
 
 .. hero-box::
   :title: Learn ScyllaDB using the our Cloud Database.
-  :image: /_static/img/mascots/scylla-care-pet-mascot.svg
+  :image: /_static/img/mascots/scylla-cloud.svg
   :button_icon: fa fa-github
   :button_url: https://github.com/scylladb/scylla-cloud-getting-started
   :button_text: Getting Started Project
