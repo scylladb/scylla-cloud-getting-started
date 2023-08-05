@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,17 +19,54 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.7
+
       - name: Set up env
         run: make -C docs setupenv
+
       - name: Build docs
         run: make -C docs multiversion
+
       - name: Build redirects
         run: make -C docs redirects
-      - name: Deploy docs to GitHub Pages
-        run: ./docs/_utils/deploy.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tar folder
+        run: |
+          tar \
+            --dereference --hard-dereference \
+            --directory docs/_build/dirhtml/ \
+            -cvf ${{ runner.temp }}/artifact.tar \
+            .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: "1"
+
+  release:
+    # Add a dependency to the build job
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+      contents: read # to read private repo
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
