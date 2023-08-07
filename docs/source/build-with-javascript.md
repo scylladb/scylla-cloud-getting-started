@@ -1,5 +1,5 @@
-# Quick Start: JavaScript w/ NodeJs
-
+Quick Start: JavaScript w/ NodeJs
+------------------------
 In this tutorial you'll build a Media Player to store your songs and build playlists.
 
 ## 1. Getting the Driver
@@ -190,7 +190,7 @@ const listSongs = async () => {
 
 The result looks like this:
 
-```log
+```
 $ node index.js 
 
 Row {
