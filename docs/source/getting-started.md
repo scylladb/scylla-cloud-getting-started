@@ -1,5 +1,5 @@
-Getting Started with ScyllaDB Cloud: A sample IoT App
-----------------------------------------------
+# Getting Started with ScyllaDB Cloud: A sample IoT App
+
 
 ### Introduction
 
