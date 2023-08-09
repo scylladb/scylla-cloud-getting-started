@@ -12,8 +12,7 @@ pub struct DateTime(chrono::DateTime<Utc>);
 
 impl FromCqlVal<CqlValue> for DateTime {
     fn from_cql(cql_val: CqlValue) -> Result<Self, FromCqlValError> {
-        let fuckit = chrono::DateTime::<Utc>::from_cql(cql_val)?;
-        Ok(Self(fuckit))
+        Ok(Self(chrono::DateTime::<Utc>::from_cql(cql_val)?))
     }
 }
 

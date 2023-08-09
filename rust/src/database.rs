@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use scylla::{IntoTypedRows, Session, SessionBuilder};
 
-use crate::songs::Song;
+use crate::{songs::Song, ConnectionDetails};
 
 pub struct Database {
     pub songs: Vec<Song>,
@@ -10,18 +10,16 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn new() -> Database {
+    pub async fn new(config: &ConnectionDetails) -> Database {
+
+        let nodes = config.nodes.iter().filter(|i| !i.is_empty()).collect::<Vec<_>>();
         let session: Session = SessionBuilder::new()
-            .known_nodes(&[
-                "node-0.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
-                "node-1.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
-                "node-2.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
-            ])
+            .known_nodes(nodes)
             .connection_timeout(Duration::from_secs(5))
-            .user("scylla", "r4GnOL2QSDi1wqF")
+            .user(config.username.to_string(), config.password.to_string())
             .build()
             .await
-            .expect("eae deu ruim");
+            .expect("Connection Refused. Check your credentials and your IP linked on the ScyllaDB Cloud.");
 
         return Self {
             songs: vec![],
@@ -35,7 +33,6 @@ impl Database {
         let result = self.session.query(query, &[]).await?.rows.map(|row| {
             row.into_typed::<Song>()
                 .filter(|v| {
-                    dbg!(v);
                     v.is_ok()
                 })
                 .map(|v| v.unwrap())
