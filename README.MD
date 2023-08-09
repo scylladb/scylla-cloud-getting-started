@@ -11,3 +11,4 @@ You can find language-specific implementations in their corresponding folder:
 - [NodeJS](/docs/build-with-javascript.md)
 - [Java](/docs/build-with-java.md)
 - [Python](/docs/build-with-python.md)
+- [Rust](/docs/build-with-rust.md)
