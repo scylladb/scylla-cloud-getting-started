@@ -1,0 +1,28 @@
+[package]
+name = "media_player"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.72"
+chrono = "0.4.26"
+clap = { version = "4.3.21", features = ["derive"] }
+futures = "0.3.28"
+rand = "0.8.5"
+scylla = "0.8.2"
+serde = { version = "1.0.174", features = ["derive", "serde_derive"] }
+
+
+[dependencies.tokio]
+version = "1"
+features = [
+    "full"
+]
+
+[dependencies.uuid]
+version = "1.4.1"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]
