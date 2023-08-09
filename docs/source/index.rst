@@ -93,7 +93,7 @@
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
    Build with Python <build-with-python>
-   Build with Python <build-with-rust>
+   Build with Rust <build-with-rust>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
 
