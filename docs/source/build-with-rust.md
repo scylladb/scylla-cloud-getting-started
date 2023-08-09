@@ -377,7 +377,7 @@ async fn main() -> Result<()> {
 
 The result will look like this:
 
-```log
+```
 Song: Vegas - Album: From Movie ELVIS - Created At: P19578DT6810S
 Song: Glimpse of Us - Album: Smithereens - Created At: P19578DT6810S
 Song: Stairway to Heaven - Album: Led Zeppelin IV - Created At: P19578DT6810S
