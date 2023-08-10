@@ -2,11 +2,12 @@ mod commands;
 mod database;
 mod datetime;
 mod songs;
+mod migrate;
 
 use clap::Parser;
-
 use database::Database;
 use std::{io, sync::Arc};
+use migrate::migrate_database;
 
 /// Simple program to greet a person
 #[derive(Parser, Default, Debug)]
@@ -28,14 +29,18 @@ pub struct ConnectionDetails {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = ConnectionDetails::parse();
+    let mut database = Database::new(&args).await;
 
     println!("------------------------------------");
     println!("- ScyllaDB Cloud Rust Media Player -");
     println!("------------------------------------");
     println!("-    Leave a star on the repo      -");
-
+    println!("-     https://bit.ly/scy-gh        -");
+    println!("------------------------------------");
+    migrate_database(&database).await?;
+    println!("-----------------------------------");
+    
     display_help();
-    let mut database = Database::new(&args).await;
 
     loop {
         let command = get_command();
