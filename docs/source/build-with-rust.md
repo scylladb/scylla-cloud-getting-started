@@ -57,9 +57,13 @@ use std::time::Duration;
 async fn main() -> Result<()> {
 
     let session: Session = SessionBuilder::new()
-        .known_nodes(&["node-0.aws_sa_east_1.432bce89e0ba3222d3b2.clusters.scylla.cloud:9042"])
+        .known_nodes(&[
+            "node-0.aws-sa-east-1.xxx.clusters.scylla.cloud",
+            "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud",
+            "node-2.aws-sa-east-1.xxx.clusters.scylla.cloud",
+        ])
         .connection_timeout(Duration::from_secs(30))
-        .user("scylla", "KFq36WtcOZa8rXG")
+        .user("scylla", "your-awesome-password")
         .build()
         .await
         .unwrap();
@@ -86,9 +90,13 @@ use std::time::Duration;
 async fn main() -> Result<()> {
 
     let session: Session = SessionBuilder::new()
-        .known_nodes(&["node-0.aws_sa_east_1.432bce89e0ba3222d3b2.clusters.scylla.cloud:9042"])
+        .known_nodes(&[
+            "node-0.aws-sa-east-1.xxx.clusters.scylla.cloud",
+            "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud",
+            "node-2.aws-sa-east-1.xxx.clusters.scylla.cloud",
+        ])
         .connection_timeout(Duration::from_secs(30))
-        .user("scylla", "KFq36WtcOZa8rXG")
+        .user("scylla", "your-awesome-password")
         .build()
         .await
         .expect("connection refused");
@@ -211,7 +219,11 @@ static TABLE: &str = "playlist";
 #[tokio::main]
 async fn main() -> Result<()> {
     let session: Session = SessionBuilder::new()
-        .known_nodes(&["node-0.aws_sa_east_1.432bce89e0ba3222d3b2.clusters.scylla.cloud:9042"])
+        .known_nodes(&[
+            "node-0.aws-sa-east-1.xxx.clusters.scylla.cloud",
+            "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud",
+            "node-2.aws-sa-east-1.xxx.clusters.scylla.cloud",
+        ])
         .connection_timeout(Duration::from_secs(30))
         .user("scylla", "****")
         .build()
@@ -347,7 +359,7 @@ async fn main() -> Result<()> {
             "your-node-3.aws-sa-east-1.3.clusters.scylla.cloud",
         ])
         .connection_timeout(ConnectionDuration::from_secs(5))
-        .user("scylla", "r4GnOL2QSDi1wqF")
+        .user("scylla", "your-awesome-password")
         .build()
         .await
         .unwrap();
@@ -506,7 +518,7 @@ async fn main() -> Result<()> {
             "node-2.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
         ])
         .connection_timeout(ConnectionDuration::from_secs(5))
-        .user("scylla", "r4GnOL2QSDi1wqF")
+        .user("scylla", "your-awesome-password")
         .build()
         .await
         .unwrap();

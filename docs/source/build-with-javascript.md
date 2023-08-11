@@ -20,7 +20,7 @@ Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud
 const cluster = new cassandra.Client({
     contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
     localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-    credentials: {username: 'scylla', password: '********'},
+    credentials: {username: 'scylla', password: 'your-awesome-password'},
     // keyspace: 'your_keyspace' // optional
 })
 ```
@@ -35,7 +35,7 @@ With the NodeJS driver, you can use the function inside your cluster connection 
 const cluster = new cassandra.Client({
     contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
     localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-    credentials: {username: 'scylla', password: '********'}
+    credentials: {username: 'scylla', password: 'your-awesome-password'}
 })
 
 const results = await cluster.execute('SELECT * FROM system.clients LIMIT 10')
@@ -55,7 +55,7 @@ async function runKeyspace () {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
     })
 
     const newKeyspace = (keyspaceName, rf) => `
@@ -84,7 +84,7 @@ async function runKeyspace (keyspace = null) {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
         keyspace: keyspace ?? 'media_player'
     })
 
@@ -117,7 +117,7 @@ async function insertSongs () {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
         keyspace: keyspace ?? 'media_player'
     })
 
@@ -173,7 +173,7 @@ const listSongs = async () => {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
         keyspace: keyspace ?? 'media_player'
     })
 
@@ -231,7 +231,7 @@ const updateSong = async (songToUpdate) => {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
         keyspace: 'media_player'
     })
 
@@ -280,7 +280,7 @@ const deleteColumnFromSong = async (song) => {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
         keyspace: 'media_player'
     })
 
@@ -292,7 +292,7 @@ const deleteSong = async (song) => {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
-        credentials: {username: 'scylla', password: '********'},
+        credentials: {username: 'scylla', password: 'your-awesome-password'},
         keyspace: 'media_player'
     })
 

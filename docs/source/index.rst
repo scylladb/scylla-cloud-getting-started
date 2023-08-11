@@ -48,13 +48,13 @@
   Learn more about the queries used in the example, make the primary key and clustering key selection, and create the database schema.
 
 .. topic-box::
-  :title: Care-Pet Blog
+  :title: Next Project: Care-Pet
   :icon: scylla-icon scylla-icon--blog
-  :link: https://www.scylladb.com/2020/09/09/carepet-an-example-iot-use-case-for-hands-on-app-developers/
+  :link: https://iot.scylladb.com/stable
   :class: large-4,small-12
-  :anchor: Read the article
+  :anchor: Go to the Project
 
-  The Care-Pet Example blog walks you through the example and adds additional information. 
+  The Care-Pet Example walks you through the data collection using a IoT collar. 
 
 .. topic-box::
   :title: Build with Java

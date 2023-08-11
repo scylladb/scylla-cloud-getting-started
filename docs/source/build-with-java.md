@@ -41,7 +41,7 @@ class Main {
     Cluster cluster = Cluster.builder()  
         .addContactPoints("your-node-url.scylla.cloud", "your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud")  
         .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-        .withAuthProvider(new PlainTextAuthProvider("scylla", "7H8VbxJTuG2flYK"))  
+        .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
         .build();  
     
     Session session = cluster.connect();  
@@ -67,9 +67,13 @@ class Main {
   
     public static void main(String[] args) {  
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
         
         Session session = cluster.connect();  
@@ -100,9 +104,13 @@ class Main {
   
     public static void main(String[] args) { 
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
             
             Session session = cluster.connect();  
@@ -139,9 +147,13 @@ class Main {
   
     public static void main(String[] args) { 
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
             
             Session session = cluster.connect();  
@@ -180,9 +192,13 @@ class Main {
   
     public static void main(String[] args) { 
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
             
             Session session = cluster.connect();  
@@ -224,9 +240,13 @@ class Main {
   
     public static void main(String[] args) { 
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
             
             Session session = cluster.connect();  
@@ -273,9 +293,13 @@ class Main {
   
     public static void main(String[] args) { 
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
             
             Session session = cluster.connect();  
@@ -337,9 +361,13 @@ class Main {
   
     public static void main(String[] args) { 
         Cluster cluster = Cluster.builder()  
-            .addContactPoints("your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud")  
+            .addContactPoints(
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud", 
+                "your-node-url.7207ca5a8fdc45f2b03f.clusters.scylla.cloud"
+            )  
             .withLoadBalancingPolicy(DCAwareRoundRobinPolicy.builder().withLocalDc("AWS_US_EAST_1").build()) // your local data center  
-            .withAuthProvider(new PlainTextAuthProvider("scylla", "*******"))  
+            .withAuthProvider(new PlainTextAuthProvider("scylla", "your-awesome-password"))  
             .build();  
             
             Session session = cluster.connect();  
