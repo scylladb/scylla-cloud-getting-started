@@ -357,6 +357,4 @@ If you think something can be improved, please open an issue and let's make it h
 
 There is a sample project that you can learn more about the concepts and also have a good time testing our ScyllaDB Cloud Cluster, check it out [here](https://github.com/scylladb/scylla-cloud-getting-started/python).
 
-Did you like the content? [Tweet about it](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fscylladb%2Fscylla-cloud-getting-started&via=scylladb%20%40danielhe4rtless&text=Just%20finished%20the%20ScyllaDB%20Hello%20World%20in%20Python&hashtags=scylladb%20%23python)!
-
-
+Did you like the content? Dont forget to star the repo and follow us on socials.

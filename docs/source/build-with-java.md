@@ -393,4 +393,4 @@ There is a simple project with this structure that you can check out [here](http
 If you think that something can be improved, please open an issue, and let's make it happen!
 
 
-Did you like the content? [Tweet about it](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fscylladb%2Fscylla-cloud-getting-started&via=scylladb%20%40danielhe4rtless&text=Just%20finished%20the%20ScyllaDB%20Hello%20World%20in%20Java&hashtags=scylladb%20%23java)!
+Did you like the content? Dont forget to star the repo and follow us on socials.
