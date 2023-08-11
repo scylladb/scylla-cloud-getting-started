@@ -75,8 +75,45 @@ pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-pub async fn delete_song(database: &mut Database) -> Result<(), anyhow::Error> {
-    list_songs(&database).await?;
+pub async fn delete_song(database: &Database) -> Result<(), anyhow::Error> {
+    let song_list = database
+        .list()
+        .await?
+        .ok_or_else(|| Vec::<Song>::new())
+        .unwrap()
+        .into_iter()
+        .enumerate()
+        .collect::<Vec<(usize, Song)>>();
+
+    let index_to_delete = get_song_index_to_delete(&song_list).await?;
+
+    println!("{:?}", index_to_delete);
+
+    let song_to_delete = song_list
+        .into_iter()
+        .find(|row| row.0 == index_to_delete)
+        .unwrap();
+
+    println!(
+        "Song '{}' from artist '{}' Deleted!",
+        song_to_delete.1.title, song_to_delete.1.artist
+    );
+
+    database.remove(song_to_delete.1).await?;
+
+    Ok(())
+}
+
+async fn get_song_index_to_delete(song_list: &Vec<(usize, Song)>) -> Result<usize, anyhow::Error> {
+    song_list.into_iter().for_each(|(index, song)| {
+        println!(
+            "Index: {}  | Song: {} | Album: {} | Created At: {}",
+            index,
+            song.title,
+            song.album,
+            song.created_at.as_ref().to_string()
+        )
+    });
     println!("Select a index to be deleting:");
     let mut lines = BufReader::new(tokio::io::stdin()).lines();
     let option = lines
@@ -86,9 +123,7 @@ pub async fn delete_song(database: &mut Database) -> Result<(), anyhow::Error> {
         .unwrap()
         .parse::<usize>()?;
 
-    database.remove(option);
-
-    Ok(())
+    Ok(option)
 }
 
 pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
@@ -99,7 +134,7 @@ pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
     let start = std::time::Instant::now();
     let mut set = JoinSet::new();
 
-    (1..100000).into_iter().for_each(|_| {
+    (0..100000).into_iter().for_each(|_| {
         let db = Arc::clone(&database);
 
         set.spawn(async move {

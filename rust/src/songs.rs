@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::datetime::DateTime;
 
-#[derive(Debug, FromRow, ValueList)]
+#[derive(Debug, FromRow, ValueList, Clone)]
 pub struct Song {
     pub id: Uuid,
     pub title: String,

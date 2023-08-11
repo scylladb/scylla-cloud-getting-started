@@ -48,27 +48,20 @@ CREATE KEYSPACE prod_media_player
     WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
     AND durable_writes = true;
 
-CREATE TABLE songs (
+CREATE TABLE prod_media_player.songs (
     id uuid,
     title text,
     album text,
     artist text,
-    release_year int,
     created_at timestamp,
     PRIMARY KEY (id, created_at)
-)
+);
 
-CREATE TABLE recently_played_songs (
+CREATE TABLE prod_media_player.song_counter (
     song_id uuid,
-    listened_at timestamp,
-    PRIMARY KEY (song_id, created_at)
-)
-
-CREATE TABLE played_songs_counter (
-    song_id uuid,
-    times_played count,
+    times_played counter,
     PRIMARY KEY (song_id)
-)
+);
 
 SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = ?
 SELECT keyspace_name,table_name FROM system_schema.tables WHERE keyspace_name = ? AND table_name = ?
