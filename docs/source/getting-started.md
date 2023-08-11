@@ -1,7 +1,7 @@
 # Getting Started with ScyllaDB Cloud: A sample IoT App
 
 
-### Introduction
+## Introduction
 
 This guide will show you how to create a Cluster into ScyllaDB Cloud, create an Media Player app from scratch and configure it
 to use Scylla as the backend datastore. It'll walk you through all the stages
@@ -14,13 +14,13 @@ that you want to listen and count how many times you listened to. The applicatio
 -   Access to an REPL with commands to store/list/delete songs;
 -   Run a simple stresser into ScyllaDB Cloud.
 
-### Requirements
+## Requirements
 
-#### Prerequisites for Deploying the Application
+### Prerequisites for Deploying the Application
 
 The example application uses ScyllaDB Cloud to run a three-node ScyllaDB cluster. You can claim your free Scylla Cloud account [here](https://scylladb.com/cloud).
 
-#### Use Case Requirements
+### Use Case Requirements
 
 Each pet collar has sensors that report four different measurements:
 temperature, pulse, location, and respiration.
@@ -28,7 +28,7 @@ temperature, pulse, location, and respiration.
 The collar reads the measurements from the sensors once per second
 and sends the data directly to the app.
 
-#### Performance Requirements
+### Performance Requirements
 
 The application has two performance-related parts: sensors that write to
 the database (throughput sensitive) and a backend dashboard that reads from

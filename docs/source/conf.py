@@ -27,13 +27,15 @@ extensions = [
     "sphinx_scylladb_theme",
     "sphinx_multiversion",
     "sphinx_sitemap",
-    "recommonmark",
-    "sphinx_markdown_tables"
+    "myst_parser"
 ]
 
 
 # The suffix(es) of source filenames.
 source_suffix = [".rst", ".md"]
+
+# Markdown configuration
+myst_heading_anchors = 3
 
 # The master toctree document.
 master_doc = "index"

@@ -5,6 +5,7 @@ In this tutorial you'll build a Media Player to store your songs and build playl
 ## 1. Getting the Driver
 
 Install the [JavaScript Cassandra driver](https://github.com/datastax/nodejs-driver/) that also works with ScyllaDB.
+
 ```sh
 $ npm install cassandra-driver
 
@@ -209,6 +210,7 @@ Row {
 ### 3.4 Updating Data
 
 Ok, almost there! Now we're going to learn about `UPDATE` but here's a disclaimer: 
+
 > INSERT and UPDATES are not the same!
 
 There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
@@ -243,7 +245,9 @@ const updateSong = async (songToUpdate) => {
     await cluster.shutdown()
 }
 ```
+
 After the data gets inserted, query all columns and filter by the ID:
+
 ```
 scylla@cqlsh:media_player> select * from songs where id = d754f8d5-e037-4898-af75-44587b9cc424;
 
@@ -269,7 +273,7 @@ DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
 If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
-On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM <table>" it will delete ALL the rows that you stored with that ID. 
+On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement `DELETE FROM <table>` it will delete ALL the rows that you stored with that ID. 
 
 ```js
 const deleteColumnFromSong = async (song) => {
