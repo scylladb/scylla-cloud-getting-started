@@ -29,3 +29,40 @@ You can find language-specific implementations in their corresponding folder:
 - [Java](/docs/source/build-with-java.md)
 - [Python](/docs/source/build-with-python.md)
 - [Rust](/docs/source/build-with-rust.md)
+
+
+## Sample Projects
+
+We also built the full project with some extra features to you use as study guide.
+
+- [Rust Project](/rust)
+- [Python Project](/python)
+
+
+## Contributing
+
+### Adding a Sample
+
+If you want to add a project following the criteria in a new language, you're welcome to contribute! We're always looking for new contributors to all projects related to ScyllaDB Education center. 
+
+Open an [issue](https://github.com/scylladb/scylla-cloud-getting-started/issues/new) with the following information:
+
+- Language that you want to build something
+- Link to the Driver
+
+and let's make it happen together!
+
+### Reporting bugs
+
+It is inevitable that code will have bugs. There are a few things you can do to
+help the maintainer to fix the bug that you've discovered quicker:
+
+* Include the version of the Driver;
+* Include the Driver dependency versions that might be an error;
+* Include a complete stack trace of the failure as well as any available logs;
+* Include any additional information you think is relevant;
+
+### Pull requests
+
+If you're able to fix a bug yourself, you can [fork the repository](https://help.github.com/articles/fork-a-repo/) and [submit a pull request](https://help.github.com/articles/using-pull-requests/) with the fix.
+
