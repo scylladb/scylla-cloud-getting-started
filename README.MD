@@ -33,7 +33,7 @@ You can find language-specific implementations in their corresponding folder:
 
 ## Sample Projects
 
-We also built the full project with some extra features to you use as study guide.
+We also built the full project with some extra features for you use as study guide.
 
 - [Rust Project](/rust)
 - [Python Project](/python)
@@ -47,7 +47,7 @@ If you want to add a project following the criteria in a new language, you're we
 
 Open an [issue](https://github.com/scylladb/scylla-cloud-getting-started/issues/new) with the following information:
 
-- Language that you want to build something
+- Programming language
 - Link to the Driver
 
 and let's make it happen together!
