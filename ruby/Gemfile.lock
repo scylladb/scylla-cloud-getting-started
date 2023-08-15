@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    cassandra-driver (3.2.5)
+      ione (~> 1.2)
+    ione (1.2.5)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  cassandra-driver (~> 3.2)
+
+BUNDLED WITH
+   2.4.18
