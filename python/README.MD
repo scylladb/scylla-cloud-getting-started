@@ -1,6 +1,6 @@
 # ScyllaDB Cloud Media Player Metrics
 
-Project to store songs that you like to listen daily and keep track of them in a shape of a CLI!
+Project to store songs that you like to listen daily and keep track of them using the command line.
 
 ## Prerequisites
 
@@ -9,35 +9,33 @@ Project to store songs that you like to listen daily and keep track of them in a
 
 ## Running the project
 
-Clone the repository into your machine:
+Clone the repository:
 
 ```sh 
 git clone https://github.com/scylladb/scylla-cloud-getting-started.git
 cd scylla-cloud-getting-started
 ```
 
-Start the virtual environment for the project:
+Start a new virtual environment for the project:
 
 ```sh
 virtualenv env
 source env/bin/activate
 ```
 
-Install the driver dependency: 
+Install the driver: 
 
 ```sh
 pip install scylla-driver
 ```
 
-Go to the `environment.py` and setup your ScyllaDB Cloud Cluster credentials and run:
+Go to `environment.py` and set up your ScyllaDB Cloud Cluster credentials and run:
 
 ```sh
 python cli.py
 ```
 
 ## Available Commands
-
-Check which commands are currently available on this sample:
 
 | Command  | Description |
 |---|---|
@@ -48,7 +46,7 @@ Check which commands are currently available on this sample:
 
 ## CQL Queries
 
-All the CQL queries used on the project
+All the CQL queries used in the project:
 
 ```sql
 CREATE KEYSPACE prod_media_player

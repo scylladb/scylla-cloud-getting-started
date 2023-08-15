@@ -1,6 +1,6 @@
-# Quick Start: Java with ScyllaDB
+# Quick start: Java
 
-In this tutorial, you'll build a Media Player to store your songs and build playlists.
+In this tutorial you'll build a Media Player to store your songs and build playlists.
 
 ## 1. Getting the Driver
 
@@ -25,9 +25,11 @@ Install the [Java ScyllaDB Driver](https://java-driver.docs.scylladb.com/scylla-
 </dependency>
 ```
 
-## 2. Connecting to the Cluster
+## 2. Connecting to the cluster
 
 Get your database credentials from your [ScyllaDB Cloud Cluster View](https://cloud.scylladb.com/clusters) in the tab `Connect`.
+
+> Add your machine's IP Address to the list of allowed IP addresses in ScyllaDB Cloud. Otherwise, your connection will get refused.
 
 ```java
 import com.datastax.driver.core.Cluster;  
@@ -49,8 +51,6 @@ class Main {
     }  
 }
 ```
-
-> If the connection gets refused, check if your IP Address is added to the list of allowed IP addresses.
 
 ## 3. Handling Queries
 
@@ -85,9 +85,9 @@ class Main {
 ```
 
 
-### 3.1 Creating a Keyspace
+### 3.1 Create a keyspace
 
-A Keyspace in ScyllaDB is a collection of tables with attributes which define how data is replicated on nodes. 
+A keyspace in ScyllaDB is a collection of tables with attributes which define how data is replicated on nodes. 
 
 You don't need a keyspace on your connection boot, but you'll need it to create a table.
 
@@ -129,7 +129,7 @@ class Main {
 
 After that you probably will need to re-create your connection poiting which `keyspace` you want to use.
 
-### 3.2 Creating a Table
+### 3.2 Create table
 
 A table stores part or all of your app data (depending on how you structure your database schema). 
 Add the `keyspace` as a parameter in the connection object and define a CQL string that creates a table to store your favorite songs.
@@ -173,9 +173,9 @@ class Main {
 }
 ```
 
-### 3.3 Inserting data
+### 3.3 Insert data
 
-Now that you have created a keyspace and a table, you need to insert some songs to populate the table. 
+Now that you have created a keyspace and a table, insert some songs to populate the table. 
 
 ```java
 import com.datastax.driver.core.Cluster;
@@ -220,7 +220,7 @@ class Main {
 }
 ```
 
-### 3.3 Reading data
+### 3.3 Read data
 
 Let's read the songs from the database and print them to the terminal.
 
@@ -271,11 +271,9 @@ class Main {
 ```
 
 
-### 3.4 Updating Data
+### 3.4 Update data
 
-The `UPDATE` query in the fact is equals to `INSERT` regarding the syntax. Uou just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
-
-The `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). See the snippet below: 
+The `UPDATE` query takes two fields in the `WHERE` clause (`partition Key` and `clustering key`). See the snippet below: 
 
 
 ```java
@@ -328,10 +326,9 @@ id | updated_at                      | album       | artist | created_at        
  1 | 2023-03-02 23:10:00.000000+0000 |        null |   null |                            null | Glimpse of US - Inutilismo
 ```
 
-It only updated the field `title` and `updated_at` (the Clustering Key), and since we didn't input the rest of the data, it will not be replicated as expected.
+It only updated the field `title` and `updated_at` (the clustering key), and since we didn't input the rest of the data, it will not be replicated as expected.
 
-
-### 3.5 Deleting Data
+### 3.5 Delete Data
 
 Last things last! Let's understand what we can DELETE with this statement. There's the regular `DELETE` statement that focuses on `ROWS` and the other one that deletes data only from `COLUMNS`. The syntax is very similar.
 
@@ -343,7 +340,7 @@ DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
-If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
+If you want to remove a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
 On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM table" it will delete ALL the rows that you stored with that ID. 
 
 ```java
@@ -386,11 +383,10 @@ class Main {
 
 ## Conclusion
 
-Yay! You now have the knowledge to use the basics of ScyllaDB with Java.
+Yay! You now know how get started with ScyllaDB in Java.
 
 There is a simple project with this structure that you can check out [here](https://github.com/DanielHe4rt/scylladb-java-getting-started).
 
-If you think that something can be improved, please open an issue, and let's make it happen!
+If you think something can be improved, please open an issue and let's make it happen!
 
-
-Did you like the content? Dont forget to star the repo and follow us on socials.
+Did you like the content? Don't forget to star the repo and follow us on socials.

@@ -1,6 +1,6 @@
-# Quick Start: Rust (Crablang)
+# Quick start: Rust (Crablang)
 
-In this tutorial we're gonna build a simple Media Player to store our songs and build playlists
+In this tutorial you'll build a simple Media Player to store our songs and build playlists
 
 ## 1. Setup the Enviroment
 
@@ -40,7 +40,7 @@ chrono = "0.4.24"
 ```
 
 * [Scylla](https://crates.io/crates/scylla): using the latest driver release
-* [Uuid](https://crates.io/crates/uuid): help us to create Uuids in our project
+* [Uuid](https://crates.io/crates/uuid): help us to create UUIDs in our project
 * [Tokio](https://crates.io/crates/tokio): Async calls in Rust.
 * [Anyhow](https://crates.io/crates/anyhow): Idiomatic Error Handling 
 * [Chrono](https://crates.io/crates/chrono): DateTime/Timestamp Handling
@@ -550,6 +550,6 @@ async fn main() -> Result<()> {
 
 Yay! You now have the knowledge to use the basics of ScyllaDB with Rust.
 
-If you thinks that something can be improved, please open an issue and let's make it happen!
+If you think that something can be improved, please open an issue and let's make it happen!
 
-Did you like the content? Dont forget to star the repo and follow us on socials.
+Did you like the content? Don't forget to star the repo and follow us on socials.

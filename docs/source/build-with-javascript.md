@@ -1,4 +1,4 @@
-# Quick Start: JavaScript w/ NodeJs
+# Quick start: JavaScript (Node.js)
 
 In this tutorial you'll build a Media Player to store your songs and build playlists.
 
@@ -12,9 +12,11 @@ $ npm install cassandra-driver
 $ yarn install cassandra-driver
 ```
 
-## 2. Connecting to the Cluster
+## 2. Connect to the cluster
 
 Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
+
+> Add your machine's IP Address to the list of allowed IP addresses in ScyllaDB Cloud. Otherwise, your connection will get refused.
 
 ```js
 const cluster = new cassandra.Client({
@@ -24,8 +26,6 @@ const cluster = new cassandra.Client({
     // keyspace: 'your_keyspace' // optional
 })
 ```
-
-> If the connection gets refused, check if your IP Address is added to the list of allowed IP addresses.
 
 ## 3. Handling Queries
 
@@ -43,8 +43,7 @@ console.log(results);
 results.rows.forEach(row => console.log(JSON.stringify(row)))
 ```
 
-
-### 3.1 Creating a Keyspace
+### 3.1 Create a keyspace
 
 The `keyspace` inside the ScyllaDB ecosystem can be interpreted as your `database` or `collection`.
 
@@ -303,9 +302,8 @@ const deleteSong = async (song) => {
 
 ## Conclusion
 
-Yay! You now have the knowledge to use the basics of ScyllaDB with NodeJS.
+Yay! You now know how get started with ScyllaDB in Node.js.
 
-If you thinks that something can be improved, please open an issue and let's make it happen!
+If you think something can be improved, please open an issue and let's make it happen!
 
-
-Did you like the content? Dont forget to star the repo and follow us on socials.
+Did you like the content? Don't forget to star the repo and follow us on socials.

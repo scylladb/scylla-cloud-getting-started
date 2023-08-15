@@ -1,18 +1,17 @@
-# Quick Start: Python
+# Quick start: Python
 
-In this tutorial you'll build a Media Player to store your songs and build playlists.
+In this tutorial you'll build a Media Player app to store your songs and create playlists.
 
-## 1. Getting the Development Environment Ready
+## 1. Get the development environment ready
 
 ### 1.1 Prerequisites:
 * [Python 3.7+](https://www.python.org/downloads/)
 * [Virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
 
 
-### 2.2 Setup the environment
+### 2.2 Set up the environment
 
-Create a new folder for the sample project:
-
+Create a new folder for the project:
 ```sh
 mkdir scylladb-cloud-python
 cd scylladb-cloud-python
@@ -30,9 +29,11 @@ Install the [Python ScyllaDB Driver](https://pypi.org/project/scylla-driver/).
 pip install scylla-driver
 ```
 
-## 2. Connecting to the Cluster
+## 2. Connect to the Cluster
 
 Get your database credentials from your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
+
+> Add your machine's IP Address to the list of allowed IP addresses in ScyllaDB Cloud. Otherwise, your connection will get refused.
 
 ```python
 from cassandra.cluster import Cluster 
@@ -47,11 +48,9 @@ cluster = Cluster(
 )
 ```
 
-> If the connection gets refused, check if your IP Address is added to the list of allowed IP addresses.
-
 ## 3. Handling Queries
 
-With the Python driver, you can use the function inside your cluster connection called `execute(query)` and build the query you want to execute inside your database/keyspace. You also can use the `execute_async()` to asyncronous queries.
+With the Python driver, you can use the function inside your cluster connection called `execute(query)` and build the query you want to execute inside your database/keyspace. You also can use the `execute_async()` for asynchronous queries.
 
 ```python
 from cassandra.cluster import Cluster
@@ -82,8 +81,7 @@ Row(address='123.123.123.123', port=46160, client_type='cql', connection_stage='
 123.123.123.123
 ```
 
-
-### 3.1 Creating a Keyspace
+### 3.1 Create a Keyspace
 
 The `keyspace` inside the ScyllaDB ecosystem can be interpreted as your `database` or `collection`.
 
@@ -118,13 +116,13 @@ session.execute(
 session.set_keyspace('media_player')
 ```
 
-Unfortunatelly you can't set a keyspace with `PreparedStatements`, so you will need to build the query by yourself.
+Unfortunately you can't set a keyspace with `PreparedStatements`, so you will need to build the query by yourself.
 
-> You can use the `session.set_keyspace()` function to switch between keyspaces or set it on your cluster connection.
+> You can use the `session.set_keyspace()` function to switch between keyspaces.
 
 ### 3.2 Creating a Table
 
-A table is used to store part or all of your app data (depending on how structure your database schema). 
+A table is used to store a part or all of your app data (depending on how you structure your database schema). 
 Add the `keyspace` as a parameter in the connection object and define a CQL string that creates a table to store your favorite songs.
 
 ```python
@@ -156,9 +154,9 @@ CREATE TABLE songs (
 session.execute(tableQuery)
 ```
 
-### 3.3 Inserting data
+### 3.3 Insert data
 
-Now that you have created a keyspace and a table, you need to insert some songs to populate the table. 
+Now that you have created a keyspace and a table, insert some songs to populate the table. 
 
 ```python
 from cassandra.cluster import Cluster
@@ -210,7 +208,7 @@ for music in songList:
 
 ```
 
-### 3.3 Reading data
+### 3.3 Read data
 
 Since probably we added more than 3 songs into our database, let's list it into our terminal.
 
@@ -246,9 +244,9 @@ The result looks like this:
 Vegas
 ```
 
-### 3.4 Updating Data
+### 3.4 Update data
 
-The `UPDATE` query in the fact is equals to `INSERT` regarding the syntax. Uou just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
+The `UPDATE` query in the fact is equals to `INSERT` regarding the syntax. You just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
 The `UPDATE` query takes two fields in the `WHERE` clause (PK and CK). See the snippet below: 
 
@@ -303,9 +301,8 @@ scylla@cqlsh:media_player> select * from songs where id = d754f8d5-e037-4898-af7
 In the snippet above, we updated the data fully but as you can see in the `SELECT` query, I ran one more update but without the `artist` column. So, as said before: the only "not nullable" fields are the `Partition Keys` and `Clustering Keys`.
 
 
-### 3.5 Deleting Data
-
-Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
+### 3.5 Delete Data
+Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focuses on `ROWS` and another one that deletes data only from `COLUMNS` and the syntax is very similar.
 
 ```sql 
 // Deletes a single row
@@ -315,7 +312,7 @@ DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
-If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
+If you want to remove a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
 On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM keyspace.table_name" it will delete ALL the rows that you stored with that ID. 
 
 ```py
@@ -351,10 +348,10 @@ session.execute(deleteQuery, [songToDelete['id']])
 
 ## 4. Conclusion
 
-Yay! You now have the knowledge to use the basics of ScyllaDB with Python.
+Yay! You now know how get started with ScyllaDB in Python.
 
 If you think something can be improved, please open an issue and let's make it happen!
 
 There is a sample project that you can learn more about the concepts and also have a good time testing our ScyllaDB Cloud Cluster, check it out [here](https://github.com/scylladb/scylla-cloud-getting-started/python).
 
-Did you like the content? Dont forget to star the repo and follow us on socials.
+Did you like the content? Don't forget to star the repo and follow us on socials.
