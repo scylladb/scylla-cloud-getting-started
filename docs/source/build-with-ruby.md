@@ -85,3 +85,42 @@ end
 
 future.join
 ```
+
+The output should look something like:
+
+```
+IP -> 170.244.28.189, Port -> 49096, CS -> AUTHENTICATING
+```
+
+### 3.1 Creating a Keyspace
+
+The `keyspace` inside the ScyllaDB ecossystem can be interpreted as your `database` or `collection`.
+
+On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
+
+```ruby
+# frozen_string_literal: true
+
+require 'cassandra'
+
+cluster = Cassandra.cluster(
+  username: 'scylla',
+  password: 'a-very-secure-password',
+  hosts: [
+    'node-0.aws-sa-east-1.xxx.clusters.scylla.cloud',
+    'node-1.aws-sa-east-1.xxx.clusters.scylla.cloud',
+    'node-2.aws-sa-east-1.xxx.clusters.scylla.cloud'
+  ]
+)
+session  = cluster.connect
+
+future = session.execute_async('SELECT address, port, connection_stage FROM system.clients LIMIT 5')
+
+future.on_success do |rows|
+  rows.each do |row|
+    puts "IP -> #{row[:address]}, Port -> #{row[:port]}, CS -> #{row[:connection_stage]}"
+  end
+end
+
+future.join
+```
