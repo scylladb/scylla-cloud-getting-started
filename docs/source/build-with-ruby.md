@@ -105,22 +105,151 @@ require 'cassandra'
 
 cluster = Cassandra.cluster(
   username: 'scylla',
-  password: 'a-very-secure-password',
+  password: 'a-strong-password',
   hosts: [
-    'node-0.aws-sa-east-1.xxx.clusters.scylla.cloud',
-    'node-1.aws-sa-east-1.xxx.clusters.scylla.cloud',
-    'node-2.aws-sa-east-1.xxx.clusters.scylla.cloud'
+    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
   ]
 )
-session  = cluster.connect
 
-future = session.execute_async('SELECT address, port, connection_stage FROM system.clients LIMIT 5')
+keyspace = 'media_player'
 
-future.on_success do |rows|
-  rows.each do |row|
-    puts "IP -> #{row[:address]}, Port -> #{row[:port]}, CS -> #{row[:connection_stage]}"
-  end
+session = cluster.connect
+
+# Verify if the Keyspace already exists in your Cluster
+has_keyspace = session.execute_async('select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?',
+                                     arguments: [keyspace]).join.rows.size
+
+if has_keyspace.zero?
+  new_keyspace_query = <<~SQL
+    CREATE KEYSPACE #{keyspace}
+    WITH replication = {
+      'class': 'NetworkTopologyStrategy',
+      'replication_factor': '3'
+    }
+    AND durable_writes = true
+  SQL
+
+  session.execute_async(new_keyspace_query).join
+
+  puts "Keyspace #{keyspace} created!"
+else
+  puts "Keyspace #{keyspace} already created!"
 end
 
-future.join
+# Reconnecting to the cluster with the correct keyspace
+session = cluster.connect(keyspace)
+```
+
+### 3.2 Creating a table
+
+A table is used to store part or all the data of your app (depends on how you will build it). 
+Remember to add your `keyspace` into your connection and let's create a table to store our liked songs.
+
+```ruby
+# frozen_string_literal: true
+
+require 'cassandra'
+
+cluster = Cassandra.cluster(
+  username: 'scylla',
+  password: 'a-strong-password',
+  hosts: [
+    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
+  ]
+)
+
+keyspace = 'media_player'
+table = 'playlist'
+
+session = cluster.connect(keyspace)
+
+# Verify if the table already exists in the specific Keyspace inside your Cluster
+has_table = session.execute_async('select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?', arguments: [keyspace, table]).join.rows.size
+
+if has_table.zero?
+  new_keyspace_query = <<~SQL
+    CREATE TABLE #{keyspace}.#{table} (
+      id uuid,
+      title text,
+      album text,
+      artist text,
+      created_at timestamp
+      PRIMARY KEY (id, created_at)
+    )
+  SQL
+
+  session.execute_async(new_keyspace_query).join
+
+  puts "Table #{table} created!"
+else
+  puts "Table #{table} already created!"
+end
+```
+
+### 3.3 Inserting data
+
+Now that we have the keyspace and a table inside of it, we need to bring some good songs and populate it. 
+```ruby
+# frozen_string_literal: true
+
+require 'cassandra'
+require 'securerandom'
+
+cluster = Cassandra.cluster(
+  username: 'scylla',
+  password: 'a-strong-password',
+  hosts: [
+    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
+  ]
+)
+
+keyspace = 'media_player'
+table = 'playlist'
+
+session = cluster.connect(keyspace)
+
+song_list = [
+  {
+    uuid: SecureRandom.uuid,
+    title: 'Bohemian Rhapsody',
+    album: 'A Night at the Opera',
+    artist: 'Queen',
+    created_at: Time.now
+  },
+  {
+    uuid: SecureRandom.uuid,
+    title: 'Hotel California',
+    album: 'Hotel California',
+    artist: 'Eagles',
+    created_at: Time.now
+  },
+  {
+    uuid: SecureRandom.uuid,
+    title: 'Smells Like Teen Spirit',
+    album: 'Nevermind',
+    artist: 'Nirvana',
+    created_at: Time.now
+  }
+]
+
+insert_query = "INSERT INTO #{table} (id,title,album,artist,created_at) VALUES (?,?,?,?,?)"
+
+song_list.each do |song|
+  session.execute_async(insert_query,
+                        arguments: [song[:uuid], song[:title], song[:album], song[:artist],
+                                    song[:created_at]]).join.rows.size
+end
+```
+
+### 3.4 Reading data
+
+Since probably we added more than 3 songs into our database, let's list it into our terminal.
+
+```ruby
 ```
