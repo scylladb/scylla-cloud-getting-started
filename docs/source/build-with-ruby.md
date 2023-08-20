@@ -252,4 +252,37 @@ end
 Since probably we added more than 3 songs into our database, let's list it into our terminal.
 
 ```ruby
+# frozen_string_literal: true
+
+require 'cassandra'
+
+cluster = Cassandra.cluster(
+  username: 'scylla',
+  password: 'a-strong-password',
+  hosts: [
+    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
+  ]
+)
+
+keyspace = 'media_player'
+table = 'playlist'
+
+session = cluster.connect(keyspace)
+
+future = session.execute_async("SELECT id, title, album, artist, created_at FROM #{table}")
+future.on_success do |rows|
+  rows.each do |row|
+    puts "Song: #{row[:title]} - Album: #{row[:album]} - Created At: #{row[:created_at]}"
+  end
+end
+
+future.join
+```
+
+The result will look like:
+
+TODO: Finish this part
+```
 ```
