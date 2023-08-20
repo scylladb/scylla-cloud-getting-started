@@ -2,8 +2,12 @@
 
 module CLI
   class AddSongCommand
+    def initialize
+      @repo = Application['database.connection']
+    end
+
     def call
-      puts 'Adding'
+      p @repo
     end
   end
 end

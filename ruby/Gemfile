@@ -3,3 +3,9 @@
 source 'https://rubygems.org'
 
 gem 'cassandra-driver', '~> 3.2'
+
+gem 'dry-auto_inject', '~> 1.0'
+gem 'dry-system', '~> 1.0'
+gem 'zeitwerk', '~> 2.6'
+
+gem "dotenv", "~> 2.8"

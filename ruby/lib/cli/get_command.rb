@@ -5,7 +5,7 @@ module CLI
   # @return [String]
   def self.get_command(help_message)
     print 'Type any *available* command: '
-    cmd = gets.chomp
+    cmd = $stdin.gets.chomp
 
     if cmd.empty?
       puts help_message
