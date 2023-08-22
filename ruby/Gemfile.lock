@@ -21,6 +21,11 @@ GEM
       dry-core (~> 1.0, < 2)
       dry-inflector (~> 1.0, < 2)
     ione (1.2.5)
+    macaddr (1.7.2)
+      systemu (~> 2.6.5)
+    systemu (2.6.5)
+    uuid (2.3.9)
+      macaddr (~> 1.0)
     zeitwerk (2.6.11)
 
 PLATFORMS
@@ -31,6 +36,7 @@ DEPENDENCIES
   dotenv (~> 2.8)
   dry-auto_inject (~> 1.0)
   dry-system (~> 1.0)
+  uuid (~> 2.3)
   zeitwerk (~> 2.6)
 
 BUNDLED WITH

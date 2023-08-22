@@ -17,12 +17,11 @@ Application.register_provider(:database) do
     keyspace_name = KEYSPACE_NAME
     table_name = TABLE_NAME
 
-    MigrationUtils.create_keyspace(session: connection, keyspace_name:) if MigrationUtils.keyspace_exist?(
+    Cli::Migrate.create_keyspace(session: connection, keyspace_name:) if Cli::Migrate.keyspace_exist?(
       session: connection, keyspace_name:
     )
 
-    MigrationUtils.create_table(session: connection, keyspace_name:, table_name:) if MigrationUtils.table_exist?(session: connection,
-                                                                                                                 keyspace_name:, table_name:)
+    Cli::Migrate.create_table(session: connection, keyspace_name:, table_name:) if Cli::Migrate.table_exist?(session: connection, keyspace_name:, table_name:)
 
     connection = cluster.connect(keyspace_name)
 

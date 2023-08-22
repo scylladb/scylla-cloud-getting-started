@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 KEYSPACE_NAME = 'media_player'
-TABLE_NAME = 'media_player'
+TABLE_NAME = 'playlist'
 
 HELP_MESSAGE = <<~MSG
   Available commands:
@@ -11,4 +11,3 @@ HELP_MESSAGE = <<~MSG
     !stress - stress testing with mocked data
     !q - Quit the console
 MSG
-

@@ -4,8 +4,6 @@ require_relative 'config/constants'
 require_relative 'config/application'
 require_relative 'config/provider/database'
 
-Application.finalize!
-
 # TODO: accept username, password and the 3 nodes as argument
 # TODO: instantiate a scylla connection with it (using dry-system)
 # TODO: migrate with a initial keyspace + table for the songs
@@ -14,6 +12,8 @@ settings = Cli::ArgsParser.call(ARGV)
 ENV['DB_USER'] = settings[:username]
 ENV['DB_PASSWORD'] = settings[:password]
 ENV['DB_HOSTS'] = settings[:nodes]
+
+Application.finalize!
 
 puts HELP_MESSAGE
 
