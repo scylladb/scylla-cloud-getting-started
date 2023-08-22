@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CLI
+module Cli
   class ListSongsCommand
     def initialize
       @repo = Application['database.connection']

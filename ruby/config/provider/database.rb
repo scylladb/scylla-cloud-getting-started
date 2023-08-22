@@ -3,7 +3,6 @@
 Application.register_provider(:database) do
   prepare do
     require 'cassandra'
-    require_relative '../../lib/migrate'
   end
 
   start do
@@ -21,6 +20,7 @@ Application.register_provider(:database) do
     MigrationUtils.create_keyspace(session: connection, keyspace_name:) if MigrationUtils.keyspace_exist?(
       session: connection, keyspace_name:
     )
+
     MigrationUtils.create_table(session: connection, keyspace_name:, table_name:) if MigrationUtils.table_exist?(session: connection,
                                                                                                                  keyspace_name:, table_name:)
 

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-module CLI
+module Cli
   class DeleteSongCommand
     def initialize
       @repo = Application['database.connection']
     end
 
     def call
-      songs = CLI::ListSongsCommand.new.call
+      songs = Cli::ListSongsCommand.new.call
 
       song_to_delete_index = select_song_to_delete(songs:)
     end

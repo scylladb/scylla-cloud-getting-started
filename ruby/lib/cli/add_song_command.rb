@@ -2,7 +2,7 @@
 
 require 'securerandom'
 
-module CLI
+module Cli
   class AddSongCommand
     def initialize
       @repo = Application['database.connection']

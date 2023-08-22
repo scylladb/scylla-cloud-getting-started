@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CLI
+module Cli
   class StressTestingCommand
     def call
       puts 'Stressing'
