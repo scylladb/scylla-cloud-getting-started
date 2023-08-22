@@ -9,6 +9,9 @@ require_relative 'lib/cli/parse_args'
 require_relative 'config/application'
 require_relative 'config/provider/database'
 
+KEYSPACE_NAME = 'media_player'
+TABLE_NAME = 'playlist'
+
 HELP_MESSAGE = <<~MSG
   Available commands:
     !add - add a new song
@@ -36,7 +39,16 @@ loop do
 
   case command
   in '!add'
-    CLI::AddSongCommand.new.call
+    print 'Insert song title: '
+    song_name = $stdin.gets.chomp
+
+    print 'Insert album name: '
+    album = $stdin.gets.chomp
+
+    print 'Insert artist name: '
+    artist = $stdin.gets.chomp
+
+    CLI::AddSongCommand.new.call(title: song_name, album:, artist:)
   in '!list'
     CLI::ListSongsCommand.new.call
   in '!delete'

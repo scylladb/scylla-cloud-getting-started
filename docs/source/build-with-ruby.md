@@ -171,7 +171,7 @@ session = cluster.connect(keyspace)
 has_table = session.execute_async('select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?', arguments: [keyspace, table]).join.rows.size
 
 if has_table.zero?
-  new_keyspace_query = <<~SQL
+  new_table_query = <<~SQL
     CREATE TABLE #{keyspace}.#{table} (
       id uuid,
       title text,
@@ -182,7 +182,7 @@ if has_table.zero?
     )
   SQL
 
-  session.execute_async(new_keyspace_query).join
+  session.execute_async(new_table_query).join
 
   puts "Table #{table} created!"
 else
