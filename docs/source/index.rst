@@ -140,15 +140,22 @@
   </div></div></div>
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :hidden:
 
-
    Getting Started <getting-started>
+   Design and Data Model <design-and-data-model>
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
    Build with Python <build-with-python>
    Build with Rust <build-with-rust>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   Alternator: Getting Started <alternator/getting-started>
+   Alternator: Build with PHP <alternator/build-with-php>
+   Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 

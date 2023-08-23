@@ -5,6 +5,8 @@ Alternator flag.
 
 ## Quick Start
 
+Create a new folder
+
 If you're starting a new project, make sure to require the SDK package in your application. 
 
 ````shell

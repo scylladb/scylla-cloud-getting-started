@@ -74,8 +74,9 @@ $alternatorClient = new DynamoDbClient([
 ]);
 ```
 
-Now you are able to send requests to your ScyllaDB Alternator
+Now you are able to send requests to your ScyllaDB Alternator instance! Select the SDK on the language of your preference and happy coding!
 
 ## 4. Next Steps
 
-Now that you have everything ready, let's move to the 
+Now that you have everything ready, let's move to the project Design and Data Model with DynamoDB spectations!
+
