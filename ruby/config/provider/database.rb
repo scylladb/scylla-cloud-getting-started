@@ -14,16 +14,14 @@ Application.register_provider(:database) do
 
     connection = cluster.connect
 
-    keyspace_name = KEYSPACE_NAME
-    table_name = TABLE_NAME
-
-    Cli::Migrate.create_keyspace(session: connection, keyspace_name:) if Cli::Migrate.keyspace_exist?(
-      session: connection, keyspace_name:
+    Cli::Migrate.create_keyspace(session: connection) if Cli::Migrate.keyspace_exist?(
+      session: connection
     )
 
-    Cli::Migrate.create_table(session: connection, keyspace_name:, table_name:) if Cli::Migrate.table_exist?(session: connection, keyspace_name:, table_name:)
+    Cli::Migrate.create_table(session: connection, query: PLAYLIST_TABLE_QUERY) if Cli::Migrate.table_exist?(session: connection, table_name: PLAYLIST_TABLE_NAME)
+    Cli::Migrate.create_table(session: connection, query: SONG_COUNTER_QUERY) if Cli::Migrate.table_exist?(session: connection, table_name: SONG_COUNTER_TABLE_NAME)
 
-    connection = cluster.connect(keyspace_name)
+    connection = cluster.connect(KEYSPACE_NAME)
 
     register('database.connection', connection)
   end

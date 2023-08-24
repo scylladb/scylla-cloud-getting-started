@@ -7,11 +7,11 @@ module Cli
     end
 
     def call
-      query = <<~SQL
-        SELECT * FROM #{KEYSPACE_NAME}.#{TABLE_NAME};
+      playlist_insert_queryist_insert_query = <<~SQL
+        SELECT * FROM #{KEYSPACE_NAME}.#{PLAYLIST_TABLE_NAME};
       SQL
 
-      @repo.execute_async(query).join.rows
+      @repo.execute_async(playlist_insert_query).join.rows
     end
   end
 end

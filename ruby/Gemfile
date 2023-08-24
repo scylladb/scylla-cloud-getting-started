@@ -10,4 +10,4 @@ gem 'zeitwerk', '~> 2.6'
 
 gem 'dotenv', '~> 2.8'
 
-gem "uuid", "~> 2.3"
+gem "async", "~> 2.6"

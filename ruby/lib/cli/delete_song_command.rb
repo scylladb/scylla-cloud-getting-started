@@ -11,13 +11,13 @@ module Cli
 
       song_to_delete_index = select_song_to_delete(songs:)
 
-      query = <<~SQL
-        DELETE FROM #{KEYSPACE_NAME}.#{TABLE_NAME} WHERE id = ?
+      playlist_insert_queryist_insert_query = <<~SQL
+        DELETE FROM #{KEYSPACE_NAME}.#{PLAYLIST_TABLE_NAME} WHERE id = ?
       SQL
 
       song_to_delete = songs.to_a[song_to_delete_index]
 
-      @repo.execute_async(query, arguments: [song_to_delete['id']]).join
+      @repo.execute_async(playlist_insert_query, arguments: [song_to_delete['id']]).join
     end
 
     private
