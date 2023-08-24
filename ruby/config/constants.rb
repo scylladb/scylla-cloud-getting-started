@@ -4,7 +4,7 @@ KEYSPACE_NAME = 'media_player'
 PLAYLIST_TABLE_NAME = 'playlist'
 SONG_COUNTER_TABLE_NAME = 'song_counter'
 
-PLAYLIST_TABLE_QUERY = <<~SQL
+PLAYLIST_TABLE_QUERY = <<~SQL.freeze
   CREATE TABLE #{KEYSPACE_NAME}.#{PLAYLIST_TABLE_NAME} (
     id uuid,
     title text,
@@ -15,7 +15,7 @@ PLAYLIST_TABLE_QUERY = <<~SQL
   ) WITH CLUSTERING ORDER BY (created_at DESC);
 SQL
 
-SONG_COUNTER_QUERY = <<~SQL
+SONG_COUNTER_QUERY = <<~SQL.freeze
   CREATE TABLE #{KEYSPACE_NAME}.#{SONG_COUNTER_TABLE_NAME} (
     song_id uuid,
     times_played counter,
