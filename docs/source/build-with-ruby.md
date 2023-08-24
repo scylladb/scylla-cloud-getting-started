@@ -197,7 +197,6 @@ Now that we have the keyspace and a table inside of it, we need to bring some go
 # frozen_string_literal: true
 
 require 'cassandra'
-require 'securerandom'
 
 cluster = Cassandra.cluster(
   username: 'scylla',
@@ -216,21 +215,18 @@ session = cluster.connect(keyspace)
 
 song_list = [
   {
-    uuid: SecureRandom.uuid,
     title: 'Bohemian Rhapsody',
     album: 'A Night at the Opera',
     artist: 'Queen',
     created_at: Time.now
   },
   {
-    uuid: SecureRandom.uuid,
     title: 'Hotel California',
     album: 'Hotel California',
     artist: 'Eagles',
     created_at: Time.now
   },
   {
-    uuid: SecureRandom.uuid,
     title: 'Smells Like Teen Spirit',
     album: 'Nevermind',
     artist: 'Nirvana',
@@ -238,7 +234,7 @@ song_list = [
   }
 ]
 
-insert_query = "INSERT INTO #{table} (id,title,album,artist,created_at) VALUES (?,?,?,?,?)"
+insert_query = "INSERT INTO #{table} (now(),title,album,artist,created_at) VALUES (?,?,?,?)"
 
 song_list.each do |song|
   session.execute_async(insert_query,
@@ -274,7 +270,7 @@ session = cluster.connect(keyspace)
 future = session.execute_async("SELECT id, title, album, artist, created_at FROM #{table}")
 future.on_success do |rows|
   rows.each do |row|
-    puts "Song: #{row[:title]} - Album: #{row[:album]} - Created At: #{row[:created_at]}"
+    puts "ID: #{song['id']} | Song: #{song['title']} | Album: #{song['album']} | Created At: #{song['created_at']}"
   end
 end
 
@@ -283,6 +279,126 @@ future.join
 
 The result will look like:
 
-TODO: Finish this part
 ```
+ID: 40450211-42cc-11ee-b14c-3da98b5024c0 | Song: Smells Like Teen Spirit | Album: Nevermind | Created At: 2023-08-24 19:19:11 -0300
+ID: 3ab84321-42cc-11ee-b14c-3da98b5024c0 | Song: Hotel California | Album: Hotel California | Created At: 2023-08-24 19:19:01 -0300
+ID: 354f11c1-42cc-11ee-b14c-3da98b5024c0 | Song: Bohemian Rhapsody | Album: A Night at the Opera | Created At: 2023-08-24 19:18:52 -0300
 ```
+
+### 3.5 Updating data
+
+Ok, almost there! Now we're going to learn about update but here's a disclaimer: 
+> INSERT and UPDATES are not equals!
+
+There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
+
+If you want to read more about it, [click here.](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
+
+As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check the snippet below: 
+
+```ruby
+# frozen_string_literal: true
+
+require 'cassandra'
+require 'securerandom'
+
+cluster = Cassandra.cluster(
+  username: 'scylla',
+  password: 'a-strong-password',
+  hosts: [
+    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
+  ]
+)
+
+keyspace = 'media_player'
+table = 'playlist'
+
+session = cluster.connect(keyspace)
+
+song = {
+    title: 'Smells Like Teen Spirit Updated',
+    album: 'Nevermind Updaetd',
+    artist: 'Nirvana Updated',
+    created_at: Time.new('2023-08-24 22:19:11.091000+0000')
+}
+
+update_query = "UPDATE #{keyspace}.#{table} SET title = ?, album = ?, artist = ? where id = ? and created_at = ?"
+
+session.execute_async(update_query, arguments: [song[:title], song[:album], song[:artist], '40450211-42cc-11ee-b14c-3da98b5024c0', song[:created_at]]).join
+
+puts 'Song Updated'
+```
+
+After updated, let's query for the ID and see the results:
+
+```
+scylla@cqlsh> select * from media_player.playlist where id = 40450211-42cc-11ee-b14c-3da98b5024c0;
+
+ id                                   | created_at                      | album             | artist          | title
+--------------------------------------+---------------------------------+-------------------+-----------------+---------------------------------
+ 40450211-42cc-11ee-b14c-3da98b5024c0 | 2023-08-24 22:19:11.091000+0000 | Nevermind Updated | Nirvana Updated | Smells Like Teen Spirit Updated
+
+(1 rows)
+```
+
+It only "updated" the field `title` and `updated_at` (that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
+
+### 3.5 Deleting data
+
+Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
+
+```sql 
+// Deletes a single row
+DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
+
+// Deletes a whole column
+DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
+```
+
+If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
+On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM keyspace.table_name" it will delete ALL the rows that you stored with that ID. 
+
+```ruby
+# frozen_string_literal: true
+
+require 'cassandra'
+require 'securerandom'
+
+cluster = Cassandra.cluster(
+  username: 'scylla',
+  password: 'a-strong-password',
+  hosts: [
+    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
+  ]
+)
+
+keyspace = 'media_player'
+table = 'playlist'
+
+session = cluster.connect(keyspace)
+
+song = {
+    title: 'Smells Like Teen Spirit Updated',
+    album: 'Nevermind Updaetd',
+    artist: 'Nirvana Updated',
+    created_at: Time.new('2023-08-24 22:19:11.091000+0000')
+}
+
+delete_query = "DELETE FROM #{keyspace}.#{table} where id = ? and created_at = ?"
+
+session.execute_async(delete_query, arguments: ['40450211-42cc-11ee-b14c-3da98b5024c0', song[:created_at]]).join
+
+puts 'Song deleted!'
+```
+
+## Conclusion
+
+Yay! You now have the knowledge to use the basics of ScyllaDB with Ruby.
+
+If you thinks that something can be improved, please open an issue and let's make it happen!
+
+Did you like the content? Dont forget to star the repo and follow us on socials.
