@@ -31,7 +31,6 @@ class DeleteSongCommand extends AbstractCommand
         }
 
         $songToBeDeleted = $songs[$songIndex];
-
         $preparedQuery = $this->prepareDeleteQuery($songToBeDeleted);
         $client->deleteItem($preparedQuery);
 
