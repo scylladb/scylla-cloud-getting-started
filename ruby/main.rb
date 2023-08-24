@@ -33,7 +33,11 @@ loop do
 
     Cli::AddSongCommand.new.call(title: song_name, album:, artist:)
   in '!list'
-    Cli::ListSongsCommand.new.call
+    songs = Cli::ListSongsCommand.new.call
+
+    songs.each do |song|
+      puts "ID: #{song['id']} | Song: #{song['title']} | Album: #{song['album']} | Created At: #{song['created_at']}"
+    end
   in '!delete'
     Cli::DeleteSongCommand.new.call
   in '!stress'
