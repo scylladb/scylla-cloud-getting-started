@@ -128,6 +128,8 @@
   :link: https://iot.scylladb.com/stable
   :class: large-4,small-12
   :anchor: Go to the Project
+  
+  The Care-Pet Example walks you through the data collection using a IoT collar. 
 
 .. topic-box::
   :title: Build with PHP
@@ -163,5 +165,6 @@
 
    Alternator: Getting Started <alternator/getting-started>
    Alternator: Build with PHP <alternator/build-with-php>
+   Alternator: Build with PHP <alternator/build-with-python>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
