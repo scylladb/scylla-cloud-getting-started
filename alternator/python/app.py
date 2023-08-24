@@ -23,7 +23,7 @@ while True:
             'created_at': str(datetime.now()),
             'title': songName,
             'album': albumName,
-            'arist': artistName,
+            'artist': artistName,
         })
         
         

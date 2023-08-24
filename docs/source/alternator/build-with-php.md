@@ -1,7 +1,6 @@
 # ScyllaDB Alternator: PHP Example
 
-Using the "PHP AWS SDK" we can easily connect our project on any ScyllaDB instance (Local/Cloud) that is configured with
-Alternator flag.
+Using the "PHP AWS SDK" we can easily connect our project on any ScyllaDB instance (Local/Cloud) that is configured with Alternator flag.
 
 ## Quick Start
 
@@ -38,19 +37,17 @@ $alternatorClient = new DynamoDbClient([
     'region' => 'None'
 ]);
 
-$alternatorClient->createTable([
-    'TableName' => 'weather',
+$alternatorClient->createTable(['TableName' => 'songs',
     'KeySchema' => [
-        ['AttributeName' => 'city_name', 'KeyType' => 'HASH'],
-        ['AttributeName' => 'ts', 'KeyType' => 'RANGE'],
+        ['AttributeName' => 'id', 'KeyType' => 'HASH'],
+        ['AttributeName' => 'created_at', 'KeyType' => 'RANGE'],
     ],
     'AttributeDefinitions' => [
-        ['AttributeName' => 'city_name', 'AttributeType' => 'S'],
-        ['AttributeName' => 'ts', 'AttributeType' => 'S'],
-        ['AttributeName' => 'temperature', 'AttributeType' => 'M'],
-        ['AttributeName' => 'ivu', 'AttributeType' => 'N'],
-        ['AttributeName' => 'climate_conditions', 'AttributeType' => 'S'],
-
+        ['AttributeName' => 'id', 'AttributeType' => 'S'],
+        ['AttributeName' => 'created_at', 'AttributeType' => 'S'],
+        ['AttributeName' => 'title', 'AttributeType' => 'S'],
+        ['AttributeName' => 'artist', 'AttributeType' => 'S'],
+        ['AttributeName' => 'album', 'AttributeType' => 'S'],
     ],
     'ProvisionedThroughput' => [
         'ReadCapacityUnits' => 10,
@@ -72,18 +69,61 @@ $alternatorClient = new DynamoDbClient([
 ]);
 
 $alternatorClient->putItem('PutRequest' => [
-    'TableItem' => 'weather',
+    'TableName' => 'songs',
     'Item' => [
-        'city_name' => ['S' => 'São Paulo'],
-        'ts' => ['S' => '2023-08-16'],
-        'temperature' => ['M' => [
-            'mininum' => ['N' => 15],
-            'maximum' => ['N' => 31],
-            'average' => ['N' => 24],
-        ]],
-        'uvi' => ['N' => 10],
-        'climate_conditions' => ['S' => 'Sunny']
+        'id' => ['S' => 'string'],
+        'created_at' => ['S' => 'string'],
+        'title' => ['S' => 'string'],
+        'album' => ['S' => 'string'],
+        'artist' => ['S' => 'string'],
     ]
 ]);
 
 ````
+
+### Listing Items
+
+```php
+use Aws\DynamoDb\DynamoDbClient;
+use Aws\DynamoDb\Marshaler;
+
+$marshaler = new Marshaler();
+$alternatorClient = new DynamoDbClient([
+    'endpoint' => 'http://localhost:8000', // ScyllaDB Alternator LocalHost URL
+    'credentials' => ['key' => 'None', 'secret' => 'None'],
+    'region' => 'None'
+]);
+
+$results = $client->scan(['TableName' => 'songs']);
+
+
+foreach ($results['Items'] as $item) {
+    $parsedItem = $marshaler->unmarshalItem($item);
+    var_dump($parsedItem['title'])
+}
+
+```
+
+### Deleting Items
+
+
+```php
+use Aws\DynamoDb\DynamoDbClient;
+use Aws\DynamoDb\Marshaler;
+
+$marshaler = new Marshaler();
+$alternatorClient = new DynamoDbClient([
+    'endpoint' => 'http://localhost:8000', // ScyllaDB Alternator LocalHost URL
+    'credentials' => ['key' => 'None', 'secret' => 'None'],
+    'region' => 'None'
+]);
+
+$client->deleteItem([
+    'TableName' => 'songs',
+    'Key' => [
+        'id' => ['S' => 'some-uuid-here'],
+        'created_at' => ['S' => 'Y-m-d H:i:s'],
+    ],
+]);
+
+```

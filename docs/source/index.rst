@@ -132,7 +132,13 @@
 .. topic-box::
   :title: Build with PHP
   :image: /_static/img/programming_languages/php.png
-  :link: alternator-build-with-php
+  :link: alternator/build-with-php
+  :class: large-4
+
+.. topic-box::
+  :title: Build with Python
+  :image: /_static/img/programming_languages/python.png
+  :link: alternator/build-with-python
   :class: large-4
 
 .. raw:: html
