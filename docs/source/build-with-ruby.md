@@ -239,7 +239,7 @@ insert_query = "INSERT INTO #{table} (now(),title,album,artist,created_at) VALUE
 
 song_list.each do |song|
   session.execute_async(insert_query,
-                        arguments: [song[:uuid], song[:title], song[:album], song[:artist],
+                        arguments: [song[:title], song[:album], song[:artist],
                                     song[:created_at]]).join.rows.size
 end
 ```
