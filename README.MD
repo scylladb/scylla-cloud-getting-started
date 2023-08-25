@@ -29,6 +29,7 @@ You can find language-specific implementations in their corresponding folder:
 - [Java](/docs/source/build-with-java.md)
 - [Python](/docs/source/build-with-python.md)
 - [Rust](/docs/source/build-with-rust.md)
+- [Ruby](/docs/source/build-with-ruby.md)
 
 
 ## Sample Projects
