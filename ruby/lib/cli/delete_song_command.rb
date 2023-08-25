@@ -32,7 +32,6 @@ module Cli
         DESC
       end
 
-      # TODO: maybe this could be on another class?
       print 'Select a index to be deleted: '
       $stdin.gets.chomp.to_i - 1
     end
