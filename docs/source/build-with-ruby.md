@@ -193,6 +193,7 @@ end
 ### 3.3 Inserting data
 
 Now that we have the keyspace and a table inside of it, we need to bring some good songs and populate it. 
+
 ```ruby
 # frozen_string_literal: true
 
@@ -350,10 +351,10 @@ It only "updated" the field `title` and `updated_at` (that is our Clustering Key
 Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
 
 ```sql 
-// Deletes a single row
+-- Deletes a single row
 DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 
-// Deletes a whole column
+-- Deletes a whole column
 DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
 ```
 
