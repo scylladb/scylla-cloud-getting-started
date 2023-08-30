@@ -14,7 +14,6 @@ enviroment = {
                 title text,
                 album text,
                 artist text,
-                release_year int,
                 created_at timestamp,
                 PRIMARY KEY (id, created_at)
             )

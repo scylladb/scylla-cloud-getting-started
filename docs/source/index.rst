@@ -9,7 +9,7 @@
 .. title:: ScyllaDB Cloud Getting Started Example
 
 .. hero-box::
-  :title: Learn ScyllaDB using the our Cloud Database.
+  :title: Learn ScyllaDB using the Cloud Database.
   :image: /_static/img/mascots/scylla-cloud.svg
   :button_icon: fa fa-github
   :button_url: https://github.com/scylladb/scylla-cloud-getting-started
@@ -83,17 +83,88 @@
 .. raw:: html
 
   </div></div></div>
+
+.. hero-box::
+  :title: Learn ScyllaDB using the DynamoDB Compatible Cloud API.
+  :image: /_static/img/mascots/scylla-alternator.svg
+  :button_icon: fa fa-github
+  :button_url: https://github.com/scylladb/scylla-cloud-getting-started
+  :button_text: Getting Started Project
+
+  This tutorial is a step-by-step guide to build an Weather Forecast project connected to Scylla Cloud DynamoDB API.
+  After completing the project, you will be able to migrate back-end services that share data through a Scylla Cloud cluster.
+
+.. raw:: html
+
+  <div class="landing__content landing__content">
+
+.. raw:: html
+
+  <div class="topics-grid grid-container full">
+
+  <div class="grid-x grid-margin-x">
   
+.. topic-box::
+  :title: Getting Started with Scylla Alternator
+  :link: alternator/getting-started
+  :icon: scylla-icon scylla-icon--getting-started
+  :class: large-4
+  :anchor: Get Started
+
+  Create a Sandbox Cluster configure it to use ScyllaDB as the backend datastore.
+
+.. topic-box::
+  :title: Design and Data Model
+  :link: design-and-data-model
+  :icon: scylla-icon scylla-icon--overview
+  :class: large-4
+  :anchor: Learn more
+
+  Learn more about the queries used in the example, make the primary key and clustering key selection, and create the database schema.
+
+.. topic-box::
+  :title: Next Project: Care-Pet
+  :icon: scylla-icon scylla-icon--blog
+  :link: https://iot.scylladb.com/stable
+  :class: large-4,small-12
+  :anchor: Go to the Project
+  
+  The Care-Pet Example walks you through the data collection using a IoT collar. 
+
+.. topic-box::
+  :title: Build with PHP
+  :image: /_static/img/programming_languages/php.png
+  :link: alternator/build-with-php
+  :class: large-4
+
+.. topic-box::
+  :title: Build with Python
+  :image: /_static/img/programming_languages/python.png
+  :link: alternator/build-with-python
+  :class: large-4
+
+.. raw:: html
+
+  </div></div></div>
+
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :hidden:
 
-
    Getting Started <getting-started>
+   Design and Data Model <design-and-data-model>
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
    Build with Python <build-with-python>
    Build with Rust <build-with-rust>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   Alternator: Getting Started <alternator/getting-started>
+   Alternator: Build with PHP <alternator/build-with-php>
+   Alternator: Build with PHP <alternator/build-with-python>
+   Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
