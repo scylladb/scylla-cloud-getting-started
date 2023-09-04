@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require 'dotenv/load'
+require_relative '../config/constants'
+require_relative '../config/application'
+require_relative '../config/provider/database'
+
+Application.finalize!
+
+require 'irb'
+IRB.start

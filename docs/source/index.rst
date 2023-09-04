@@ -80,6 +80,12 @@
   :link: build-with-python
   :class: large-4
 
+.. topic-box::
+  :title: Build with Ruby
+  :image: /_static/img/programming_languages/ruby.png
+  :link: build-with-ruby
+  :class: large-4
+
 .. raw:: html
 
   </div></div></div>
@@ -156,6 +162,7 @@
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
    Build with Python <build-with-python>
+   Build with Ruby <build-with-ruby>
    Build with Rust <build-with-rust>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 

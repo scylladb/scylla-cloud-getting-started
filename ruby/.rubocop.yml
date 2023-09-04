@@ -1,0 +1,13 @@
+Style/Documentation:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - 'bin/*'
