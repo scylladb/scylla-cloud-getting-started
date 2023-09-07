@@ -84,7 +84,7 @@ A process will be started, so the return should be nothing other than something 
 
 With `Xandra` you can run queries and save their returns in maps, making it possible to parse this information and manipulate it as you decide. First of all, let's create a function that will simply execute queries, receiving information from the cluster and the query to be executed as parameters. If the return is `:ok`, it means that the query executed successfully, so we return it. If the return is `:error`, it means that we had an error, so let's inspect it. An important detail is for the address, which instead of bringing a simple text brings a tuple with four integers.
 
-```
+```ex
 def run_query(cluster, query) do
   case Xandra.Cluster.execute(cluster, query) do
     {:ok, result} ->
