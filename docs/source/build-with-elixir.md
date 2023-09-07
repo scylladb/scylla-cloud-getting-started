@@ -23,12 +23,12 @@ mix new media_player
 Let's do a quick change into our `mix.exs` and add our project dependencies.
 
 ```exs
-  defp deps do
-    [
-      {:decimal, "~> 1.0"},
-      {:xandra, "~> 0.14"}
-    ]
-  end
+defp deps do
+  [
+    {:decimal, "~> 1.0"},
+    {:xandra, "~> 0.14"}
+  ]
+end
 ```
 
 - [Decimal](https://hexdocs.pm/decimal/readme.html): Arbitrary precision decimal arithmetic
