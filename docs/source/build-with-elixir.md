@@ -239,3 +239,221 @@ iex(1)> MediaPlayer.create_table("media_player", "playlist")
 ```
 
 Done! Now your playlist table is officially created!
+
+### 3.3 Inserting data
+
+Now that we have the keyspace and a table inside of it, we need to bring some good songs and populate it.
+
+First of all, let's add a dependency to our `mix.exs` to work with UUID, then just run `mix deps.get` to update the dependencies!
+
+```exs
+{:elixir_uuid, "~> 1.2"}
+```
+
+To execute our query, let's create another `run_query` function that will receive three parameters (the cluster, the query and the other parameters) to prepare our execution. In Elixir, we can have functions with the same name but different number of parameters, in which it will be understood that they are different functions.
+
+```ex
+def run_query(cluster, query, params) do
+  prepared = Xandra.Cluster.prepare!(cluster, query)
+
+  case Xandra.Cluster.execute(cluster, prepared, params) do
+    {:ok, result} ->
+      result
+
+    {:error, error} ->
+      IO.inspect(error)
+  end
+end
+
+def insert_songs(keyspace, table) do
+  cluster = start_link()
+
+  song_list = [
+    %{
+      id: UUID.uuid4(),
+      title: "Getaway Car",
+      album: "Reputation",
+      artist: "Taylor Swift",
+      created_at: DateTime.utc_now()
+    },
+    %{
+      id: UUID.uuid4(),
+      title: "Still Into You",
+      album: "Paramore",
+      artist: "Paramore",
+      created_at: DateTime.utc_now()
+    },
+    %{
+      id: UUID.uuid4(),
+      title: "Stolen Dance",
+      album: "Sadnecessary",
+      artist: "Milky Chance",
+      created_at: DateTime.utc_now()
+    }
+  ]
+
+  Enum.each(song_list, fn %{
+                            id: id,
+                            title: title,
+                            album: album,
+                            artist: artist,
+                            created_at: created_at
+                          } ->
+    query =
+      "INSERT INTO #{keyspace}.#{table} (id, title, album, artist, created_at) VALUES (?, ?, ?, ?, ?);"
+
+    run_query(cluster, query, [id, title, album, artist, created_at])
+  end)
+end
+```
+
+The need to create a function was to properly prepare our query with our arguments. To test just run the interactive shell again with `iex -S mix` and run:
+
+```ex
+iex(1)> MediaPlayer.insert_songs("media_player", "playlist")
+```
+
+### 3.4 Reading data
+
+Since probably we added more than 3 songs into our database, let's list it into our terminal.
+
+```ex
+def read_data(keyspace, table) do
+  cluster = start_link()
+
+  query = "SELECT id, title, album, artist, created_at FROM #{keyspace}.#{table};"
+
+  run_query(cluster, query)
+  |> Enum.each(fn %{
+                    "id" => id,
+                    "title" => title,
+                    "album" => album,
+                    "artist" => artist,
+                    "created_at" => created_at
+                  } ->
+    IO.puts(
+      "ID: #{id} | Title: #{title} | Album: #{album} | Artist: #{artist} | Created At: #{created_at}"
+    )
+  end)
+end
+```
+
+To test just run the interactive shell again with `iex -S mix` and run:
+
+```ex
+iex(1)> MediaPlayer.read_data("media_player", "playlist")
+```
+
+The result will look like:
+
+```
+ID: 09679e47-0898-40fd-b114-52b27de5a21c | Title: Stolen Dance | Album: Sadnecessary | Artist: Milky Chance | Created At: 2023-09-07 22:26:56.798Z
+ID: 56fac772-dc54-4518-86df-2a628a2a45f6 | Title: Still Into You | Album: Paramore | Artist: Paramore | Created At: 2023-09-07 22:26:56.798Z
+ID: 11bbeed9-c9a8-45cc-9842-c60483b4cb67 | Title: Getaway Car | Album: Reputation | Artist: Taylor Swift | Created At: 2023-09-07 22:26:56.798Z
+```
+
+### 3.5 Updating data
+
+Ok, almost there! Now we're going to learn about update but here's a disclaimer: 
+> INSERT and UPDATES are not equals!
+
+There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
+
+If you want to read more about it, [click here.](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
+
+As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check the snippet below: 
+
+```ex
+def update_data(keyspace, table) do
+  cluster = start_link()
+
+  query =
+    "UPDATE #{keyspace}.#{table} SET title = ?, album = ?, artist = ? WHERE id = ? AND created_at = ?;"
+
+  {:ok, date_formated, _} = DateTime.from_iso8601("2023-09-07 22:26:56.798Z")
+
+  run_query(cluster, query, [
+    "Getaway Car UPDATED",
+    "Reputation",
+    "Taylor Swift",
+    "11bbeed9-c9a8-45cc-9842-c60483b4cb67",
+    date_formated
+  ])
+end
+```
+
+Note that we had to convert the saved date format to iso8601. To test just run the interactive shell again with `iex -S mix` and run:
+
+```ex
+iex(1)> MediaPlayer.update_data("media_player", "playlist")
+```
+
+So to check if it's been updated:
+
+```ex
+iex(2)> MediaPlayer.read_data("media_player", "playlist")
+```
+
+The result will look like:
+
+```
+ID: 09679e47-0898-40fd-b114-52b27de5a21c | Title: Stolen Dance | Album: Sadnecessary | Artist: Milky Chance | Created At: 2023-09-07 22:26:56.798Z
+ID: 56fac772-dc54-4518-86df-2a628a2a45f6 | Title: Still Into You | Album: Paramore | Artist: Paramore | Created At: 2023-09-07 22:26:56.798Z
+ID: 11bbeed9-c9a8-45cc-9842-c60483b4cb67 | Title: Getaway Car UPDATED | Album: Reputation | Artist: Taylor Swift | Created At: 2023-09-07 22:26:56.798Z
+```
+
+### 3.5 Deleting data
+
+Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
+
+```sql 
+-- Deletes a single row
+DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
+
+-- Deletes a whole column
+DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
+```
+
+If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM keyspace.table_name" it will delete ALL the rows that you stored with that ID. 
+
+```ex
+def delete_data(keyspace, table) do
+  cluster = start_link()
+
+  query = "DELETE FROM #{keyspace}.#{table} WHERE id = ? AND created_at = ?;"
+
+  {:ok, date_formated, _} = DateTime.from_iso8601("2023-09-07 22:26:56.798Z")
+
+  run_query(cluster, query, [
+    "11bbeed9-c9a8-45cc-9842-c60483b4cb67",
+    date_formated
+  ])
+end
+```
+
+To test just run the interactive shell again with `iex -S mix` and run:
+
+```ex
+iex(1)> MediaPlayer.delete_data("media_player", "playlist")
+```
+
+So to check if it's been updated:
+
+```ex
+iex(2)> MediaPlayer.read_data("media_player", "playlist")
+```
+
+The result will look like:
+
+```
+ID: 09679e47-0898-40fd-b114-52b27de5a21c | Title: Stolen Dance | Album: Sadnecessary | Artist: Milky Chance | Created At: 2023-09-07 22:26:56.798Z
+ID: 56fac772-dc54-4518-86df-2a628a2a45f6 | Title: Still Into You | Album: Paramore | Artist: Paramore | Created At: 2023-09-07 22:26:56.798Z
+```
+
+## Conclusion
+
+Yay! You now have the knowledge to use the basics of ScyllaDB with Elixir.
+
+If you thinks that something can be improved, please open an issue and let's make it happen!
+
+Did you like the content? Dont forget to star the repo and follow us on socials.
