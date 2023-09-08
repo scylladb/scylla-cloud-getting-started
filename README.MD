@@ -30,6 +30,7 @@ You can find language-specific implementations in their corresponding folder:
 - [Python](/docs/source/build-with-python.md)
 - [Rust](/docs/source/build-with-rust.md)
 - [Ruby](/docs/source/build-with-ruby.md)
+- [Elixir](/docs/source/build-with-elixir.md)
 
 
 ## Sample Projects
