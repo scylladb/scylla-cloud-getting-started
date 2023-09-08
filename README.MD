@@ -40,6 +40,7 @@ We also built the full project with some extra features for you use as study gui
 - [Rust Project](/rust)
 - [Python Project](/python)
 - [Ruby Project](/ruby)
+- [Elixir Project](/elixir)
 
 
 ## Contributing
