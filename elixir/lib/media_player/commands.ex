@@ -87,18 +87,34 @@ defmodule MediaPlayer.Commands do
     delete_from(input)
   end
 
+  defp generate_stress_query(some_id) do
+    current_date = Date.to_string(Date.utc_today())
+
+    "INSERT INTO #{keyspace()}.#{table()} (
+      id, title, album, artist, created_at
+    ) VALUES (
+      #{UUID.uuid4()},
+      'Test Song #{some_id}',
+      'Test Artist #{some_id}',
+      'Test Album #{some_id}',
+      '#{current_date}'
+    );"
+  end
+
   def stress do
     start = Time.utc_now()
     cluster = MediaPlayer.Config.Database.start_link()
 
-    query =
-      "INSERT INTO #{keyspace()}.#{table()} (id, title, album, artist, created_at) VALUES ('Test Song', 'Test Artist', 'Test Album', NOW());"
-
     # Simple stress test
     1..100_000
-    |> Enum.each(fn _ ->
-      Xandra.Cluster.execute(cluster, query)
-    end)
+    |> Task.async_stream(
+      fn id ->
+        IO.puts("[#{id}] Adding seed")
+        Xandra.Cluster.execute(cluster, generate_stress_query(id))
+      end,
+      max_concurrency: 500
+    )
+    |> Enum.to_list()
 
     IO.puts("Time taken: #{Time.diff(Time.utc_now(), start, :second)} seconds")
   end
