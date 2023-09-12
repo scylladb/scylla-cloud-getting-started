@@ -86,6 +86,12 @@
   :link: build-with-ruby
   :class: large-4
 
+.. topic-box::
+  :title: Build with Csharp
+  :image: /_static/img/programming_languages/csharp.png
+  :link: build-with-csharp
+  :class: large-4
+
 .. raw:: html
 
   </div></div></div>
@@ -164,6 +170,7 @@
    Build with Python <build-with-python>
    Build with Ruby <build-with-ruby>
    Build with Rust <build-with-rust>
+   Build with Csharp <build-with-csharp>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
 .. toctree::
