@@ -26,7 +26,8 @@ Let's do a quick change into our `mix.exs` and add our project dependencies.
 defp deps do
   [
     {:decimal, "~> 1.0"},
-    {:xandra, "~> 0.14"}
+    {:xandra, "~> 0.14"},
+    {:elixir_uuid, "~> 1.2"}
   ]
 end
 ```
