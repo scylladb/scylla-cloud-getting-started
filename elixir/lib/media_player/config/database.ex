@@ -13,12 +13,11 @@ defmodule MediaPlayer.Config.Database do
       Xandra.Cluster.start_link(
         sync_connect: :infinity,
         authentication: {Xandra.Authenticator.Password, options},
-        nodes: [
-          System.get_env("SCYLLADB_NODE_1")
-          # If you want to use more nodes, uncomment the following lines:
-          # System.get_env("SCYLLADB_NODE_2"),
-          # System.get_env("SCYLLADB_NODE_3")
-        ]
+        nodes:
+          # Add the cluster connection urls separated by commas without spaces
+          # Example: scylladb-node1,scylladb-node2,scylladb-node3
+          System.get_env("SCYLLADB_NODE")
+          |> String.split(",")
       )
 
     cluster
