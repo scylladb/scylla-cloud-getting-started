@@ -47,44 +47,39 @@ defmodule MediaPlayer.Commands do
     end)
   end
 
-  def delete_from(index) do
-    query = "SELECT id, created_at FROM #{keyspace()}.#{table()};"
-
-    Actions.run_query(query)
-    |> Enum.with_index(fn %{
-                            "id" => id,
-                            "created_at" => created_at
-                          },
-                          i ->
-      if i + 1 == index do
-        query = "DELETE FROM #{keyspace()}.#{table()} WHERE id = ? AND created_at = ?;"
-
-        Actions.run_query(query, [id, created_at])
-
-        IO.puts("Song deleted!")
-      end
-    end)
-  end
-
   def delete() do
-    query = "SELECT title, album, artist, created_at FROM #{keyspace()}.#{table()};"
+    query = "SELECT id, title, album, artist, created_at FROM #{keyspace()}.#{table()};"
 
-    Actions.run_query(query)
-    |> Enum.with_index(fn %{
-                            "title" => title,
-                            "album" => album,
-                            "artist" => artist,
-                            "created_at" => created_at
-                          },
-                          index ->
-      IO.puts(
-        "Index: #{index + 1} | Title: #{title} | Album: #{album} | Artist: #{artist} | Created At: #{created_at}"
-      )
-    end)
+    songs =
+      Actions.run_query(query)
+      |> Enum.with_index(fn %{
+                              "id" => id,
+                              "title" => title,
+                              "album" => album,
+                              "artist" => artist,
+                              "created_at" => created_at
+                            },
+                            index ->
+        IO.puts(
+          "Index: #{index + 1} | Title: #{title} | Album: #{album} | Artist: #{artist} | Created At: #{created_at}"
+        )
+
+        %{id: id, title: title, album: album, artist: artist, created_at: created_at}
+      end)
 
     {input, _} = IO.gets("Enter the index of the song you want to delete: ") |> Integer.parse()
 
-    delete_from(input)
+    case Enum.at(songs, input - 1) do
+      %{} = song ->
+        query = "DELETE FROM #{keyspace()}.#{table()} WHERE id = ? AND created_at = ?;"
+
+        Actions.run_query(query, [song.id, song.created_at])
+
+        IO.puts("Song deleted!")
+
+      nil ->
+        IO.puts("Invalid index.")
+    end
   end
 
   defp generate_stress_query(some_id) do
