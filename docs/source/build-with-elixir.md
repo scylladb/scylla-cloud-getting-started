@@ -25,6 +25,7 @@ Let's do a quick change into our `mix.exs` and add our project dependencies.
 ```exs
 defp deps do
   [
+    {:dotenv, "~> 3.0"},
     {:decimal, "~> 1.0"},
     {:xandra, "~> 0.14"},
     {:elixir_uuid, "~> 1.2"}
