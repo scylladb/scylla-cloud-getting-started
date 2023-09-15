@@ -32,9 +32,10 @@ defp deps do
   ]
 end
 ```
-
+- [Dotenv](https://hexdocs.pm/dotenv/Dotenv.html): A port of dotenv to Elixir 
 - [Decimal](https://hexdocs.pm/decimal/readme.html): Arbitrary precision decimal arithmetic
 - [Xandra](https://github.com/lexhide/xandra): Fast, simple, and robust Cassandra/ScyllaDB driver for Elixir
+- [Elixir UUID](https://hexdocs.pm/uuid/readme.html): UUID generator and utilities for Elixir 
 
 To carry out modifications, use the module already created in `lib/media_player.ex`, as this is where we are going to carry out some modifications.
 
