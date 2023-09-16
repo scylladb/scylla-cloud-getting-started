@@ -4,92 +4,87 @@ In this tutorial we're gonna build a simple Media Player to store our songs and 
 
 ## 1. Setup the Environment
 
-### 1.1 Downloading chsarp and .NET dependencies:
+### 1.1 Downloading .NET dependecies:
 
-If you don't have csharp installed already on your machine, you can install from two possible sources:
+If you don't have csharp installed already on your machine, you can install from the following source:
 
-1. [Ruby main website](https://www.ruby-lang.org/en/downloads/)
-2. [Rbenv](https://github.com/rbenv/rbenv)
-
-After installing the language, make sure to install the `bundler` library so we can manage our projects with:
-
-```sh
-gem install bundler
-```
+1. [.NET main website](https://dotnet.microsoft.com/en-us/download/)
 
 ### 1.2 Starting the project
 
-Now with the ruby and bundler gem installed, let's create a new project with the following command:
+Now with the .NET installed, let's create a new project with the following command:
 
 ```sh
-mkdir media_player && cd media_player && bundle init
+dotnet new console -n media_player && cd media_player
 ```
 
 ### 1.3 Setting the project dependencies
 
-First we'll install the required gem to connect to scyllaDB with the following command:
+First we'll install the required package to connect to scyllaDB with the following command:
 
 ```sh
-bundle add cassandra-driver
+dotnet add package CassandraCSharpDriver
 ```
 
-This gem can be found at [github](https://github.com/datastax/ruby-driver/)
+This package can be found at [github](https://github.com/datastax/csharp-driver/)
 
-> Disclaimer: This gem require system wide dependencies with the cassandra client, so it's required to install on your system (or run the whole application under a docker image). You can find the installation guide at: https://cassandra.apache.org/doc/latest/cassandra/getting_started/installing.html
+> Disclaimer: This package require system wide dependencies with the cassandra client, so it's required to install on your system (or run the whole application under a docker image). You can find the installation guide at: https://cassandra.apache.org/doc/latest/cassandra/getting_started/installing.html
 
-A sample `Gemfile` will be like this:
-
-```ruby
-# frozen_string_literal: true
-
-source 'https://rubygems.org'
-
-gem 'cassandra-driver', '~> 3.2'
-```
 
 ## 2. Connecting to the Cluster
 
 Make sure to get the right credentials on your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
 
-require 'cassandra'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-very-secure-password',
-  hosts: [
-    'node-0.aws-sa-east-1.xxx.clusters.scylla.cloud',
-    'node-1.aws-sa-east-1.xxx.clusters.scylla.cloud',
-    'node-2.aws-sa-east-1.xxx.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                     .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .WithCredentials("scylla", "a-very-secure-password")
+                     .Build();
+    }
+}
+
 ```
 
 > If the connection got refused, check if your IP Address is added into allowed IPs.
 
 ## 3. Handling Queries
 
-Using the `cassandra` gem you can instantiate a session and then run fully asynchronous queries.
+Using the `cassandra` package you can instantiate a session and then run fully queries.
 
-```ruby
-session  = cluster.connect
+```csharp
+using Cassandra;
 
-future = session.execute_async('SELECT address, port, connection_stage FROM system.clients LIMIT 5')
-future.on_success do |rows|
-  rows.each do |row|
-    puts "IP -> #{row[:address]}, Port -> #{row[:port]}, CS -> #{row[:connection_stage]}"
-  end
-end
+namespace Program;
 
-future.join
+public class Program
+{
+    static void Main(string[] args)
+    {
+        var session = cluster.Connect();
+        var rs = session.Execute("SELECT address, port, connection_stage FROM system.clients LIMIT 5");
+        foreach (var row in rs)
+        {
+            Console.Write($"IP -> {row["address"]}, Port -> {row["port"]}, CS -> {row["connection_stage"]}");
+        }
+    }
+}
+
 ```
 
 The output should look something like:
 
 ```
-IP -> 170.244.28.189, Port -> 49096, CS -> AUTHENTICATING
+IP -> 172.17.0.1, Port -> 52830, CS -> READY
 ```
 
 ### 3.1 Creating a Keyspace
@@ -98,48 +93,54 @@ The `keyspace` inside the ScyllaDB ecossystem can be interpreted as your `databa
 
 On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
 
-require 'cassandra'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-strong-password',
-  hosts: [
-    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
-    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
-    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                     .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .WithCredentials("scylla", "a-very-secure-password")
+                     .Build();
 
-keyspace = 'media_player'
+        string keyspace = "media_player";
 
-session = cluster.connect
+        var session = cluster.Connect();
+        var ps = session.Prepare("select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?");
 
-# Verify if the Keyspace already exists in your Cluster
-has_keyspace = session.execute_async('select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?',
-                                     arguments: [keyspace]).join.rows.size
+        var statement = ps.Bind(keyspace);
 
-if has_keyspace.zero?
-  new_keyspace_query = <<~SQL
-    CREATE KEYSPACE #{keyspace}
-    WITH replication = {
-      'class': 'NetworkTopologyStrategy',
-      'replication_factor': '3'
+        var result = session.Execute(statement);
+
+        var rows = result
+                    .GetRows()
+                    .ToList();
+
+        if(rows.Count == 0)
+        {
+            Console.WriteLine(rows.Count);
+            StringBuilder sb = new();
+            sb.Append($"CREATE KEYSPACE {keyspace} ");
+            sb.Append("WITH replication = { 'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}");
+            sb.Append("AND durable_writes = true");
+                
+            session.Execute(sb.ToString());
+            Console.WriteLine("Keyspace created!");
+        }
+        else
+        {
+            Console.WriteLine("Keyspace already created!");
+        }
+        # Reconnecting to the cluster with the correct keyspace
+        session = cluster.Connect("media_player")
     }
-    AND durable_writes = true
-  SQL
-
-  session.execute_async(new_keyspace_query).join
-
-  puts "Keyspace #{keyspace} created!"
-else
-  puts "Keyspace #{keyspace} already created!"
-end
-
-# Reconnecting to the cluster with the correct keyspace
-session = cluster.connect(keyspace)
+}
 ```
 
 ### 3.2 Creating a table
@@ -147,143 +148,144 @@ session = cluster.connect(keyspace)
 A table is used to store part or all the data of your app (depends on how you will build it). 
 Remember to add your `keyspace` into your connection and let's create a table to store our liked songs.
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
 
-require 'cassandra'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-strong-password',
-  hosts: [
-    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
-    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
-    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                      .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                      .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                      .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                      .WithCredentials("scylla", "a-very-secure-password")
+                      .Build();
 
-keyspace = 'media_player'
-table = 'playlist'
+        string keyspace = "media_player";
+        string table = "playlist";
 
-session = cluster.connect(keyspace)
+        var session = cluster.Connect(keyspace);
+        var ps = session.Prepare("select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?");
 
-# Verify if the table already exists in the specific Keyspace inside your Cluster
-has_table = session.execute_async('select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?', arguments: [keyspace, table]).join.rows.size
+        var statement = ps.Bind(keyspace, table);
 
-if has_table.zero?
-  new_table_query = <<~SQL
-    CREATE TABLE #{keyspace}.#{table} (
-      id uuid,
-      title text,
-      album text,
-      artist text,
-      created_at timestamp
-      PRIMARY KEY (id, created_at)
-    )
-  SQL
+        var result = session.Execute(statement);
 
-  session.execute_async(new_table_query).join
+        var rows = result
+                    .GetRows()
+                    .ToList();
 
-  puts "Table #{table} created!"
-else
-  puts "Table #{table} already created!"
-end
+        if(rows.Count == 0)
+        {
+            StringBuilder sb = new();
+            sb.Append($"CREATE TABLE {keyspace}.{table} (id uuid, title text, album text, artist text, created_at timestamp, PRIMARY KEY(id, created_at));");
+            Console.WriteLine(sb.ToString());
+            session.Execute(sb.ToString());
+            Console.WriteLine("Table created!");
+        }
+        else
+        {
+            Console.WriteLine("Table already created!");
+        }
+    }
+}
 ```
 
 ### 3.3 Inserting data
 
 Now that we have the keyspace and a table inside of it, we need to bring some good songs and populate it. 
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
 
-require 'cassandra'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-strong-password',
-  hosts: [
-    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
-    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
-    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    public record Song(string Title, string Album, string Artist, DateTime CreatedAt);
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                     .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .WithCredentials("scylla", "a-very-secure-password")
+                     .Build();   
 
-keyspace = 'media_player'
-table = 'playlist'
+        string keyspace = "media_player";
+        string table = "playlist";
+        
+        var session = cluster.Connect(keyspace);
+        
+        List<Song> songs = new()
+        {
+            new Song("Bohemian Rhapsody", "A night at the Opera", "Queen", DateTime.Now),
+            new Song("Closer to the Edge", "This Is War", "Thirty Seconds to Mars", DateTime.Now),
+            new Song("I Write Sins Not Tragedies", "A Fever You Can't Sweat Out", "Panic! at the Disco", DateTime.Now),
+        };
 
-session = cluster.connect(keyspace)
+        var ps = session.Prepare($"INSERT INTO {table} (id, title, album, artist, created_at) VALUES (?, ?, ?, ?, ?)");
 
-song_list = [
-  {
-    title: 'Bohemian Rhapsody',
-    album: 'A Night at the Opera',
-    artist: 'Queen',
-    created_at: Time.now
-  },
-  {
-    title: 'Hotel California',
-    album: 'Hotel California',
-    artist: 'Eagles',
-    created_at: Time.now
-  },
-  {
-    title: 'Smells Like Teen Spirit',
-    album: 'Nevermind',
-    artist: 'Nirvana',
-    created_at: Time.now
-  }
-]
-
-insert_query = "INSERT INTO #{table} (now(),title,album,artist,created_at) VALUES (?,?,?,?)"
-
-song_list.each do |song|
-  session.execute_async(insert_query,
-                        arguments: [song[:title], song[:album], song[:artist],
-                                    song[:created_at]]).join.rows.size
-end
+        foreach(Song song in songs)
+        {
+            var uuid = Guid.NewGuid();
+            var statement = ps.Bind(uuid,song.Title, song.Album, song.Artist, song.CreatedAt);
+            session.Execute(statement);
+        }
+    }
+}
 ```
 
 ### 3.4 Reading data
 
 Since probably we added more than 3 songs into our database, let's list it into our terminal.
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
 
-require 'cassandra'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-strong-password',
-  hosts: [
-    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
-    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
-    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    public record Song(string Title, string Album, string Artist, DateTime CreatedAt);
 
-keyspace = 'media_player'
-table = 'playlist'
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                     .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .WithCredentials("scylla", "a-very-secure-password")
+                     .Build();   
 
-session = cluster.connect(keyspace)
+        string keyspace = "media_player";
+        string table = "playlist";
+        
+        var session = cluster.Connect(keyspace);
+        
+        var result = session.Execute($"SELECT id, title, album, artist FROM {table}");
 
-future = session.execute_async("SELECT id, title, album, artist, created_at FROM #{table}")
-future.on_success do |rows|
-  rows.each do |row|
-    puts "ID: #{song['id']} | Song: #{song['title']} | Album: #{song['album']} | Created At: #{song['created_at']}"
-  end
-end
+        var rows = result
+                    .GetRows()
+                    .ToList();
 
-future.join
+        foreach(var row in rows)
+        {
+            Console.WriteLine($"ID: {row["id"]} | Song: {row["title"]} | Album: {row["album"]} | Artist: {row["artist"]}" );
+        }
+    }
+}
 ```
 
 The result will look like:
 
 ```
-ID: 40450211-42cc-11ee-b14c-3da98b5024c0 | Song: Smells Like Teen Spirit | Album: Nevermind | Created At: 2023-08-24 19:19:11 -0300
-ID: 3ab84321-42cc-11ee-b14c-3da98b5024c0 | Song: Hotel California | Album: Hotel California | Created At: 2023-08-24 19:19:01 -0300
-ID: 354f11c1-42cc-11ee-b14c-3da98b5024c0 | Song: Bohemian Rhapsody | Album: A Night at the Opera | Created At: 2023-08-24 19:18:52 -0300
+ID: 0d617157-57aa-48aa-98dc-f850b74e6aba | Song: Bohemian Rhapsody | Album: A night at the Opera | Artist: Queen
+ID: 1b9a90fa-ec7a-4469-babb-f375fb8635cf | Song: Closer to the Edge | Album: This Is War | Artist: Thirty Seconds to Mars
+ID: e59da413-d185-4065-9b7c-ae36f5203e90 | Song: I Write Sins Not Tragedies | Album: A Fever You Can't Sweat Out | Artist: Panic! at the Disco
 ```
 
 ### 3.5 Updating data
@@ -297,54 +299,60 @@ If you want to read more about it, [click here.](https://docs.scylladb.com/stabl
 
 As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check the snippet below: 
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
+using System.Globalization;
 
-require 'cassandra'
-require 'securerandom'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-strong-password',
-  hosts: [
-    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
-    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
-    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    public record Song(string Title, string Album, string Artist, DateTime CreatedAt);
 
-keyspace = 'media_player'
-table = 'playlist'
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                     .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .WithCredentials("scylla", "a-very-secure-password")
+                     .Build();   
 
-session = cluster.connect(keyspace)
+        string keyspace = "media_player";
+        string table = "playlist";
+        
+        var session = cluster.Connect(keyspace);
+        
+        Song song = new(
+            "Bohemian Rhapsody Updated",
+            "A night at the Opera Updated",
+            "Queen Updated",
+            DateTime.ParseExact("2023-09-16 18:22:56.397000+0000", "yyyy-MM-dd HH:mm:ss.ffffffzzz", CultureInfo.InvariantCulture));
 
-song = {
-    title: 'Smells Like Teen Spirit Updated',
-    album: 'Nevermind Updaetd',
-    artist: 'Nirvana Updated',
-    created_at: Time.new('2023-08-24 22:19:11.091000+0000')
+        var ps = session.Prepare($"UPDATE {keyspace}.{table} SET title = ?, album = ?, artist = ? where id = ? and created_at = ?");
+        var statement = ps.Bind(song.Title, song.Album, song.Artist, new Guid("0d617157-57aa-48aa-98dc-f850b74e6aba"), song.CreatedAt); 
+
+        session.Execute(statement);
+        
+        Console.WriteLine("Song Updated");
+    }
 }
-
-update_query = "UPDATE #{keyspace}.#{table} SET title = ?, album = ?, artist = ? where id = ? and created_at = ?"
-
-session.execute_async(update_query, arguments: [song[:title], song[:album], song[:artist], '40450211-42cc-11ee-b14c-3da98b5024c0', song[:created_at]]).join
-
-puts 'Song Updated'
 ```
 
 After updated, let's query for the ID and see the results:
 
 ```
-scylla@cqlsh> select * from media_player.playlist where id = 40450211-42cc-11ee-b14c-3da98b5024c0;
+scylla@cqlsh:media_player> select * from media_player.playlist where id = 0d617157-57aa-48aa-98dc-f850b74e6aba;
+
 
  id                                   | created_at                      | album             | artist          | title
 --------------------------------------+---------------------------------+-------------------+-----------------+---------------------------------
- 40450211-42cc-11ee-b14c-3da98b5024c0 | 2023-08-24 22:19:11.091000+0000 | Nevermind Updated | Nirvana Updated | Smells Like Teen Spirit Updated
+ 0d617157-57aa-48aa-98dc-f850b74e6aba | 2023-09-16 18:22:56.397000+0000 | 2023-09-16 18:22:56.397000+0000 | Queen Updated | Bohemian Rhapsody Updated
 
 (1 rows)
 ```
 
-It only "updated" the field `title` and `updated_at` (that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
+It only "updated" the field `title`, `album` and `artist`(that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
 
 ### 3.5 Deleting data
 
@@ -352,53 +360,58 @@ Let's understand what we can DELETE with this statement. There's the normal `DEL
 
 ```sql 
 -- Deletes a single row
-DELETE FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
+DELETE FROM songs WHERE id = 0d617157-57aa-48aa-98dc-f850b74e6aba;
 
 -- Deletes a whole column
-DELETE artist FROM songs WHERE id = d754f8d5-e037-4898-af75-44587b9cc424;
+DELETE artist FROM songs WHERE id = 0d617157-57aa-48aa-98dc-f850b74e6aba;
 ```
 
 If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
 On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM keyspace.table_name" it will delete ALL the rows that you stored with that ID. 
 
-```ruby
-# frozen_string_literal: true
+```csharp
+using Cassandra;
+using System.Globalization;
 
-require 'cassandra'
-require 'securerandom'
+namespace Program;
 
-cluster = Cassandra.cluster(
-  username: 'scylla',
-  password: 'a-strong-password',
-  hosts: [
-    'node-0.aws-us-east-1.first.clusters.scylla.cloud',
-    'node-1.aws-us-east-1.second.clusters.scylla.cloud',
-    'node-2.aws-us-east-1.third.clusters.scylla.cloud'
-  ]
-)
+public class Program
+{
+    public record Song(string Title, string Album, string Artist, DateTime CreatedAt);
 
-keyspace = 'media_player'
-table = 'playlist'
+    static void Main(string[] args)
+    {
+        var cluster = Cluster.Builder()
+                     .AddContactPoints("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-1.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .AddContactPoints("node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+                     .WithCredentials("scylla", "a-very-secure-password")
+                     .Build();   
 
-session = cluster.connect(keyspace)
+        string keyspace = "media_player";
+        string table = "playlist";
+        
+        var session = cluster.Connect(keyspace);
+        
+        Song song = new(
+            "Bohemian Rhapsody Updated",
+            "A night at the Opera Updated",
+            "Queen Updated",
+            DateTime.ParseExact("2023-09-16 18:22:56.397000+0000", "yyyy-MM-dd HH:mm:ss.ffffffzzz", CultureInfo.InvariantCulture));
 
-song = {
-    title: 'Smells Like Teen Spirit Updated',
-    album: 'Nevermind Updaetd',
-    artist: 'Nirvana Updated',
-    created_at: Time.new('2023-08-24 22:19:11.091000+0000')
+        var ps = session.Prepare($"DELETE FROM {keyspace}.{table} where id = ? and created_at = ?");
+        var statement = ps.Bind(new Guid("0d617157-57aa-48aa-98dc-f850b74e6aba"), song.CreatedAt); 
+
+        session.Execute(statement);
+        
+        Console.WriteLine("Song deleted!");
+    }
 }
-
-delete_query = "DELETE FROM #{keyspace}.#{table} where id = ? and created_at = ?"
-
-session.execute_async(delete_query, arguments: ['40450211-42cc-11ee-b14c-3da98b5024c0', song[:created_at]]).join
-
-puts 'Song deleted!'
 ```
 
 ## Conclusion
 
-Yay! You now have the knowledge to use the basics of ScyllaDB with Ruby.
+Yay! You now have the knowledge to use the basics of ScyllaDB with Csharp.
 
 If you thinks that something can be improved, please open an issue and let's make it happen!
 
