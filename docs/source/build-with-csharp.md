@@ -124,7 +124,6 @@ public class Program
 
         if(rows.Count == 0)
         {
-            Console.WriteLine(rows.Count);
             StringBuilder sb = new();
             sb.Append($"CREATE KEYSPACE {keyspace} ");
             sb.Append("WITH replication = { 'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}");
