@@ -1,6 +1,6 @@
-namespace MediaPlayer;
+namespace MediaPlayer.Constants;
 
-public static class Constants
+public static class Queries
 {
     public static string CreateKeyspaceIfDoesntExistQuery => "CREATE KEYSPACE prod_media_player WITH replication = { 'class': 'NetworkTopologyStrategy', 'replication_factor': '3'} AND durable_writes = true";
     public static string CheckKeyspaceQuery => "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name=?";
@@ -10,6 +10,6 @@ public static class Constants
     public static string CreateSongQuery => "INSERT INTO prod_media_player.songs (id,title,artist,album,created_at) VALUES (?,?,?,?,?)";
     public static string DeleteSongQuery => "DELETE FROM prod_media_player.songs WHERE id = ?";
     public static string UpdateSongCounterQuery =>
-        "UPDATE prod_media_player.added_songs_counter SET amount = amount + 1 WHERE id = 1";
+        "UPDATE prod_media_player.song_counter SET amount = amount + 1 WHERE id = 1";
     public static string ListSongsQuery => "SELECT id, title, album, artist, created_at FROM prod_media_player.songs LIMIT 10";
 }

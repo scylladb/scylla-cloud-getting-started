@@ -1,10 +1,14 @@
 using Cassandra;
+using MediaPlayer.Models;
+using MediaPlayer.Constants;
+using MediaPlayer.Helper;
 
 namespace MediaPlayer;
 
 public class DataBase : IDisposable
 {
     private readonly ISession _session;
+
     public DataBase(string[] credentials)
     {
         var session = Connect(credentials);
@@ -13,7 +17,7 @@ public class DataBase : IDisposable
 
     public async Task Add(Song song)
     {
-        string query = Constants.CreateSongQuery;
+        string query = Queries.CreateSongQuery;
         var ps = await _session.PrepareAsync(query);
         var statement = ps.Bind(song.Id, song.Title, song.Artist, song.Album, song.CreatedAt);
 
@@ -23,7 +27,7 @@ public class DataBase : IDisposable
     public async Task<List<Song>> ListSongs()
     {
         List<Song> songs = new();
-        string query = Constants.ListSongsQuery;
+        string query = Queries.ListSongsQuery;
         var ps = await _session.PrepareAsync(query);
         var statement = ps.Bind();
         var result = await _session.ExecuteAsync(statement);
@@ -48,13 +52,13 @@ public class DataBase : IDisposable
             };
             songs.Add(song);
         }
-        
+
         return songs;
     }
 
     public async Task Delete(Song song)
     {
-        string query = Constants.DeleteSongQuery;
+        string query = Queries.DeleteSongQuery;
         var ps = await _session.PrepareAsync(query);
         var statement = ps.Bind(song.Id);
         await _session.ExecuteAsync(statement);
@@ -66,14 +70,14 @@ public class DataBase : IDisposable
         {
             var username = credentials[0];
             var password = credentials[1];
-            var nodeOne = credentials[2];
-            var nodeTwo = credentials[3];
-            var nodeThree = credentials[4];
+            var firstNode = credentials[2];
+            var secondNode = credentials[3];
+            var thirdNode = credentials[4];
 
             var cluster = Cluster.Builder()
-                .AddContactPoints(nodeOne)
-                .AddContactPoints(nodeTwo)
-                .AddContactPoints(nodeThree)
+                .AddContactPoints(firstNode)
+                .AddContactPoints(secondNode)
+                .AddContactPoints(thirdNode)
                 .WithQueryTimeout(5000)
                 .WithCredentials(username, password)
                 .Build();
@@ -102,16 +106,14 @@ public class DataBase : IDisposable
 
     private async Task CreateKeySpace()
     {
-        var keyspaceQuery = Constants.CheckKeyspaceQuery;
+        var keyspaceQuery = Queries.CheckKeyspaceQuery;
         var ps = await _session.PrepareAsync(keyspaceQuery);
         var statement = ps.Bind("prod_media_player");
 
         var result = await _session.ExecuteAsync(statement);
-
-        var rows = result.GetRows().ToList();
-        if(rows.Count == 0)
+        if (!DataBaseHelper.RowSetHasResult(result))
         {
-            var createKeyspaceQuery = Constants.CreateKeyspaceIfDoesntExistQuery;
+            var createKeyspaceQuery = Queries.CreateKeyspaceIfDoesntExistQuery;
             var preparedStatement = await _session.PrepareAsync(createKeyspaceQuery);
             var st = preparedStatement.Bind();
             await _session.ExecuteAsync(st);
@@ -122,31 +124,27 @@ public class DataBase : IDisposable
     {
         var keyValuePairs = new Dictionary<string, string>()
         {
-            { "songs", Constants.CreateTableSongExistQuery },
-            { "song_counter", Constants.CreateTableSongCounterQuery }
+            { "songs", Queries.CreateTableSongExistQuery },
+            { "song_counter", Queries.CreateTableSongCounterQuery }
         };
 
         foreach (var kvp in keyValuePairs)
         {
-            var checkTableQuery = Constants.CheckTableQuery;
+            var checkTableQuery = Queries.CheckTableQuery;
             var ps = await _session.PrepareAsync(checkTableQuery);
-            
+
             var statement = ps.Bind("prod_media_player", kvp.Key);
 
             var result = await _session.ExecuteAsync(statement);
-
-            var rows = result
-                .GetRows()
-                .ToList();
-            
-            if(rows.Count == 0)
+            if (!DataBaseHelper.RowSetHasResult(result))
             {
                 var preparedStatement = await _session.PrepareAsync(kvp.Value);
                 var st = preparedStatement.Bind();
                 await _session.ExecuteAsync(st);
-            }    
+            }
         }
     }
+
     public void Dispose()
     {
         _session.Dispose();

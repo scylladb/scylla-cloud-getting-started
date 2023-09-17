@@ -1,3 +1,6 @@
+using MediaPlayer.Helper;
+using MediaPlayer.Models;
+
 namespace MediaPlayer;
 
 public class Cli
@@ -6,7 +9,11 @@ public class Cli
 
     public Cli(string[] args)
     {
-        _dataBase = new DataBase(args);
+        var isConnectionValid = ValidateArguments(args);
+        if(isConnectionValid)
+            _dataBase = new DataBase(args);
+        else
+            throw new SystemException("See ya!");
     }
 
     public async Task Intro()
@@ -43,14 +50,27 @@ public class Cli
             while (lifeTimeCli)
             {
                 var command = GetCommand();
-                var _ = command switch
+                switch (command)
                 {
-                    "!add" => AddSong(),
-                    "!list" => ListSongs(),
-                    "!stress" => Stress(),
-                    "!q" => Exit(),
-                    _ => Start()
-                };
+                    case "!add":
+                        await AddSong();
+                        break;
+                    case "!list":
+                        await ListSongs();
+                        break;
+                    case "!delete":
+                        await DeleteSong();
+                        break;
+                    case "!stress":
+                        await Stress();
+                        break;
+                    case "!q":
+                        await Exit();
+                        break;
+                    default:
+                        await Start();
+                        break;
+                }
                 DisplayHint();
             }
         }
@@ -58,20 +78,6 @@ public class Cli
         {
             Console.WriteLine(ex.Message);
         }
-        
-        // loop {
-        //     let command = get_command();
-        //
-        //     let _ = match command.as_str().trim() {
-        //         "!add" => commands::add_song(&mut database).await,
-        //         "!list" => commands::list_songs(&database).await,
-        //         "!delete" => commands::delete_song(&mut database).await,
-        //         "!stress" => commands::stress(Arc::new(Database::new(&args).await)).await,
-        //         "!q" => panic!("See ya!"),
-        //         _ => Ok(()),
-        //     };
-        //     display_help();
-        // }
     }
 
     private string GetCommand()
@@ -79,6 +85,7 @@ public class Cli
         Console.Write("Type any command: ");
         var command = Console.ReadLine();
 
+        Console.WriteLine("");
         if (string.IsNullOrEmpty(command))
         {
             DisplayHint();
@@ -119,11 +126,9 @@ public class Cli
         
         var songs = await _dataBase.ListSongs();
 
-        foreach (var song in songs)
-        {
-            Console.WriteLine($"ID: {song.Id} | Song: {song.Title} | Album: {song.Album} | Artist: {song.Artist} | Created At: {song.CreatedAt}");
-        }
+        ShowSongList(songs);
         Console.WriteLine($"-----------------------------------");
+        Console.WriteLine("");
     }
 
     private async Task Stress()
@@ -133,17 +138,17 @@ public class Cli
         Console.WriteLine("Inserting 100.000 records into the database...");
         Console.WriteLine(">    Starting...");
         
-        var interation = 100001;
+        var interation = 10000;
         var insertAsync = new List<Task>();
         for (int i = 0; i < interation; i++)
         {
             insertAsync.Add(InsertSong());
-
         }
 
         await Task.WhenAll(insertAsync);
-        
-        await Console.Out.WriteLineAsync($">    Time elapsed: {start.Second} seconds");
+
+        var timeElapsedToSecond = DateTime.Now - start;
+        await Console.Out.WriteLineAsync($">    Time elapsed: {timeElapsedToSecond.Seconds} seconds");
     }
 
     private async Task InsertSong()
@@ -159,6 +164,40 @@ public class Cli
         await _dataBase.Add(song);
     }
 
+    private async Task DeleteSong()
+    {
+        var songs = await _dataBase.ListSongs();
+        ShowSongList(songs, true);
+        Console.Write("Select a index to be deleted: ");
+        var indexSelected = Console.ReadLine();
+        var song = songs[Convert.ToInt32(indexSelected) - 1];
+        Console.WriteLine($"Song {song.Title} from artist {song.Artist} Deleted!");
+        await _dataBase.Delete(song);
+
+    }
+    
+    private bool ValidateArguments(string[] args)
+    {
+        return args.Length switch
+        {
+            0 => ValidationHelper.ArgsValidation("Missing all arguments."),
+            1 => ValidationHelper.ArgsValidation("Missing password credential."),
+            2 => ValidationHelper.ArgsValidation("0 of 3 nodes were provided."),
+            3 => ValidationHelper.ArgsValidation("1 of 3 nodes were provided."),
+            4 => ValidationHelper.ArgsValidation("2 of 3 nodes were provided."),
+            5 => true,
+            _ => ValidationHelper.ArgsValidation("Too many arguments")
+        };
+    }
+
+    private void ShowSongList(List<Song> songs, bool withIndex = false)
+    {
+        foreach (var (song, index) in songs.Select((v, i)=>(v, i)))
+        {
+            Console.WriteLine($"{(withIndex ? $"Index: {index + 1}" : $"ID: {song.Id}")} | Song: {song.Title} | Album: {song.Album} | Artist: {song.Artist} | Created At: {song.CreatedAt}");
+        }
+    }
+
     private Task Exit()
-        =>throw new SystemException("See ya!");
+        => throw new SystemException("See ya!");
 }

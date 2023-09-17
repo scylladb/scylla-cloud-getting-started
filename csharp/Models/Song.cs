@@ -1,4 +1,4 @@
-namespace MediaPlayer;
+namespace MediaPlayer.Models;
 
 public record Song
 {
