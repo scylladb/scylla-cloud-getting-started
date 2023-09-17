@@ -21,7 +21,7 @@ cd scylla-cloud-getting-started/csharp
 Install the project dependencies and run the project: 
 
 ```sh
-dotnet scylla yourpassword node-0 node-1 node-2
+dotnet run youruser yourpassword node-0 node-1 node-2
 ```
 
 > Replace the variables with your cluster information
