@@ -14,7 +14,7 @@ class App
     public function start(): void
     {
         $alternatorClient = new DynamoDbClient([
-            'endpoint' => 'http://18.231.92.93:8000',
+            'endpoint' => 'http://localhost:8000',
             'credentials' => ['key' => 'None', 'secret' => 'None'],
             'region' => 'None'
         ]);

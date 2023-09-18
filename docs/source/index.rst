@@ -87,6 +87,12 @@
   :class: large-4
 
 .. topic-box::
+  :title: Build with Elixir
+  :image: /_static/img/programming_languages/elixir.png
+  :link: build-with-elixir
+  :class: large-4
+
+.. topic-box::
   :title: Build with Csharp
   :image: /_static/img/programming_languages/csharp.png
   :link: build-with-csharp
@@ -167,6 +173,7 @@
    Design and Data Model <design-and-data-model>
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
+   Build with Elixir <build-with-elixir>
    Build with Python <build-with-python>
    Build with Ruby <build-with-ruby>
    Build with Rust <build-with-rust>
