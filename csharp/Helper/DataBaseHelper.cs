@@ -10,7 +10,6 @@ public static class DataBaseHelper
             .GetRows()
             .ToList();
 
-        var hasResult = rows.Count > 0;
-        return hasResult;
+        return rows.Count > 0;
     }
 }

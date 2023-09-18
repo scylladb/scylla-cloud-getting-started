@@ -4,7 +4,7 @@ Project to store songs that you like to listen daily and keep track of them in a
 
 ## Prerequisites
 
-* [Csharp]()
+* [Csharp](https://dotnet.microsoft.com/en-us/download/)
 * [Cassandra related libraries](https://cassandra.apache.org/doc/latest/cassandra/getting_started/installing.html)
 
 > Disclaimer: This gem require system wide dependencies with the cassandra client, so it's required to install on your system (or run the whole application under a docker image).

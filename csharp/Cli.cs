@@ -138,7 +138,7 @@ public class Cli
         Console.WriteLine("Inserting 100.000 records into the database...");
         Console.WriteLine(">    Starting...");
         
-        var interation = 10000;
+        var interation = 100000;
         var insertAsync = new List<Task>();
         for (int i = 0; i < interation; i++)
         {

@@ -181,7 +181,6 @@ public class Program
         {
             StringBuilder sb = new();
             sb.Append($"CREATE TABLE {keyspace}.{table} (id uuid, title text, album text, artist text, created_at timestamp, PRIMARY KEY(id, created_at));");
-            Console.WriteLine(sb.ToString());
             session.Execute(sb.ToString());
             Console.WriteLine("Table created!");
         }
@@ -249,8 +248,6 @@ namespace Program;
 
 public class Program
 {
-    public record Song(string Title, string Album, string Artist, DateTime CreatedAt);
-
     static void Main(string[] args)
     {
         var cluster = Cluster.Builder()
