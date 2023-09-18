@@ -16,7 +16,7 @@ You can instantiate a new DynamoDB Client by using:
 ````python
 import boto3
 
-alternator = boto3.resource('dynamodb',endpoint_url='http://18.231.92.93:8000',
+alternator = boto3.resource('dynamodb',endpoint_url='http://localhost:8000',
                 region_name='None', aws_access_key_id='None', aws_secret_access_key='None')
 
 ````
@@ -29,7 +29,7 @@ Here's the DynamoDB queries used on this project so far:
 ````python
 import boto3
 
-alternator = boto3.resource('dynamodb',endpoint_url='http://18.231.92.93:8000',
+alternator = boto3.resource('dynamodb',endpoint_url='http://localhost:8000',
                 region_name='None', aws_access_key_id='None', aws_secret_access_key='None')
 
 table = alternator.create_table(
@@ -62,7 +62,7 @@ table.put_item(Item={
 ### Adding Items
 
 ```python
-alternator = boto3.resource('dynamodb',endpoint_url='http://18.231.92.93:8000',
+alternator = boto3.resource('dynamodb',endpoint_url='http://localhost:8000',
                 region_name='None', aws_access_key_id='None', aws_secret_access_key='None')
 
 table = alternator.Table('songs')
@@ -81,7 +81,7 @@ table.put_item(Item={
 
 ```python
 
-alternator = boto3.resource('dynamodb',endpoint_url='http://18.231.92.93:8000',
+alternator = boto3.resource('dynamodb',endpoint_url='http://localhost:8000',
                 region_name='None', aws_access_key_id='None', aws_secret_access_key='None')
 
 table = alternator.Table('songs')
@@ -98,7 +98,7 @@ for rowIndex, song in enumSongList:
 
 ```python
 
-alternator = boto3.resource('dynamodb',endpoint_url='http://18.231.92.93:8000',
+alternator = boto3.resource('dynamodb',endpoint_url='http://localhost:8000',
                 region_name='None', aws_access_key_id='None', aws_secret_access_key='None')
 
 table = alternator.Table('songs')

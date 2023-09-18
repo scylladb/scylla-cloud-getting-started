@@ -167,6 +167,7 @@
    Design and Data Model <design-and-data-model>
    Build with JavaScript <build-with-javascript>
    Build with Java <build-with-java>
+   Build with Elixir <build-with-elixir>
    Build with Python <build-with-python>
    Build with Ruby <build-with-ruby>
    Build with Rust <build-with-rust>

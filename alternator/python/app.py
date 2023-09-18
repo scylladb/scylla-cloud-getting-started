@@ -3,7 +3,7 @@ import uuid
 from helpers import migrate;
 from datetime import datetime
 
-dynamodb = boto3.resource('dynamodb', endpoint_url='http://18.231.92.93:8000',
+dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000',
                           region_name='None', aws_access_key_id='None', aws_secret_access_key='None')
 migrate(dynamodb)
 
