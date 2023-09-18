@@ -86,6 +86,12 @@
   :link: build-with-ruby
   :class: large-4
 
+.. topic-box::
+  :title: Build with Elixir
+  :image: /_static/img/programming_languages/elixir.png
+  :link: build-with-elixir
+  :class: large-4
+
 .. raw:: html
 
   </div></div></div>
