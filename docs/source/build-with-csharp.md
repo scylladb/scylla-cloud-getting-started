@@ -136,7 +136,8 @@ public class Program
         {
             Console.WriteLine("Keyspace already created!");
         }
-        # Reconnecting to the cluster with the correct keyspace
+
+        // Reconnecting to the cluster with the correct keyspace
         session = cluster.Connect("media_player")
     }
 }
