@@ -31,6 +31,7 @@ You can find language-specific implementations in their corresponding folder:
 - [Rust](/docs/source/build-with-rust.md)
 - [Ruby](/docs/source/build-with-ruby.md)
 - [Elixir](/docs/source/build-with-elixir.md)
+- [Csharp](/docs/source/build-with-csharp.md)
 
 
 ## Sample Projects
@@ -41,6 +42,7 @@ We also built the full project with some extra features for you use as study gui
 - [Python Project](/python)
 - [Ruby Project](/ruby)
 - [Elixir Project](/elixir)
+- [Csharp Project](/csharp)
 
 
 ## Contributing
