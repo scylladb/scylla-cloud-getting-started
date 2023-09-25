@@ -159,15 +159,19 @@ type Song struct {
     Created_at time.Time
 }
 
+func (s Song) String() string {
+	return fmt.Sprintf("Id: %s\nTitle: %s\nArtist: %s\nAlbum: %s\nCreated At: %s\n", s.Id, s.Title, s.Artist, s.Album, s.Created_at)
+}
+
 song := Song{}
 
-q := session.Query("SELECT * FROM media_player.playlist", nil);
+q := session.Query("SELECT * FROM media_player.playlist", nil)
 
 if err := q.SelectRelease(&song); err != nil {
     panic("error in exec query to list playlists: %w", err)
 }
 
-printl(song)
+println(song)
 ```
 
 The result will look like:
