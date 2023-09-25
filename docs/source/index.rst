@@ -100,7 +100,7 @@
 
 .. topic-box::
   :title: Build with Golang
-  :image: /_static/img/programming_languages/golang.png
+  :image: /_static/img/programming_languages/gopher.png
   :link: build-with-golang
   :class: large-4
 
