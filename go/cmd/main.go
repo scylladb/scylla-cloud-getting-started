@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	internal "github.com/Canhassi12/scylla-cloud-getting-started/Internal/commands"
-	"github.com/Canhassi12/scylla-cloud-getting-started/Internal/database"
+	"github.com/Canhassi12/scylla-cloud-getting-started/internal/controllers"
+	"github.com/Canhassi12/scylla-cloud-getting-started/internal/database"
 	"github.com/joho/godotenv"
 	"github.com/scylladb/gocqlx/v2"
 )
@@ -15,22 +15,29 @@ import (
 func main() {
 	godotenv.Load(".env")
 	
-	session, err := database.New().Connect(); if err != nil {
+	session, err := database.Connect(); 
+	if err != nil {
 		println("error database connection =>", err.Error())
 		return
 	}
 
-	err = executeMigrateFile(session, "./Internal/database/migrations/migrate.cql"); if err != nil {
+	migratePath := os.Getenv("MIGRATE_PATH")
+
+	if err := executeMigrateFile(session, migratePath); err != nil {
 		println(err.Error())
-		return
+		os.Exit(1)
 	}
 
 	reader := bufio.NewReader(os.Stdin)
 
+	songController := controllers.NewSongController(session)
+	stressController := controllers.NewStressController(session)
+
 	for {
 		fmt.Print("\nAvailable commands:\n!add - add a new song\n!list - list all registered songs\n!delete - delete a specific song\n!stress - stress testing with mocked data\n!q - Quit the console\n\n")
 		
-		input, err := reader.ReadString('\n'); if err != nil {
+		input, err := reader.ReadString('\n')
+		if err != nil {
 			fmt.Println("Error to read the input:", err)
 			break
 		}
@@ -39,9 +46,9 @@ func main() {
 
 		switch command {
 		case "!add":
-
 			fmt.Println("Insert song title: ")
-			titleInput, err := reader.ReadString('\n'); if err != nil {
+			titleInput, err := reader.ReadString('\n')
+			if err != nil {
 				fmt.Println("Error to read the input:", err.Error())
 				break
 			}
@@ -49,7 +56,8 @@ func main() {
 			title := strings.TrimSpace(titleInput)
 
 			fmt.Println("Insert album name: ")
-			albumInput, err := reader.ReadString('\n'); if err != nil {
+			albumInput, err := reader.ReadString('\n')
+			if err != nil {
 				fmt.Println("Error to read the input:", err.Error())
 				break
 			}
@@ -57,7 +65,8 @@ func main() {
 			album := strings.TrimSpace(albumInput)
 
 			fmt.Println("Insert artist name:")
-			artistInput, err := reader.ReadString('\n'); if err != nil {
+			artistInput, err := reader.ReadString('\n')
+			if err != nil {
 				fmt.Println("Error to read the input:", err.Error())
 				break
 			}
@@ -70,13 +79,13 @@ func main() {
 				Album: album,
 			}
 
-			err = internal.NewAddSongCommand().Insert(session, song); if err != nil {
+			if err = songController.Insert(song); err != nil {
 				println(err.Error())
-				continue
 			}
 		
 		case "!list":
-			songs, err := internal.NewListSongCommand().List(session); if err != nil {
+			songs, err := songController.List()
+			if err != nil {
 				println(err.Error())
 				break
 			}
@@ -84,20 +93,21 @@ func main() {
 			for _, song := range songs {
 				fmt.Println(song)
 			}
+			
 		case "!delete": 
-			err := internal.NewDeleteSongCommand().Delete(session); if err != nil {
+			if err := songController.Delete(); err != nil {
 				println(err.Error())
 			}
 
 		case "!stress":
-			err := internal.NewStressTestingCommand().Stress(session); if err != nil {
+			if err := stressController.Stress(); err != nil {
 				println(err.Error())
 			}
 			
 		case "!q": 
 			fmt.Println("Exiting...")
+			os.Exit(0)
 
-			return
 		default: 
 			continue
 		}

@@ -8,19 +8,7 @@ import (
 	"github.com/scylladb/gocqlx/v2"
 )
 
-type DbInterface interface {
-	Connect() (*gocqlx.Session, error)
-}
-
-type Db struct {
-
-}
-
-func New() *Db {
-	return &Db{}
-}
-
-func (db *Db) Connect() (*gocqlx.Session, error) {
+func Connect() (*gocqlx.Session, error) {
 	nodes := os.Getenv("NODES")
 	username := os.Getenv("CLUSTER_USERNAME")
 	password := os.Getenv("CLUSTER_PASSWORD")
@@ -34,7 +22,6 @@ func (db *Db) Connect() (*gocqlx.Session, error) {
 	cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy(region)
 
 	session, err := gocqlx.WrapSession(cluster.CreateSession())
-
 	if err != nil {
 		return nil, err
 	}

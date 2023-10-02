@@ -1,4 +1,4 @@
-package internal
+package controllers
 
 import (
 	"fmt"
@@ -8,20 +8,15 @@ import (
 	"github.com/scylladb/gocqlx/v2"
 )
 
-
-type StressTestingCommandInterface interface {
-	Stress(*gocqlx.Session) error
+type StressController struct {
+	Session *gocqlx.Session
 }
 
-type StressTestingCommand struct {
-
+func NewStressController(session *gocqlx.Session) *StressController {
+	return &StressController{Session: session}
 }
 
-func NewStressTestingCommand() *StressTestingCommand {
-	return &StressTestingCommand{}
-}
-
-func (command *StressTestingCommand) Stress(session *gocqlx.Session) error {
+func (c *StressController) Stress() error {
 	fmt.Println("------------------------------------")
 	fmt.Println("Inserting 100,000 records into the database...")
 	fmt.Println("> Starting...")
@@ -41,7 +36,7 @@ func (command *StressTestingCommand) Stress(session *gocqlx.Session) error {
 				wg.Done()
 			}()
 			
-			q := session.Query(`INSERT INTO media_player.playlist (id, title, artist, album, created_at) VALUES (now(), ?, ?, ?, ?)`,
+			q := c.Session.Query(`INSERT INTO media_player.playlist (id, title, artist, album, created_at) VALUES (now(), ?, ?, ?, ?)`,
 			[]string{":title", ":artist", ":album", ":created_at"}).
 			BindMap(map[string]interface{}{
 				":title":      "title teste",
@@ -50,7 +45,7 @@ func (command *StressTestingCommand) Stress(session *gocqlx.Session) error {
 				":created_at": time.Now(),
 			})
 
-			err := q.Exec(); if err != nil {
+			if err := q.Exec(); err != nil {
 				fmt.Println(err.Error())
 			} 
 		}()
