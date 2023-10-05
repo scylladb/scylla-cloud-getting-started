@@ -36,41 +36,21 @@ func main() {
 	for {
 		fmt.Print("\nAvailable commands:\n!add - add a new song\n!list - list all registered songs\n!delete - delete a specific song\n!stress - stress testing with mocked data\n!q - Quit the console\n\n")
 		
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error to read the input:", err)
-			break
-		}
-
+		input, _ := reader.ReadString('\n')
 		command := strings.TrimSpace(input)
 
 		switch command {
 		case "!add":
 			fmt.Println("Insert song title: ")
-			titleInput, err := reader.ReadString('\n')
-			if err != nil {
-				fmt.Println("Error to read the input:", err.Error())
-				break
-			}
-
+			titleInput, _ := reader.ReadString('\n')
 			title := strings.TrimSpace(titleInput)
 
 			fmt.Println("Insert album name: ")
-			albumInput, err := reader.ReadString('\n')
-			if err != nil {
-				fmt.Println("Error to read the input:", err.Error())
-				break
-			}
-
+			albumInput, _ := reader.ReadString('\n')
 			album := strings.TrimSpace(albumInput)
 
 			fmt.Println("Insert artist name:")
-			artistInput, err := reader.ReadString('\n')
-			if err != nil {
-				fmt.Println("Error to read the input:", err.Error())
-				break
-			}
-
+			artistInput, _ := reader.ReadString('\n')
 			artist := strings.TrimSpace(artistInput)
 
 			song := &database.Song {
@@ -123,7 +103,7 @@ func executeMigrateFile(session *gocqlx.Session, filePath string) error {
 	queries := strings.Split(string(content), ";")
 
 	for _, query := range queries {
-		query = strings.TrimSpace(query)
+		query = strings.Trim(query, " \r\n")
 		if query == "" {
 			continue
 		}

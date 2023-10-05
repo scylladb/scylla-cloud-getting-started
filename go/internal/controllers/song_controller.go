@@ -87,11 +87,7 @@ func (c *SongController) selectSongToDelete(songs []database.Song) (int, error) 
 	
 	reader := bufio.NewReader(os.Stdin)
 
-	input, err := reader.ReadString('\n')
-	if err != nil {
-		return 0, fmt.Errorf("error to read the input %w", err)
-	}
-
+	input, _ := reader.ReadString('\n')
 	idString := strings.TrimSpace(input)
 
 	id, err := strconv.Atoi(idString)
