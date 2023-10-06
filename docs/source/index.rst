@@ -98,6 +98,12 @@
   :link: build-with-csharp
   :class: large-4
 
+.. topic-box::
+  :title: Build with Golang
+  :image: /_static/img/programming_languages/gopher.png
+  :link: build-with-golang
+  :class: large-4
+
 .. raw:: html
 
   </div></div></div>
@@ -178,6 +184,7 @@
    Build with Ruby <build-with-ruby>
    Build with Rust <build-with-rust>
    Build with Csharp <build-with-csharp>
+   Build with Golang <build-with-golang>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
 .. toctree::
