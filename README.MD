@@ -32,6 +32,7 @@ You can find language-specific implementations in their corresponding folder:
 - [Ruby](/docs/source/build-with-ruby.md)
 - [Elixir](/docs/source/build-with-elixir.md)
 - [Csharp](/docs/source/build-with-csharp.md)
+- [Go](/docs/source/build-with-golang.md)
 
 
 ## Sample Projects
@@ -43,6 +44,7 @@ We also built the full project with some extra features for you use as study gui
 - [Ruby Project](/ruby)
 - [Elixir Project](/elixir)
 - [Csharp Project](/csharp)
+- [Go Project](/go)
 
 
 ## Contributing
