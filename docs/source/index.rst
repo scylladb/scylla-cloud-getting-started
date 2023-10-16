@@ -108,16 +108,6 @@
 
   </div></div></div>
 
-.. hero-box::
-  :title: Learn ScyllaDB using the DynamoDB Compatible Cloud API.
-  :image: /_static/img/mascots/scylla-alternator.svg
-  :button_icon: fa fa-github
-  :button_url: https://github.com/scylladb/scylla-cloud-getting-started
-  :button_text: Getting Started Project
-
-  This tutorial is a step-by-step guide to build an Weather Forecast project connected to Scylla Cloud DynamoDB API.
-  After completing the project, you will be able to migrate back-end services that share data through a Scylla Cloud cluster.
-
 .. raw:: html
 
   <div class="landing__content landing__content">

@@ -1,4 +1,4 @@
-# Getting Started with ScyllaDB Cloud: A sample Media Player App with Alternator
+# Getting Started with ScyllaDB Cloud + DynamoDB Compatible API: A sample Media Player App with Alternator
 
 
 ## 1. Introduction
