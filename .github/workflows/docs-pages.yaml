@@ -5,7 +5,7 @@ name: "Docs / Publish"
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "docs/**"
   workflow_dispatch:
