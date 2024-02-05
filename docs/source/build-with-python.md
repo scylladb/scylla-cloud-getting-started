@@ -106,11 +106,11 @@ session = cluster.connect()
 keyspaceName = "media_player"
 replicationFactor = 3
 session.execute(
-    f"""
-    CREATE KEYSPACE {keyspaceName}
-        WITH replication = {{'class': 'NetworkTopologyStrategy', 'replication_factor': '{replicationFactor}'}}
-        AND durable_writes = true;
     """
+    CREATE KEYSPACE {}
+        WITH replication = {{'class': 'NetworkTopologyStrategy', 'replication_factor': '{}'}}
+        AND durable_writes = true;
+    """.format(keyspaceName, replicationFactor)
 )
 
 session.set_keyspace('media_player')
