@@ -1,4 +1,4 @@
-# ScyllaDB Alternator: PHP Example
+# ScyllaDB Alternator: Python Example
 
 Using the "Python AWS SDK" we can easily connect our project on any ScyllaDB instance (Local/Cloud) that is configured with Alternator flag.
 
