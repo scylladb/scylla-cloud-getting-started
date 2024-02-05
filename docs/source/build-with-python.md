@@ -87,6 +87,7 @@ The `keyspace` inside the ScyllaDB ecosystem can be interpreted as your `databas
 
 On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
 
+{% raw %}
 ```python
 from cassandra.cluster import Cluster
 from datetime import datetime 
@@ -105,6 +106,8 @@ session = cluster.connect()
 
 keyspaceName = "media_player"
 replicationFactor = 3
+
+
 session.execute(
     """
     CREATE KEYSPACE {}
@@ -113,9 +116,11 @@ session.execute(
     """.format(keyspaceName, replicationFactor)
 )
 
+
+
 session.set_keyspace('media_player')
 ```
-
+{% endraw %}
 Unfortunately you can't set a keyspace with `PreparedStatements`, so you will need to build the query by yourself.
 
 > You can use the `session.set_keyspace()` function to switch between keyspaces.
