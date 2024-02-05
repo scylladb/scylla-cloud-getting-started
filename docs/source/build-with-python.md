@@ -103,6 +103,7 @@ cluster = Cluster(
 )
 
 
+
 session = cluster.connect()
 
 keyspaceName = "media_player"
