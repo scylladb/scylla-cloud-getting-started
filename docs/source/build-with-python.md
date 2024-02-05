@@ -102,7 +102,6 @@ cluster = Cluster(
     auth_provider=PlainTextAuthProvider(username='scylla', password='your-awesome-password')
 )
 
-
 session = cluster.connect()
 
 keyspaceName = "media_player"
