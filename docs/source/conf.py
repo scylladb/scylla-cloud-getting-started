@@ -70,6 +70,7 @@ html_theme_options = {
     'github_repository': 'scylladb/scylla-cloud-getting-started',
     'hide_edit_this_page_button': 'false',
     'hide_feedback_buttons': 'false',
+    'hide_versions_dropdown': 'true',
     'site_description': 'ScyllaDB Cloud Example Documentation',
     "versions_unstable": UNSTABLE_VERSIONS,
     "versions_deprecated": DEPRECATED_VERSIONS,
