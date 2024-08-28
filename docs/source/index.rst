@@ -183,6 +183,6 @@
 
    Alternator: Getting Started <alternator/getting-started>
    Alternator: Build with PHP <alternator/build-with-php>
-   Alternator: Build with PHP <alternator/build-with-python>
+   Alternator: Build with Python <alternator/build-with-python>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
 
