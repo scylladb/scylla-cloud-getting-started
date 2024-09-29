@@ -9,11 +9,11 @@
 .. title:: ScyllaDB Cloud Getting Started Example
 
 .. hero-box::
-  :title: Learn ScyllaDB using the Cloud Database.
-  :image: /_static/img/mascots/scylla-cloud.svg
-  :button_icon: fa fa-github
+  :title: Learn ScyllaDB using the Cloud Database
+  :image: /_static/img/mascots-2/cloud.svg
+  :button_icon: icon-github
   :button_url: https://github.com/scylladb/scylla-cloud-getting-started
-  :button_text: Getting Started Project
+  :button_text: Source code
 
   This tutorial is a step-by-step guide to build an Media Player project connected to Scylla Cloud.
   After completing the project, you will be able to create back-end services that share data through a Scylla Cloud cluster.
@@ -32,7 +32,7 @@
 .. topic-box::
   :title: Getting Started with Scylla Cloud
   :link: getting-started
-  :icon: scylla-icon scylla-icon--getting-started
+  :icon: icon-docs-getting-started
   :class: large-4
   :anchor: Get Started
 
@@ -41,7 +41,7 @@
 .. topic-box::
   :title: Design and Data Model
   :link: design-and-data-model
-  :icon: scylla-icon scylla-icon--overview
+  :icon: icon-docs-alternator
   :class: large-4
   :anchor: Learn more
 
@@ -49,7 +49,7 @@
 
 .. topic-box::
   :title: Next Project: Care-Pet
-  :icon: scylla-icon scylla-icon--blog
+  :icon: icon-docs-blog
   :link: https://iot.scylladb.com/stable
   :class: large-4,small-12
   :anchor: Go to the Project
@@ -121,7 +121,7 @@
 .. topic-box::
   :title: Getting Started with Scylla Alternator
   :link: alternator/getting-started
-  :icon: scylla-icon scylla-icon--getting-started
+  :icon: icon-docs-getting-started
   :class: large-4
   :anchor: Get Started
 
@@ -130,7 +130,7 @@
 .. topic-box::
   :title: Design and Data Model
   :link: design-and-data-model
-  :icon: scylla-icon scylla-icon--overview
+  :icon: icon-docs-alternator
   :class: large-4
   :anchor: Learn more
 
@@ -138,7 +138,7 @@
 
 .. topic-box::
   :title: Next Project: Care-Pet
-  :icon: scylla-icon scylla-icon--blog
+  :icon: icon-docs-blog
   :link: https://iot.scylladb.com/stable
   :class: large-4,small-12
   :anchor: Go to the Project
