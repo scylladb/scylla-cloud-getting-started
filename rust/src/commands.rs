@@ -1,12 +1,12 @@
+use crate::repository::SongRepository;
+use crate::songs::Song;
 use chrono::Utc;
 use std::sync::Arc;
+use tokio::sync::Semaphore;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     task::JoinSet,
 };
-use tokio::sync::Semaphore;
-use crate::repository::SongRepository;
-use crate::songs::Song;
 use uuid::{self, Uuid};
 
 pub async fn add_song(repository: &Arc<SongRepository>) -> Result<(), anyhow::Error> {
@@ -55,19 +55,12 @@ pub async fn list_songs(repository: &Arc<SongRepository>) -> Result<(), anyhow::
     println!("Here is the songs added so far: ");
     println!("-----------------------------------");
 
-    repository
-        .list()
-        .await?
-        .into_iter()
-        .for_each(|row| {
-            println!(
-                "ID: {} | Song: {} | Album: {} | Created At: {}",
-                row.id,
-                row.title,
-                row.album,
-                row.created_at
-            )
-        });
+    repository.list().await?.into_iter().for_each(|row| {
+        println!(
+            "ID: {} | Song: {} | Album: {} | Created At: {}",
+            row.id, row.title, row.album, row.created_at
+        )
+    });
 
     println!("-----------------------------------");
 
@@ -105,10 +98,7 @@ async fn get_song_index_to_delete(song_list: &Vec<(usize, Song)>) -> Result<usiz
     song_list.into_iter().for_each(|(index, song)| {
         println!(
             "Index: {}  | Song: {} | Album: {} | Created At: {}",
-            index,
-            song.title,
-            song.album,
-            song.created_at
+            index, song.title, song.album, song.created_at
         )
     });
     println!("Select a index to be deleting:");
@@ -145,7 +135,8 @@ pub async fn stress(database: Arc<SongRepository>) -> Result<(), anyhow::Error> 
                 artist: String::from("Test Artist"),
                 created_at: Utc::now(),
             })
-            .await.unwrap();
+            .await
+            .unwrap();
 
             drop(_permit);
         });

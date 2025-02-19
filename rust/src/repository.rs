@@ -3,8 +3,8 @@ use futures::stream::StreamExt;
 use futures::TryStreamExt;
 use scylla::prepared_statement::PreparedStatement;
 use scylla::Session;
-use std::sync::Arc;
 use scylla::_macro_internal::DeserializationError;
+use std::sync::Arc;
 
 pub struct SongRepository {
     session: Arc<Session>,
@@ -56,7 +56,9 @@ impl SongRepository {
             .execute_unpaged(&self.select_song_query, ())
             .await?;
 
-        let result = response.into_rows_result()?.rows::<Song>()?
+        let result = response
+            .into_rows_result()?
+            .rows::<Song>()?
             .collect::<Result<Vec<Song>, DeserializationError>>()?;
 
         Ok(result)

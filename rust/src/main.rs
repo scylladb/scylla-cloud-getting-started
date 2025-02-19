@@ -1,14 +1,14 @@
 mod commands;
-mod songs;
 mod migrate;
 mod repository;
+mod songs;
 
 use clap::Parser;
-use std::{io, sync::Arc};
-use std::time::Duration;
-use scylla::{Session, SessionBuilder};
 use migrate::migrate_database;
 use repository::SongRepository;
+use scylla::{Session, SessionBuilder};
+use std::time::Duration;
+use std::{io, sync::Arc};
 
 /// Simple program to greet a person
 #[derive(Parser, Default, Debug)]
@@ -85,7 +85,6 @@ fn display_help() -> () {
     println!("  !stress - stress testing with mocked data");
     println!("------------------------------------");
 }
-
 
 async fn db_connect(config: &ConnectionDetails) -> Arc<Session> {
     let nodes = config

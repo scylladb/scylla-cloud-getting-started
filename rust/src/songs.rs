@@ -2,7 +2,6 @@ use chrono::{DateTime, Utc};
 use scylla::{DeserializeRow, SerializeRow};
 use uuid::Uuid;
 
-
 #[derive(Debug, SerializeRow, DeserializeRow, Clone)]
 pub struct Song {
     pub id: Uuid,
