@@ -1,14 +1,16 @@
+use chrono::Utc;
 use std::sync::Arc;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     task::JoinSet,
 };
-
-use crate::{database::Database, datetime::DateTime, songs::Song};
+use tokio::sync::Semaphore;
+use crate::repository::SongRepository;
+use crate::songs::Song;
 use uuid::{self, Uuid};
 
-pub async fn add_song(database: &mut Database) -> Result<(), anyhow::Error> {
-    let now = DateTime::now();
+pub async fn add_song(repository: &Arc<SongRepository>) -> Result<(), anyhow::Error> {
+    let now = Utc::now();
 
     let mut lines = BufReader::new(tokio::io::stdin()).lines();
 
@@ -43,22 +45,19 @@ pub async fn add_song(database: &mut Database) -> Result<(), anyhow::Error> {
         created_at: now,
     };
 
+    repository.add(&song).await?;
     println!("Song '{}' from artist '{}' Added!", song.title, song.artist);
-
-    database.add(song).await?;
 
     Ok(())
 }
 
-pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
+pub async fn list_songs(repository: &Arc<SongRepository>) -> Result<(), anyhow::Error> {
     println!("Here is the songs added so far: ");
     println!("-----------------------------------");
 
-    database
+    repository
         .list()
         .await?
-        .ok_or_else(|| Vec::<Song>::new())
-        .unwrap()
         .into_iter()
         .for_each(|row| {
             println!(
@@ -66,7 +65,7 @@ pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
                 row.id,
                 row.title,
                 row.album,
-                row.created_at.as_ref().to_string()
+                row.created_at
             )
         });
 
@@ -75,12 +74,10 @@ pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-pub async fn delete_song(database: &Database) -> Result<(), anyhow::Error> {
-    let song_list = database
+pub async fn delete_song(repository: &SongRepository) -> Result<(), anyhow::Error> {
+    let song_list = repository
         .list()
         .await?
-        .ok_or_else(|| Vec::<Song>::new())
-        .unwrap()
         .into_iter()
         .enumerate()
         .collect::<Vec<(usize, Song)>>();
@@ -99,7 +96,7 @@ pub async fn delete_song(database: &Database) -> Result<(), anyhow::Error> {
         song_to_delete.1.title, song_to_delete.1.artist
     );
 
-    database.remove(song_to_delete.1).await?;
+    repository.remove(song_to_delete.1).await?;
 
     Ok(())
 }
@@ -111,7 +108,7 @@ async fn get_song_index_to_delete(song_list: &Vec<(usize, Song)>) -> Result<usiz
             index,
             song.title,
             song.album,
-            song.created_at.as_ref().to_string()
+            song.created_at
         )
     });
     println!("Select a index to be deleting:");
@@ -126,7 +123,7 @@ async fn get_song_index_to_delete(song_list: &Vec<(usize, Song)>) -> Result<usiz
     Ok(option)
 }
 
-pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
+pub async fn stress(database: Arc<SongRepository>) -> Result<(), anyhow::Error> {
     println!("------------------------------------");
     println!("Inserting 100.000 records into the database...");
     println!(">    Starting...");
@@ -134,23 +131,28 @@ pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
     let start = std::time::Instant::now();
     let mut set = JoinSet::new();
 
-    (0..100000).into_iter().for_each(|_| {
+    let semaphore = Arc::new(Semaphore::new(1000));
+    (0..1_000_000).into_iter().for_each(|_| {
         let db = Arc::clone(&database);
+        let semaphore = Arc::clone(&semaphore);
 
         set.spawn(async move {
-            db.add(Song {
+            let _permit = semaphore.acquire().await.unwrap();
+            db.add(&Song {
                 id: Uuid::new_v4(),
                 title: String::from("Test Song"),
                 album: String::from("Test Title"),
                 artist: String::from("Test Artist"),
-                created_at: DateTime::now(),
+                created_at: Utc::now(),
             })
-            .await
+            .await.unwrap();
+
+            drop(_permit);
         });
     });
 
     while let Some(res) = set.join_next().await {
-        res?.unwrap();
+        res?
     }
 
     println!(">    Time elapsed: {} seconds", start.elapsed().as_secs());
