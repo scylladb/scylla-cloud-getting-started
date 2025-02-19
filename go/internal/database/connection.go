@@ -19,7 +19,7 @@ func Connect() (*gocqlx.Session, error) {
 	cluster := gocql.NewCluster(hosts...)
 
 	cluster.Authenticator = gocql.PasswordAuthenticator{Username: username, Password: password}
-	cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy(region)
+	cluster.PoolConfig.HostSelectionPolicy = gocql.TokenAwareHostPolicy(gocql.DCAwareRoundRobinPolicy(region))
 
 	session, err := gocqlx.WrapSession(cluster.CreateSession())
 	if err != nil {
