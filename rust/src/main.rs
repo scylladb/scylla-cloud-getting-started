@@ -1,20 +1,21 @@
 mod commands;
-mod database;
-mod datetime;
-mod songs;
 mod migrate;
+mod repository;
+mod songs;
 
 use clap::Parser;
-use database::Database;
-use std::{io, sync::Arc};
 use migrate::migrate_database;
+use repository::SongRepository;
+use scylla::{Session, SessionBuilder};
+use std::time::Duration;
+use std::{io, sync::Arc};
 
 /// Simple program to greet a person
 #[derive(Parser, Default, Debug)]
 #[clap(author = "danielhe4rt", version, about)]
 pub struct ConnectionDetails {
     /// Scylla Cloud Node URL's
-    #[arg(num_args = 3, value_parser, value_delimiter = ',')]
+    #[arg(num_args = 1..3, value_parser, value_delimiter = ',')]
     pub nodes: Vec<String>,
 
     /// Cluster Username
@@ -29,7 +30,9 @@ pub struct ConnectionDetails {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = ConnectionDetails::parse();
-    let mut database = Database::new(&args).await;
+    let database = db_connect(&args).await;
+    migrate_database(&database).await?;
+    let repository = Arc::new(SongRepository::new(database).await);
 
     println!("------------------------------------");
     println!("- ScyllaDB Cloud Rust Media Player -");
@@ -37,19 +40,19 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("-    Leave a star on the repo      -");
     println!("-     https://bit.ly/scy-gh        -");
     println!("------------------------------------");
-    migrate_database(&database).await?;
+
     println!("-----------------------------------");
-    
+
     display_help();
 
     loop {
         let command = get_command();
 
         let _ = match command.as_str().trim() {
-            "!add" => commands::add_song(&mut database).await,
-            "!list" => commands::list_songs(&database).await,
-            "!delete" => commands::delete_song(&mut database).await,
-            "!stress" => commands::stress(Arc::new(Database::new(&args).await)).await,
+            "!add" => commands::add_song(&repository).await,
+            "!list" => commands::list_songs(&repository).await,
+            "!delete" => commands::delete_song(&repository).await,
+            "!stress" => commands::stress(Arc::clone(&repository)).await,
             "!q" => panic!("See ya!"),
             _ => Ok(()),
         };
@@ -81,4 +84,20 @@ fn display_help() -> () {
     println!("  !delete - delete a specific song");
     println!("  !stress - stress testing with mocked data");
     println!("------------------------------------");
+}
+
+async fn db_connect(config: &ConnectionDetails) -> Arc<Session> {
+    let nodes = config
+        .nodes
+        .iter()
+        .filter(|i| !i.is_empty())
+        .collect::<Vec<_>>();
+
+    Arc::new(SessionBuilder::new()
+        .known_nodes(nodes)
+        .connection_timeout(Duration::from_secs(5))
+        .user(config.username.to_string(), config.password.to_string())
+        .build()
+        .await
+        .expect("Connection Refused. Check your credentials and your IP linked on the ScyllaDB Cloud."))
 }
