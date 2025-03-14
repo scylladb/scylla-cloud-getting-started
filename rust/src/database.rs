@@ -60,13 +60,6 @@ impl Database {
         let prepared_song = self.session.prepare(new_song_query).await.unwrap();
         self.session.execute_unpaged(&prepared_song, item).await?;
 
-        self.session
-            .query_unpaged(
-                "UPDATE prod_media_player.added_songs_counter SET amount = amount + 1 WHERE id = 1",
-                &[],
-            )
-            .await?;
-
         Ok(())
     }
 
