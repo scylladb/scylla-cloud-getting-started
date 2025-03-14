@@ -1,6 +1,7 @@
 use std::time::Duration;
 
-use scylla::{IntoTypedRows, Session, SessionBuilder};
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
 
 use crate::{songs::Song, ConnectionDetails};
 
@@ -31,14 +32,23 @@ impl Database {
         let query =
             "SELECT id, title, album, artist, created_at FROM prod_media_player.songs LIMIT 10";
 
-        let result = self.session.query(query, &[]).await?.rows.map(|row| {
-            row.into_typed::<Song>()
-                .filter(|v| v.is_ok())
-                .map(|v| v.unwrap())
-                .collect::<Vec<_>>()
-        });
+        let maybe_rows_result = self
+            .session
+            .query_unpaged(query, &[])
+            .await?
+            .into_rows_result();
+        let result = match maybe_rows_result {
+            Ok(rows_result) => rows_result
+                .rows::<Song>()?
+                .filter_map(|row| match row {
+                    Ok(r) => Some(r),
+                    Err(_) => None,
+                })
+                .collect::<Vec<_>>(),
+            Err(_) => return Ok(None),
+        };
 
-        Ok(result)
+        Ok(Some(result))
     }
 
     pub async fn add(&self, item: Song) -> Result<(), anyhow::Error> {
@@ -48,10 +58,10 @@ impl Database {
         ";
 
         let prepared_song = self.session.prepare(new_song_query).await.unwrap();
-        self.session.execute(&prepared_song, item).await?;
+        self.session.execute_unpaged(&prepared_song, item).await?;
 
         self.session
-            .query(
+            .query_unpaged(
                 "UPDATE prod_media_player.added_songs_counter SET amount = amount + 1 WHERE id = 1",
                 &[],
             )
@@ -66,7 +76,9 @@ impl Database {
             .prepare("DELETE FROM prod_media_player.songs WHERE id = ?")
             .await?;
 
-        self.session.execute(&prepared_delete, (item.id,)).await?;
+        self.session
+            .execute_unpaged(&prepared_delete, (item.id,))
+            .await?;
         Ok(())
     }
 }

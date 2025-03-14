@@ -1,10 +1,9 @@
-
-use scylla::{FromRow, ValueList};
+use scylla::{DeserializeRow, SerializeRow};
 use uuid::Uuid;
 
 use crate::datetime::DateTime;
 
-#[derive(Debug, FromRow, ValueList, Clone)]
+#[derive(Debug, DeserializeRow, SerializeRow, Clone)]
 pub struct Song {
     pub id: Uuid,
     pub title: String,

@@ -2,17 +2,30 @@ use std::error::Error;
 use std::fmt::Formatter;
 
 use chrono::{NaiveDateTime, Utc};
-use scylla::frame::response::cql_to_rust::{FromCqlVal, FromCqlValError};
-use scylla::frame::response::result::CqlValue;
-use scylla::frame::value::{Value, ValueTooBig};
+use scylla::deserialize::value::DeserializeValue;
+use scylla::serialize::value::SerializeValue;
 use serde::Serialize;
 
 #[derive(Debug, Clone, Default)]
 pub struct DateTime(chrono::DateTime<Utc>);
 
-impl FromCqlVal<CqlValue> for DateTime {
-    fn from_cql(cql_val: CqlValue) -> Result<Self, FromCqlValError> {
-        Ok(Self(chrono::DateTime::<Utc>::from_cql(cql_val)?))
+// Derive macros in the driver don't support tuple structs for now,
+// so `DeserializeValue` trait needs to be implemented manually.
+// Fortunately it is easy to do - we just delegate to existing implementation on
+// `chrono::DateTime<Utc>`.
+impl<'frame, 'metadata> DeserializeValue<'frame, 'metadata> for DateTime {
+    fn type_check(
+        typ: &scylla::cluster::metadata::ColumnType,
+    ) -> Result<(), scylla::errors::TypeCheckError> {
+        <chrono::DateTime<Utc> as DeserializeValue>::type_check(typ)
+    }
+
+    fn deserialize(
+        typ: &'metadata scylla::cluster::metadata::ColumnType<'metadata>,
+        v: Option<scylla::deserialize::FrameSlice<'frame>>,
+    ) -> Result<Self, scylla::errors::DeserializationError> {
+        let inner = <chrono::DateTime<Utc> as DeserializeValue>::deserialize(typ, v)?;
+        Ok(Self(inner))
     }
 }
 
@@ -51,9 +64,18 @@ impl<'de> serde::de::Deserialize<'de> for DateTime {
     }
 }
 
-impl Value for DateTime {
-    fn serialize(&self, buf: &mut Vec<u8>) -> Result<(), ValueTooBig> {
-        self.0.serialize(buf)
+// Derive macros in the driver don't support tuple structs for now,
+// so `SerializeValue` trait needs to be implemented manually.
+// Fortunately it is easy to do - we just delegate to existing implementation on
+// `chrono::DateTime<Utc>`.
+impl SerializeValue for DateTime {
+    fn serialize<'b>(
+        &self,
+        typ: &scylla::cluster::metadata::ColumnType,
+        writer: scylla::serialize::writers::CellWriter<'b>,
+    ) -> Result<scylla::serialize::writers::WrittenCellProof<'b>, scylla::errors::SerializationError>
+    {
+        <chrono::DateTime<Utc> as SerializeValue>::serialize(&self.0, typ, writer)
     }
 }
 

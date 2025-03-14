@@ -50,10 +50,11 @@ async fn create_keyspace(database: &Database, keyspace_name: &String) -> Result<
 
     let has_keyspace = database
         .session
-        .execute(&validate_keyspace_query, (keyspace_name,))
+        .execute_unpaged(&validate_keyspace_query, (keyspace_name,))
         .await?
-        .rows_num()
-        .unwrap();
+        .into_rows_result()
+        .unwrap()
+        .rows_num();
 
     if has_keyspace == 0 {
         let new_keyspace_query = format!(
@@ -68,7 +69,10 @@ async fn create_keyspace(database: &Database, keyspace_name: &String) -> Result<
             &keyspace_name
         );
 
-        database.session.query(new_keyspace_query, &[]).await?;
+        database
+            .session
+            .query_unpaged(new_keyspace_query, &[])
+            .await?;
     }
 
     Ok(())
@@ -89,14 +93,18 @@ async fn create_tables(
         let (table_name, table_query) = table;
         let has_table = database
             .session
-            .execute(&validate_keyspace_query, (&keyspace_name, table_name))
+            .execute_unpaged(&validate_keyspace_query, (&keyspace_name, table_name))
             .await?
-            .rows_num()
-            .unwrap();
+            .into_rows_result()
+            .unwrap()
+            .rows_num();
 
         if has_table == 0 {
             let prepared_table = database.session.prepare(table_query.as_str()).await?;
-            database.session.execute(&prepared_table, &[]).await?;
+            database
+                .session
+                .execute_unpaged(&prepared_table, &[])
+                .await?;
         }
     }
 
