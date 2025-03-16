@@ -80,7 +80,7 @@ impl Database {
         Ok(result)
     }
 
-    pub async fn add(&self, item: Song) -> Result<(), anyhow::Error> {
+    pub async fn add(&self, item: &Song) -> Result<(), anyhow::Error> {
         self.session
             .execute_unpaged(&self.add_song_statement, item)
             .await?;
@@ -88,7 +88,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn remove(&self, item: Song) -> Result<(), anyhow::Error> {
+    pub async fn remove(&self, item: &Song) -> Result<(), anyhow::Error> {
         self.session
             .execute_unpaged(&self.remove_song_statement, (item.id,))
             .await?;
