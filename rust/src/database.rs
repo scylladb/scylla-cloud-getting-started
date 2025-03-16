@@ -28,27 +28,23 @@ impl Database {
         return Self { session };
     }
 
-    pub async fn list(&self) -> Result<Option<Vec<Song>>, anyhow::Error> {
+    pub async fn list(&self) -> Result<Vec<Song>, anyhow::Error> {
         let query =
             "SELECT id, title, album, artist, created_at FROM prod_media_player.songs LIMIT 10";
 
-        let maybe_rows_result = self
+        let result = self
             .session
             .query_unpaged(query, &[])
             .await?
-            .into_rows_result();
-        let result = match maybe_rows_result {
-            Ok(rows_result) => rows_result
-                .rows::<Song>()?
-                .filter_map(|row| match row {
-                    Ok(r) => Some(r),
-                    Err(_) => None,
-                })
-                .collect::<Vec<_>>(),
-            Err(_) => return Ok(None),
-        };
+            .into_rows_result()?
+            .rows::<Song>()?
+            .filter_map(|row| match row {
+                Ok(r) => Some(r),
+                Err(_) => None,
+            })
+            .collect::<Vec<_>>();
 
-        Ok(Some(result))
+        Ok(result)
     }
 
     pub async fn add(&self, item: Song) -> Result<(), anyhow::Error> {

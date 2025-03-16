@@ -54,21 +54,15 @@ pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
     println!("Here is the songs added so far: ");
     println!("-----------------------------------");
 
-    database
-        .list()
-        .await?
-        .ok_or_else(|| Vec::<Song>::new())
-        .unwrap()
-        .into_iter()
-        .for_each(|row| {
-            println!(
-                "ID: {} | Song: {} | Album: {} | Created At: {}",
-                row.id,
-                row.title,
-                row.album,
-                row.created_at.as_ref().to_string()
-            )
-        });
+    database.list().await?.into_iter().for_each(|row| {
+        println!(
+            "ID: {} | Song: {} | Album: {} | Created At: {}",
+            row.id,
+            row.title,
+            row.album,
+            row.created_at.as_ref().to_string()
+        )
+    });
 
     println!("-----------------------------------");
 
@@ -79,8 +73,6 @@ pub async fn delete_song(database: &Database) -> Result<(), anyhow::Error> {
     let song_list = database
         .list()
         .await?
-        .ok_or_else(|| Vec::<Song>::new())
-        .unwrap()
         .into_iter()
         .enumerate()
         .collect::<Vec<(usize, Song)>>();
