@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt::Formatter;
 
-use chrono::{NaiveDateTime, Utc};
+use chrono::{TimeZone, Utc};
 use scylla::deserialize::value::DeserializeValue;
 use scylla::serialize::value::SerializeValue;
 use serde::Serialize;
@@ -55,12 +55,13 @@ impl<'de> serde::de::Deserialize<'de> for DateTime {
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_i64(I64Visitor).map(|v| {
-            Self(chrono::DateTime::<Utc>::from_utc(
-                NaiveDateTime::from_timestamp_opt(v, 0).unwrap(),
-                Utc,
-            ))
-        })
+        let millis = deserializer.deserialize_i64(I64Visitor)?;
+        match chrono::Utc.timestamp_millis_opt(millis) {
+            chrono::LocalResult::Single(ts) => Ok(Self(ts)),
+            _ => Err(<D::Error as serde::de::Error>::custom(
+                "Timestamp out of range",
+            )),
+        }
     }
 }
 
