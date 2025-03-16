@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use anyhow::Context;
-use futures::StreamExt;
+use futures::TryStreamExt;
 use scylla::client::session::Session;
 use scylla::client::session_builder::SessionBuilder;
 use scylla::statement::prepared::PreparedStatement;
@@ -68,16 +68,11 @@ impl Database {
             .execute_iter(self.list_songs_statement.clone(), &[])
             .await?
             .rows_stream::<Song>()?
-            .filter_map(|row| async {
-                match row {
-                    Ok(r) => Some(r),
-                    Err(_) => None,
-                }
-            })
-            .collect::<Vec<_>>()
-            .await;
+            .try_collect::<Vec<_>>()
+            .await
+            .map_err(|e| e.into());
 
-        Ok(result)
+        result
     }
 
     pub async fn add(&self, item: &Song) -> Result<(), anyhow::Error> {
