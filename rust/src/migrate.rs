@@ -16,16 +16,16 @@ pub async fn migrate_database(session: &Session) -> Result<(), anyhow::Error> {
                 )",
             ),
         ),
-        (
-            String::from("song_counter"),
-            String::from(
-                "CREATE TABLE prod_media_player.song_counter (
-                    song_id uuid,
-                    times_played counter,
-                    PRIMARY KEY (song_id)
-                )",
-            ),
-        ),
+        // (
+        //     String::from("song_counter"),
+        //     String::from(
+        //         "CREATE TABLE prod_media_player.song_counter (
+        //             song_id uuid,
+        //             times_played counter,
+        //             PRIMARY KEY (song_id)
+        //         )",
+        //     ),
+        // ),
     ];
 
     println!("-----------------------------------");
