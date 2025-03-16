@@ -12,7 +12,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn new(config: &ConnectionDetails) -> Result<Database, anyhow::Error> {
+    pub async fn new_session(config: &ConnectionDetails) -> Result<Session, anyhow::Error> {
         let nodes = config
             .nodes
             .iter()
@@ -27,6 +27,9 @@ impl Database {
             .await
             .context("Connection Refused. Check your credentials and your IP linked on the ScyllaDB Cloud.")?;
 
+        Ok(session)
+    }
+    pub async fn new(session: Session) -> Result<Database, anyhow::Error> {
         return Ok(Self { session });
     }
 

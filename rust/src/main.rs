@@ -29,7 +29,7 @@ pub struct ConnectionDetails {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = ConnectionDetails::parse();
-    let database = Arc::new(Database::new(&args).await?);
+    let session = Database::new_session(&args).await?;
 
     println!("------------------------------------");
     println!("- ScyllaDB Cloud Rust Media Player -");
@@ -37,8 +37,10 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("-    Leave a star on the repo      -");
     println!("-     https://bit.ly/scy-gh        -");
     println!("------------------------------------");
-    migrate_database(&database).await?;
+    migrate_database(&session).await?;
     println!("-----------------------------------");
+
+    let database = Arc::new(Database::new(session).await?);
 
     display_help();
 

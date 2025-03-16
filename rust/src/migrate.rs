@@ -1,6 +1,6 @@
-use crate::database::Database;
+use scylla::client::session::Session;
 
-pub async fn migrate_database(database: &Database) -> Result<(), anyhow::Error> {
+pub async fn migrate_database(session: &Session) -> Result<(), anyhow::Error> {
     let keyspace_name = String::from("prod_media_player");
     let tables = vec![
         (
@@ -31,25 +31,23 @@ pub async fn migrate_database(database: &Database) -> Result<(), anyhow::Error> 
     println!("-----------------------------------");
     println!("->.......Verifying Database.......<-");
 
-    create_keyspace(&database, &keyspace_name).await?;
+    create_keyspace(&session, &keyspace_name).await?;
     println!("->........Keyspace setted.........<-");
 
-    create_tables(database, &keyspace_name, &tables).await?;
+    create_tables(&session, &keyspace_name, &tables).await?;
     println!("->.........Tables setted..........<-");
     println!("------------------------------------");
 
     Ok(())
 }
 
-async fn create_keyspace(database: &Database, keyspace_name: &String) -> Result<(), anyhow::Error> {
+async fn create_keyspace(session: &Session, keyspace_name: &String) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_keyspace_query = database
-        .session
+    let validate_keyspace_query = session
         .prepare("select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?")
         .await?;
 
-    let has_keyspace = database
-        .session
+    let has_keyspace = session
         .execute_unpaged(&validate_keyspace_query, (keyspace_name,))
         .await?
         .into_rows_result()
@@ -69,30 +67,25 @@ async fn create_keyspace(database: &Database, keyspace_name: &String) -> Result<
             &keyspace_name
         );
 
-        database
-            .session
-            .query_unpaged(new_keyspace_query, &[])
-            .await?;
+        session.query_unpaged(new_keyspace_query, &[]).await?;
     }
 
     Ok(())
 }
 
 async fn create_tables(
-    database: &Database,
+    session: &Session,
     keyspace_name: &String,
     tables: &Vec<(String, String)>,
 ) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_keyspace_query = database
-        .session
+    let validate_keyspace_query = session
         .prepare("select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?")
         .await?;
 
     for table in tables {
         let (table_name, table_query) = table;
-        let has_table = database
-            .session
+        let has_table = session
             .execute_unpaged(&validate_keyspace_query, (&keyspace_name, table_name))
             .await?
             .into_rows_result()
@@ -100,11 +93,8 @@ async fn create_tables(
             .rows_num();
 
         if has_table == 0 {
-            let prepared_table = database.session.prepare(table_query.as_str()).await?;
-            database
-                .session
-                .execute_unpaged(&prepared_table, &[])
-                .await?;
+            let prepared_table = session.prepare(table_query.as_str()).await?;
+            session.execute_unpaged(&prepared_table, &[]).await?;
         }
     }
 
