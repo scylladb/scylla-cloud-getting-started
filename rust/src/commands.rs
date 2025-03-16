@@ -7,7 +7,7 @@ use tokio::{
 use crate::{database::Database, datetime::DateTime, songs::Song};
 use uuid::{self, Uuid};
 
-pub async fn add_song(database: &mut Database) -> Result<(), anyhow::Error> {
+pub async fn add_song(database: &Database) -> Result<(), anyhow::Error> {
     let now = DateTime::now();
 
     let mut lines = BufReader::new(tokio::io::stdin()).lines();

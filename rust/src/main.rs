@@ -29,7 +29,7 @@ pub struct ConnectionDetails {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = ConnectionDetails::parse();
-    let mut database = Database::new(&args).await?;
+    let database = Database::new(&args).await?;
 
     println!("------------------------------------");
     println!("- ScyllaDB Cloud Rust Media Player -");
@@ -46,9 +46,9 @@ async fn main() -> Result<(), anyhow::Error> {
         let command = get_command();
 
         let _ = match command.as_str().trim() {
-            "!add" => commands::add_song(&mut database).await,
+            "!add" => commands::add_song(&database).await,
             "!list" => commands::list_songs(&database).await,
-            "!delete" => commands::delete_song(&mut database).await,
+            "!delete" => commands::delete_song(&database).await,
             "!stress" => commands::stress(Arc::new(Database::new(&args).await?)).await,
             "!q" => panic!("See ya!"),
             _ => Ok(()),
