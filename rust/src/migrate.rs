@@ -43,18 +43,14 @@ pub async fn migrate_database(session: &Session) -> Result<(), anyhow::Error> {
 
 async fn create_keyspace(session: &Session, keyspace_name: &str) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_keyspace_query = session
-        .prepare("select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?")
-        .await?;
-
+    // Normally we could just use `CREATE KEYSPACE IF NOT EXISTS`.
+    // However, this is a nice opportunity to showcase drivers metadata API.
     let has_keyspace = session
-        .execute_unpaged(&validate_keyspace_query, (keyspace_name,))
-        .await?
-        .into_rows_result()
-        .unwrap()
-        .rows_num();
+        .get_cluster_state()
+        .get_keyspace(keyspace_name)
+        .is_some();
 
-    if has_keyspace == 0 {
+    if !has_keyspace {
         let new_keyspace_query = format!(
             "
             CREATE KEYSPACE {} 
@@ -79,22 +75,18 @@ async fn create_tables(
     tables: &[(String, String)],
 ) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_keyspace_query = session
-        .prepare("select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?")
-        .await?;
-
+    // Normally we could just use `CREATE TABLE IF NOT EXISTS`.
+    // However, this is a nice opportunity to showcase drivers metadata API.
     for table in tables {
         let (table_name, table_query) = table;
         let has_table = session
-            .execute_unpaged(&validate_keyspace_query, (&keyspace_name, table_name))
-            .await?
-            .into_rows_result()
-            .unwrap()
-            .rows_num();
+            .get_cluster_state()
+            .get_keyspace(keyspace_name)
+            .and_then(|ks| ks.tables.get(table_name))
+            .is_some();
 
-        if has_table == 0 {
-            let prepared_table = session.prepare(table_query.as_str()).await?;
-            session.execute_unpaged(&prepared_table, &[]).await?;
+        if !has_table {
+            session.query_unpaged(table_query.as_str(), &[]).await?;
         }
     }
 
