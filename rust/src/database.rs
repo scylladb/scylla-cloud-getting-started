@@ -4,11 +4,15 @@ use anyhow::Context;
 use futures::StreamExt;
 use scylla::client::session::Session;
 use scylla::client::session_builder::SessionBuilder;
+use scylla::statement::prepared::PreparedStatement;
 
 use crate::{songs::Song, ConnectionDetails};
 
 pub struct Database {
     pub session: Session,
+    list_songs_statement: PreparedStatement,
+    add_song_statement: PreparedStatement,
+    remove_song_statement: PreparedStatement,
 }
 
 impl Database {
@@ -30,16 +34,37 @@ impl Database {
         Ok(session)
     }
     pub async fn new(session: Session) -> Result<Database, anyhow::Error> {
-        return Ok(Self { session });
+        let list_songs_statement = session
+            .prepare(
+                "SELECT id, title, album, artist, created_at FROM prod_media_player.songs LIMIT 10",
+            )
+            .await?;
+
+        let add_song_statement = session
+            .prepare(
+                "
+            INSERT INTO prod_media_player.songs (id,title,artist,album,created_at)
+            VALUES (?,?,?,?,?);
+        ",
+            )
+            .await?;
+
+        let remove_song_statement = session
+            .prepare("DELETE FROM prod_media_player.songs WHERE id = ?")
+            .await?;
+
+        return Ok(Self {
+            session,
+            list_songs_statement,
+            add_song_statement,
+            remove_song_statement,
+        });
     }
 
     pub async fn list(&self) -> Result<Vec<Song>, anyhow::Error> {
-        let query =
-            "SELECT id, title, album, artist, created_at FROM prod_media_player.songs LIMIT 10";
-
         let result = self
             .session
-            .query_iter(query, &[])
+            .execute_iter(self.list_songs_statement.clone(), &[])
             .await?
             .rows_stream::<Song>()?
             .filter_map(|row| async {
@@ -55,25 +80,16 @@ impl Database {
     }
 
     pub async fn add(&self, item: Song) -> Result<(), anyhow::Error> {
-        let new_song_query = "
-            INSERT INTO prod_media_player.songs (id,title,artist,album,created_at)
-            VALUES (?,?,?,?,?);
-        ";
-
-        let prepared_song = self.session.prepare(new_song_query).await.unwrap();
-        self.session.execute_unpaged(&prepared_song, item).await?;
+        self.session
+            .execute_unpaged(&self.add_song_statement, item)
+            .await?;
 
         Ok(())
     }
 
     pub async fn remove(&self, item: Song) -> Result<(), anyhow::Error> {
-        let prepared_delete = self
-            .session
-            .prepare("DELETE FROM prod_media_player.songs WHERE id = ?")
-            .await?;
-
         self.session
-            .execute_unpaged(&prepared_delete, (item.id,))
+            .execute_unpaged(&self.remove_song_statement, (item.id,))
             .await?;
         Ok(())
     }
