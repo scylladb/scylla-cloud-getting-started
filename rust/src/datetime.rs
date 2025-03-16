@@ -82,7 +82,7 @@ impl SerializeValue for DateTime {
 
 struct I64Visitor;
 
-impl<'de> serde::de::Visitor<'de> for I64Visitor {
+impl serde::de::Visitor<'_> for I64Visitor {
     type Value = i64;
 
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {

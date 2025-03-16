@@ -60,7 +60,7 @@ pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
             row.id,
             row.title,
             row.album,
-            row.created_at.as_ref().to_string()
+            row.created_at.as_ref()
         )
     });
 
@@ -103,7 +103,7 @@ async fn get_song_index_to_delete(song_list: &Vec<(usize, Song)>) -> Result<usiz
             index,
             song.title,
             song.album,
-            song.created_at.as_ref().to_string()
+            song.created_at.as_ref()
         )
     });
     println!("Select a index to be deleting:");
@@ -126,7 +126,7 @@ pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
     let start = std::time::Instant::now();
     let mut set = JoinSet::new();
 
-    (0..100000).into_iter().for_each(|_| {
+    (0..100000).for_each(|_| {
         let db = Arc::clone(&database);
 
         set.spawn(async move {

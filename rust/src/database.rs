@@ -33,6 +33,7 @@ impl Database {
 
         Ok(session)
     }
+
     pub async fn new(session: Session) -> Result<Database, anyhow::Error> {
         let list_songs_statement = session
             .prepare(
@@ -53,12 +54,12 @@ impl Database {
             .prepare("DELETE FROM prod_media_player.songs WHERE id = ?")
             .await?;
 
-        return Ok(Self {
+        Ok(Self {
             session,
             list_songs_statement,
             add_song_statement,
             remove_song_statement,
-        });
+        })
     }
 
     pub async fn list(&self) -> Result<Vec<Song>, anyhow::Error> {

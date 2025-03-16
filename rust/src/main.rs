@@ -72,10 +72,10 @@ fn get_command() -> String {
         return get_command();
     }
 
-    return command;
+    command
 }
 
-fn display_help() -> () {
+fn display_help() {
     println!("------------------------------------");
     println!("Here some possibilities");
     println!("  !add - add new song");

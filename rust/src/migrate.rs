@@ -31,17 +31,17 @@ pub async fn migrate_database(session: &Session) -> Result<(), anyhow::Error> {
     println!("-----------------------------------");
     println!("->.......Verifying Database.......<-");
 
-    create_keyspace(&session, &keyspace_name).await?;
+    create_keyspace(session, &keyspace_name).await?;
     println!("->........Keyspace setted.........<-");
 
-    create_tables(&session, &keyspace_name, &tables).await?;
+    create_tables(session, &keyspace_name, &tables).await?;
     println!("->.........Tables setted..........<-");
     println!("------------------------------------");
 
     Ok(())
 }
 
-async fn create_keyspace(session: &Session, keyspace_name: &String) -> Result<(), anyhow::Error> {
+async fn create_keyspace(session: &Session, keyspace_name: &str) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
     let validate_keyspace_query = session
         .prepare("select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?")
@@ -75,8 +75,8 @@ async fn create_keyspace(session: &Session, keyspace_name: &String) -> Result<()
 
 async fn create_tables(
     session: &Session,
-    keyspace_name: &String,
-    tables: &Vec<(String, String)>,
+    keyspace_name: &str,
+    tables: &[(String, String)],
 ) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
     let validate_keyspace_query = session
