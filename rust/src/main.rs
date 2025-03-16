@@ -1,13 +1,13 @@
 mod commands;
 mod database;
 mod datetime;
-mod songs;
 mod migrate;
+mod songs;
 
 use clap::Parser;
 use database::Database;
-use std::{io, sync::Arc};
 use migrate::migrate_database;
+use std::{io, sync::Arc};
 
 /// Simple program to greet a person
 #[derive(Parser, Default, Debug)]
@@ -29,7 +29,7 @@ pub struct ConnectionDetails {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = ConnectionDetails::parse();
-    let mut database = Database::new(&args).await;
+    let mut database = Database::new(&args).await?;
 
     println!("------------------------------------");
     println!("- ScyllaDB Cloud Rust Media Player -");
@@ -39,7 +39,7 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("------------------------------------");
     migrate_database(&database).await?;
     println!("-----------------------------------");
-    
+
     display_help();
 
     loop {
@@ -49,7 +49,7 @@ async fn main() -> Result<(), anyhow::Error> {
             "!add" => commands::add_song(&mut database).await,
             "!list" => commands::list_songs(&database).await,
             "!delete" => commands::delete_song(&mut database).await,
-            "!stress" => commands::stress(Arc::new(Database::new(&args).await)).await,
+            "!stress" => commands::stress(Arc::new(Database::new(&args).await?)).await,
             "!q" => panic!("See ya!"),
             _ => Ok(()),
         };

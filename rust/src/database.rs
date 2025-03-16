@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use anyhow::Context;
 use futures::StreamExt;
 use scylla::client::session::Session;
 use scylla::client::session_builder::SessionBuilder;
@@ -11,7 +12,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn new(config: &ConnectionDetails) -> Database {
+    pub async fn new(config: &ConnectionDetails) -> Result<Database, anyhow::Error> {
         let nodes = config
             .nodes
             .iter()
@@ -24,9 +25,9 @@ impl Database {
             .user(config.username.to_string(), config.password.to_string())
             .build()
             .await
-            .expect("Connection Refused. Check your credentials and your IP linked on the ScyllaDB Cloud.");
+            .context("Connection Refused. Check your credentials and your IP linked on the ScyllaDB Cloud.")?;
 
-        return Self { session };
+        return Ok(Self { session });
     }
 
     pub async fn list(&self) -> Result<Vec<Song>, anyhow::Error> {
