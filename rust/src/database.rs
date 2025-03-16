@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use futures::StreamExt;
 use scylla::client::session::Session;
 use scylla::client::session_builder::SessionBuilder;
 
@@ -34,15 +35,17 @@ impl Database {
 
         let result = self
             .session
-            .query_unpaged(query, &[])
+            .query_iter(query, &[])
             .await?
-            .into_rows_result()?
-            .rows::<Song>()?
-            .filter_map(|row| match row {
-                Ok(r) => Some(r),
-                Err(_) => None,
+            .rows_stream::<Song>()?
+            .filter_map(|row| async {
+                match row {
+                    Ok(r) => Some(r),
+                    Err(_) => None,
+                }
             })
-            .collect::<Vec<_>>();
+            .collect::<Vec<_>>()
+            .await;
 
         Ok(result)
     }
