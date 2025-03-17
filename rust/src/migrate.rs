@@ -1,6 +1,6 @@
-use crate::database::Database;
+use scylla::client::session::Session;
 
-pub async fn migrate_database(database: &Database) -> Result<(), anyhow::Error> {
+pub async fn migrate_database(session: &Session) -> Result<(), anyhow::Error> {
     let keyspace_name = String::from("prod_media_player");
     let tables = vec![
         (
@@ -16,46 +16,41 @@ pub async fn migrate_database(database: &Database) -> Result<(), anyhow::Error> 
                 )",
             ),
         ),
-        (
-            String::from("song_counter"),
-            String::from(
-                "CREATE TABLE prod_media_player.song_counter (
-                    song_id uuid,
-                    times_played counter,
-                    PRIMARY KEY (song_id)
-                )",
-            ),
-        ),
+        // (
+        //     String::from("song_counter"),
+        //     String::from(
+        //         "CREATE TABLE prod_media_player.song_counter (
+        //             song_id uuid,
+        //             times_played counter,
+        //             PRIMARY KEY (song_id)
+        //         )",
+        //     ),
+        // ),
     ];
 
     println!("-----------------------------------");
     println!("->.......Verifying Database.......<-");
 
-    create_keyspace(&database, &keyspace_name).await?;
+    create_keyspace(session, &keyspace_name).await?;
     println!("->........Keyspace setted.........<-");
 
-    create_tables(database, &keyspace_name, &tables).await?;
+    create_tables(session, &keyspace_name, &tables).await?;
     println!("->.........Tables setted..........<-");
     println!("------------------------------------");
 
     Ok(())
 }
 
-async fn create_keyspace(database: &Database, keyspace_name: &String) -> Result<(), anyhow::Error> {
+async fn create_keyspace(session: &Session, keyspace_name: &str) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_keyspace_query = database
-        .session
-        .prepare("select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?")
-        .await?;
+    // Normally we could just use `CREATE KEYSPACE IF NOT EXISTS`.
+    // However, this is a nice opportunity to showcase drivers metadata API.
+    let has_keyspace = session
+        .get_cluster_state()
+        .get_keyspace(keyspace_name)
+        .is_some();
 
-    let has_keyspace = database
-        .session
-        .execute(&validate_keyspace_query, (keyspace_name,))
-        .await?
-        .rows_num()
-        .unwrap();
-
-    if has_keyspace == 0 {
+    if !has_keyspace {
         let new_keyspace_query = format!(
             "
             CREATE KEYSPACE {} 
@@ -68,35 +63,30 @@ async fn create_keyspace(database: &Database, keyspace_name: &String) -> Result<
             &keyspace_name
         );
 
-        database.session.query(new_keyspace_query, &[]).await?;
+        session.query_unpaged(new_keyspace_query, &[]).await?;
     }
 
     Ok(())
 }
 
 async fn create_tables(
-    database: &Database,
-    keyspace_name: &String,
-    tables: &Vec<(String, String)>,
+    session: &Session,
+    keyspace_name: &str,
+    tables: &[(String, String)],
 ) -> Result<(), anyhow::Error> {
     // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_keyspace_query = database
-        .session
-        .prepare("select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?")
-        .await?;
-
+    // Normally we could just use `CREATE TABLE IF NOT EXISTS`.
+    // However, this is a nice opportunity to showcase drivers metadata API.
     for table in tables {
         let (table_name, table_query) = table;
-        let has_table = database
-            .session
-            .execute(&validate_keyspace_query, (&keyspace_name, table_name))
-            .await?
-            .rows_num()
-            .unwrap();
+        let has_table = session
+            .get_cluster_state()
+            .get_keyspace(keyspace_name)
+            .and_then(|ks| ks.tables.get(table_name))
+            .is_some();
 
-        if has_table == 0 {
-            let prepared_table = database.session.prepare(table_query.as_str()).await?;
-            database.session.execute(&prepared_table, &[]).await?;
+        if !has_table {
+            session.query_unpaged(table_query.as_str(), &[]).await?;
         }
     }
 

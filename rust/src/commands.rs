@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::sync::Arc;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
@@ -7,7 +8,7 @@ use tokio::{
 use crate::{database::Database, datetime::DateTime, songs::Song};
 use uuid::{self, Uuid};
 
-pub async fn add_song(database: &mut Database) -> Result<(), anyhow::Error> {
+pub async fn add_song(database: &Database) -> Result<(), anyhow::Error> {
     let now = DateTime::now();
 
     let mut lines = BufReader::new(tokio::io::stdin()).lines();
@@ -45,7 +46,7 @@ pub async fn add_song(database: &mut Database) -> Result<(), anyhow::Error> {
 
     println!("Song '{}' from artist '{}' Added!", song.title, song.artist);
 
-    database.add(song).await?;
+    database.add(&song).await?;
 
     Ok(())
 }
@@ -54,21 +55,15 @@ pub async fn list_songs(database: &Database) -> Result<(), anyhow::Error> {
     println!("Here is the songs added so far: ");
     println!("-----------------------------------");
 
-    database
-        .list()
-        .await?
-        .ok_or_else(|| Vec::<Song>::new())
-        .unwrap()
-        .into_iter()
-        .for_each(|row| {
-            println!(
-                "ID: {} | Song: {} | Album: {} | Created At: {}",
-                row.id,
-                row.title,
-                row.album,
-                row.created_at.as_ref().to_string()
-            )
-        });
+    database.list().await?.into_iter().for_each(|row| {
+        println!(
+            "ID: {} | Song: {} | Album: {} | Created At: {}",
+            row.id,
+            row.title,
+            row.album,
+            row.created_at.as_ref()
+        )
+    });
 
     println!("-----------------------------------");
 
@@ -79,51 +74,49 @@ pub async fn delete_song(database: &Database) -> Result<(), anyhow::Error> {
     let song_list = database
         .list()
         .await?
-        .ok_or_else(|| Vec::<Song>::new())
-        .unwrap()
         .into_iter()
         .enumerate()
         .collect::<Vec<(usize, Song)>>();
 
-    let index_to_delete = get_song_index_to_delete(&song_list).await?;
+    let song_to_delete = get_song_to_delete(&song_list).await?;
 
-    println!("{:?}", index_to_delete);
-
-    let song_to_delete = song_list
-        .into_iter()
-        .find(|row| row.0 == index_to_delete)
-        .unwrap();
+    println!("{:?}", song_to_delete.0);
 
     println!(
         "Song '{}' from artist '{}' Deleted!",
         song_to_delete.1.title, song_to_delete.1.artist
     );
 
-    database.remove(song_to_delete.1).await?;
+    database.remove(&song_to_delete.1).await?;
 
     Ok(())
 }
 
-async fn get_song_index_to_delete(song_list: &Vec<(usize, Song)>) -> Result<usize, anyhow::Error> {
-    song_list.into_iter().for_each(|(index, song)| {
+async fn get_song_to_delete(song_list: &[(usize, Song)]) -> Result<&(usize, Song), anyhow::Error> {
+    song_list.iter().for_each(|(index, song)| {
         println!(
             "Index: {}  | Song: {} | Album: {} | Created At: {}",
             index,
             song.title,
             song.album,
-            song.created_at.as_ref().to_string()
+            song.created_at.as_ref()
         )
     });
     println!("Select a index to be deleting:");
     let mut lines = BufReader::new(tokio::io::stdin()).lines();
-    let option = lines
+    let index_to_delete = lines
         .next_line()
         .await?
         .ok_or_else(|| "".to_owned())
         .unwrap()
         .parse::<usize>()?;
 
-    Ok(option)
+    let song_to_delete = song_list
+        .iter()
+        .find(|row| row.0 == index_to_delete)
+        .context("Song with this index not found in the list.")?;
+
+    Ok(song_to_delete)
 }
 
 pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
@@ -134,11 +127,11 @@ pub async fn stress(database: Arc<Database>) -> Result<(), anyhow::Error> {
     let start = std::time::Instant::now();
     let mut set = JoinSet::new();
 
-    (0..100000).into_iter().for_each(|_| {
+    (0..100000).for_each(|_| {
         let db = Arc::clone(&database);
 
         set.spawn(async move {
-            db.add(Song {
+            db.add(&Song {
                 id: Uuid::new_v4(),
                 title: String::from("Test Song"),
                 album: String::from("Test Title"),

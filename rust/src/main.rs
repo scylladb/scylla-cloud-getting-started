@@ -1,13 +1,13 @@
 mod commands;
 mod database;
 mod datetime;
-mod songs;
 mod migrate;
+mod songs;
 
 use clap::Parser;
 use database::Database;
-use std::{io, sync::Arc};
 use migrate::migrate_database;
+use std::{io, sync::Arc};
 
 /// Simple program to greet a person
 #[derive(Parser, Default, Debug)]
@@ -29,7 +29,7 @@ pub struct ConnectionDetails {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = ConnectionDetails::parse();
-    let mut database = Database::new(&args).await;
+    let session = Database::new_session(&args).await?;
 
     println!("------------------------------------");
     println!("- ScyllaDB Cloud Rust Media Player -");
@@ -37,19 +37,21 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("-    Leave a star on the repo      -");
     println!("-     https://bit.ly/scy-gh        -");
     println!("------------------------------------");
-    migrate_database(&database).await?;
+    migrate_database(&session).await?;
     println!("-----------------------------------");
-    
+
+    let database = Arc::new(Database::new(session).await?);
+
     display_help();
 
     loop {
         let command = get_command();
 
         let _ = match command.as_str().trim() {
-            "!add" => commands::add_song(&mut database).await,
+            "!add" => commands::add_song(&database).await,
             "!list" => commands::list_songs(&database).await,
-            "!delete" => commands::delete_song(&mut database).await,
-            "!stress" => commands::stress(Arc::new(Database::new(&args).await)).await,
+            "!delete" => commands::delete_song(&database).await,
+            "!stress" => commands::stress(Arc::clone(&database)).await,
             "!q" => panic!("See ya!"),
             _ => Ok(()),
         };
@@ -70,10 +72,10 @@ fn get_command() -> String {
         return get_command();
     }
 
-    return command;
+    command
 }
 
-fn display_help() -> () {
+fn display_help() {
     println!("------------------------------------");
     println!("Here some possibilities");
     println!("  !add - add new song");

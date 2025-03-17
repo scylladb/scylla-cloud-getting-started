@@ -32,18 +32,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-scylla = "0.8.0"
+scylla = { version = "1.0", features = ["chrono-04"] }
 uuid = {version = "0.8", features = ["v4"]}
 tokio = { version = "1.17.0", features = ["full"] }
 anyhow = "1.0.70"
 chrono = "0.4.24"
+futures = "0.3.28"
 ```
 
-* [Scylla](https://crates.io/crates/scylla): using the latest driver release
+* [Scylla](https://crates.io/crates/scylla): using the latest driver release. `chrono-04` feature allows serialization and deserialization of objects from `chrono` crate.
 * [Uuid](https://crates.io/crates/uuid): help us to create UUIDs in our project
 * [Tokio](https://crates.io/crates/tokio): Async calls in Rust.
 * [Anyhow](https://crates.io/crates/anyhow): Idiomatic Error Handling 
 * [Chrono](https://crates.io/crates/chrono): DateTime/Timestamp Handling
+* [Futures](https://crates.io/crates/futures): Common operating on Rust's Futures.
 
 ## 2. Connecting to the Cluster
 
@@ -51,7 +53,8 @@ Make sure to get the right credentials on your [ScyllaDB Cloud Dashboard](https:
 
 ```rust
 use anyhow::Result;
-use scylla::{Session, SessionBuilder};
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
 use std::time::Duration;
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -77,54 +80,65 @@ async fn main() -> Result<()> {
 
 ## 3. Handling Queries
 
-At Rust driver you can use the function inside your cluster connection called `query()` and build the query you want to execute inside your database/keyspace.
+At Rust driver you can use the function inside your cluster connection called `query_iter()` and build the query you want to execute inside your database/keyspace.
+Note that `query_*` functions should only be used for one-off requests. If you plan to execute a request multiple times, it should be prepared first (`Session::prepare`) and then executed using `execute_*` functions.
 
 ```rust
 use anyhow::Result;
-use scylla::{IntoTypedRows, Session, SessionBuilder, FromRow};
+use futures::TryStreamExt;
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
 use std::net::IpAddr;
 use std::time::Duration;
 
-
 #[tokio::main]
 async fn main() -> Result<()> {
-
-    let session: Session = SessionBuilder::new()
-        .known_nodes(&[
+    let session: Session = SessionBuilder::new()
+        .known_nodes(&[
             "node-0.aws-sa-east-1.xxx.clusters.scylla.cloud",
             "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud",
             "node-2.aws-sa-east-1.xxx.clusters.scylla.cloud",
         ])
-        .connection_timeout(Duration::from_secs(30))
-        .user("scylla", "your-awesome-password")
-        .build()
-        .await
-        .expect("connection refused");
-        
-   let query = "SELECT address, port, connection_stage FROM system.clients LIMIT 5";
-   // Simpler way
-   if let Some(rows) = session.query(query, &[]).await?.rows {
-        for row in rows.into_typed::<(IpAddr, i32, String)>() {
-            let row = row?;
-            println!("IP -> {}, Port -> {}, CS -> {}", row.0, row.1, row.2);
-        }
-    }
-    
-    // Complex, but cool way
-    session
-        .query(query, &[])
-        .await?
-        .rows
-        .map(|row| {
-            row.into_typed::<(IpAddr, i32, String)>()
-                .filter(|row| row.is_ok())
-                .map(|row| row.unwrap())
-                .collect::<Vec<_>>()
-        })
-        .unwrap()
-        .iter()
-        .for_each(|row| println!("IP -> {}, Port -> {}, CS -> {}", row.0, row.1, row.2));
-    Ok(())
+        .connection_timeout(Duration::from_secs(30))
+        .user("scylla", "your-awesome-password")
+        .build()
+        .await
+        .expect("connection refused");
+
+    let query = "SELECT address, port, connection_stage FROM system.clients LIMIT 5";
+
+    // Print rows using Stream API
+    session
+        .query_iter(query, &[])
+        .await?
+        .rows_stream::<(IpAddr, i32, String)>()?
+        .try_for_each(|row| async move {
+            println!("IP -> {}, Port -> {}, CS -> {}", row.0, row.1, row.2);
+            Ok(())
+        })
+        .await?;
+
+    // Manually loop over rows
+    let mut rows_stream = session
+        .query_iter(query, &[])
+        .await?
+        .rows_stream::<(IpAddr, i32, String)>()?;
+    while let Some(row) = rows_stream.try_next().await? {
+        println!("IP -> {}, Port -> {}, CS -> {}", row.0, row.1, row.2);
+    }
+
+    // Collect everything into vec, then loop and print
+    let rows = session
+        .query_iter(query, &[])
+        .await?
+        .rows_stream::<(IpAddr, i32, String)>()?
+        .try_collect::<Vec<_>>()
+        .await?;
+    rows.into_iter().for_each(|row| {
+        println!("IP -> {}, Port -> {}, CS -> {}", row.0, row.1, row.2);
+    });
+
+    Ok(())
 }
 ```
 
@@ -146,7 +160,8 @@ On your connection boot, you don't need to provide it but you will use it later 
 
 ```rust
 use anyhow::Result;
-use scylla::{Session, SessionBuilder};
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
 use std::time::Duration;
 
 #[tokio::main]
@@ -165,31 +180,25 @@ async fn main() -> Result<()> {
         .await
         .unwrap();
 
-    // Verify if the Keyspace already exists in your Cluster
-    let validate_keyspace_query = session
-        .prepare("select keyspace_name from system_schema.keyspaces WHERE keyspace_name=?")
-        .await?;
-
     let has_keyspace = session
-        .execute(&validate_keyspace_query, (&keyspace,))
-        .await?
-        .rows_num()
-        .unwrap();
+        .get_cluster_state()
+        .get_keyspace(&keyspace)
+        .is_some();
 
-    if has_keyspace == 0 {
+    if !has_keyspace {
         let new_keyspace_query = format!(
             "
-            CREATE KEYSPACE {} 
-                WITH replication = {{
-                    'class': 'NetworkTopologyStrategy',
-                     'replication_factor': '3'
-                }}
-                AND durable_writes = true
-        ",
+        CREATE KEYSPACE {} 
+            WITH replication = {{
+                'class': 'NetworkTopologyStrategy',
+                    'replication_factor': '3'
+            }}
+            AND durable_writes = true
+    ",
             keyspace
         );
 
-        session.query(new_keyspace_query, &[]).await?;
+        session.query_unpaged(new_keyspace_query, &[]).await?;
         println!("Keyspace {} created!", &keyspace)
     } else {
         println!("Keyspace {} already created!", &keyspace)
@@ -201,8 +210,6 @@ async fn main() -> Result<()> {
 }
 ```
 
-> After that you probably will need to re-create your connection poiting which `keyspace` you want to use.
-
 ### 3.2 Creating a Table
 
 A table is used to store part or all the data of your app (depends on how you will build it). 
@@ -210,40 +217,35 @@ Remember to add your `keyspace` into your connection and let's create a table to
 
 ```rust
 use anyhow::Result;
-use scylla::{Session, SessionBuilder};
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
 use std::time::Duration;
 
-static KEYSPACE: &str = "media_player_rust";  
+static KEYSPACE: &str = "media_player_rust";
 static TABLE: &str = "playlist";
-  
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    let session: Session = SessionBuilder::new()
+    let session: Session = SessionBuilder::new()
         .known_nodes(&[
             "node-0.aws-sa-east-1.xxx.clusters.scylla.cloud",
             "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud",
             "node-2.aws-sa-east-1.xxx.clusters.scylla.cloud",
         ])
-        .connection_timeout(Duration::from_secs(30))
-        .user("scylla", "****")
-        .build()
-        .await
-        .expect("connection refused");
-  
-    // Verify if the table already exists in the specific Keyspace inside your Cluster
-    let validate_table_query = session
-        .prepare("
-            select keyspace_name, table_name from system_schema.tables where keyspace_name = ? AND table_name = ?
-        ")
-        .await?;
+        .connection_timeout(Duration::from_secs(30))
+        .user("scylla", "****")
+        .build()
+        .await
+        .expect("connection refused");
 
+    // Verify if the table already exists in the specific Keyspace inside your Cluster
     let has_table = session
-        .execute(&validate_table_query, (&keyspace, &table))
-        .await?
-        .rows_num()
-        .unwrap();
+        .get_cluster_state()
+        .get_keyspace(KEYSPACE)
+        .and_then(|ks| ks.tables.get(TABLE))
+        .is_some();
 
-    if has_table == 0 {
+    if !has_table {
         let new_keyspace_query = format!(
             "CREATE TABLE {}.{} (
                 id uuid,
@@ -253,16 +255,16 @@ async fn main() -> Result<()> {
                 created_at timestamp,
                 PRIMARY KEY (id, updated_at)
             )",
-            &keyspace, &table
+            &KEYSPACE, &TABLE
         );
 
-        session.query(new_keyspace_query, &[]).await?;
-        println!("Table {} created!", &table)
+        session.query_unpaged(new_keyspace_query, &[]).await?;
+        println!("Table {} created!", &TABLE)
     } else {
-        println!("Table {} already created!", &table)
+        println!("Table {} already created!", &TABLE)
     }
-  
-    Ok(())
+
+    Ok(())
 }
 ```
 
@@ -272,11 +274,12 @@ Now that we have the keyspace and a table inside of it, we need to bring some go
 
 ```rust
 use anyhow::Result;
-use chrono::{Duration, Utc};
-use scylla::frame::value::Timestamp;
-use scylla::{Session, SessionBuilder};
-use std::{str::FromStr, time::Duration as ConnectionDuration};
-use uuid::{self, Uuid};
+use chrono::Utc;
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
+use std::str::FromStr;
+use std::time::Duration;
+use uuid::Uuid;
 
 async fn main() -> Result<()> {
     let keyspace = String::from("media_player");
@@ -288,7 +291,7 @@ async fn main() -> Result<()> {
             "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud",
             "node-2.aws-sa-east-1.xxx.clusters.scylla.cloud",
         ])
-        .connection_timeout(ConnectionDuration::from_secs(5))
+        .connection_timeout(Duration::from_secs(5))
         .user("scylla", "your-password")
         .build()
         .await
@@ -296,28 +299,24 @@ async fn main() -> Result<()> {
 
     session.use_keyspace(keyspace, false).await?;
 
+    let now = Utc::now();
+
     let song_list = vec![
         (
             Uuid::new_v4(),
             "Stairway to Heaven",
             "Led Zeppelin IV",
             "Led Zeppelin",
-            Timestamp(Duration::seconds(Utc::now().timestamp())),
+            now,
         ),
         (
             Uuid::from_str("d754f8d5-e037-4898-af75-44587b9cc424").unwrap(),
             "Glimpse of Us",
             "Smithereens",
             "Joji",
-            Timestamp(Duration::seconds(Utc::now().timestamp())),
+            now,
         ),
-        (
-            Uuid::new_v4(),
-            "Vegas",
-            "From Movie ELVIS",
-            "Doja Cat",
-            Timestamp(Duration::seconds(Utc::now().timestamp())),
-        ),
+        (Uuid::new_v4(), "Vegas", "From Movie ELVIS", "Doja Cat", now),
     ];
 
     let insert_query = format!(
@@ -328,11 +327,11 @@ async fn main() -> Result<()> {
     let prepared = session.prepare(insert_query).await?;
 
     for song in song_list {
-        session.execute(&prepared, song).await?;
+        session.execute_unpaged(&prepared, song).await?;
         println!("Inserting Track: {}", song.1.to_string());
     }
 
-    Ok(()) 
+    Ok(())
 }
 ```
 
@@ -342,12 +341,12 @@ Since probably we added more than 3 songs into our database, let's list it into 
 
 ```rust
 use anyhow::Result;
-use chrono::{Duration, Utc, DateTime};
-use scylla::cql_to_rust::FromCqlVal;
-use scylla::frame::value::Timestamp;
-use scylla::{Session, SessionBuilder, IntoTypedRows};
-use std::{str::FromStr, time::Duration as ConnectionDuration};
-use uuid::{self, Uuid};
+use chrono::{DateTime, Utc};
+use futures::TryStreamExt;
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
+use std::time::Duration;
+use uuid::Uuid;
 
 #[tokio::main]
 
@@ -358,7 +357,7 @@ async fn main() -> Result<()> {
             "your-node-2.aws-sa-east-1.2.clusters.scylla.cloud",
             "your-node-3.aws-sa-east-1.3.clusters.scylla.cloud",
         ])
-        .connection_timeout(ConnectionDuration::from_secs(5))
+        .connection_timeout(Duration::from_secs(5))
         .user("scylla", "your-awesome-password")
         .build()
         .await
@@ -366,22 +365,18 @@ async fn main() -> Result<()> {
 
     session.use_keyspace("media_player", false).await?;
 
-    session.query("SELECT id, title, album, artist, created_at FROM songs", &[])
+    session
+        .query_iter(
+            "SELECT id, title, album, artist, created_at FROM songs",
+            &[],
+        )
         .await?
-        .rows
-        .map(|row| {
-            row.into_typed::<(Uuid, String, String, String, Duration)>()
-                .map(|row| row.unwrap())
-                .collect::<Vec<_>>()
+        .rows_stream::<(Uuid, String, String, String, DateTime<Utc>)>()?
+        .try_for_each(|row| async move {
+            println!("Song: {} - Album: {} - Created At: {}", row.1, row.2, row.4);
+            Ok(())
         })
-        .unwrap()
-        .iter()
-        .for_each(|row| {
-            println!(
-                "Song: {} - Album: {} - Created At: {}", 
-                row.1, row.2, row.4
-            )
-        });
+        .await?;
 
     Ok(())
 }
@@ -410,12 +405,14 @@ As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check
 
 ```rust
 use anyhow::Result;
-use chrono::{Duration, Utc, DateTime};
-use scylla::cql_to_rust::FromCqlVal;
-use scylla::frame::value::Timestamp;
-use scylla::{Session, SessionBuilder, IntoTypedRows};
-use std::{str::FromStr, time::Duration as ConnectionDuration};
-use uuid::{self, Uuid};
+use chrono::{DateTime, Utc};
+use futures::TryStreamExt;
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
+use scylla::value::CqlTimestamp;
+use std::str::FromStr;
+use std::time::Duration;
+use uuid::Uuid;
 
 async fn main() -> Result<()> {
     let session: Session = SessionBuilder::new()
@@ -424,7 +421,7 @@ async fn main() -> Result<()> {
             "node-1.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
             "node-2.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
         ])
-        .connection_timeout(ConnectionDuration::from_secs(5))
+        .connection_timeout(Duration::from_secs(5))
         .user("scylla", "your-password")
         .build()
         .await
@@ -435,36 +432,36 @@ async fn main() -> Result<()> {
         "2022 em uma música",
         "Inutilismo",
         Uuid::from_str("d754f8d5-e037-4898-af75-44587b9cc424").unwrap(),
-        Timestamp(Duration::seconds(1691547115))
+        CqlTimestamp(1691547115),
     );
-
-    
 
     session.use_keyspace("media_player", false).await?;
 
-    let prepared_query = session.prepare(
-        "UPDATE songs set title = ?, album = ?, artist = ? where id = ? and created_at = ?"
-    ).await?;
-        
-    session.execute(&prepared_query, song_to_update).await?;
-    
+    let prepared_query = session
+        .prepare(
+            "UPDATE songs set title = ?, album = ?, artist = ? where id = ? and created_at = ?",
+        )
+        .await?;
 
-    session.query("SELECT id, title, album, artist, created_at FROM songs WHERE id = ?", (song_to_update.3,))
+    session
+        .execute_unpaged(&prepared_query, song_to_update)
+        .await?;
+
+    session
+        .query_iter(
+            "SELECT id, title, album, artist, created_at FROM songs WHERE id = ?",
+            (song_to_update.3,),
+        )
         .await?
-        .rows
-        .map(|row| {
-            row.into_typed::<(Uuid, String, String, String, Duration)>()
-                .map(|row| row.unwrap())
-                .collect::<Vec<_>>()
-        })
-        .unwrap()
-        .iter()
-        .for_each(|row| {
+        .rows_stream::<(Uuid, String, String, String, DateTime<Utc>)>()?
+        .try_for_each(|row| async move {
             println!(
-                "ID: {} -  Song: {} - Album: {} - Created At: {}", 
+                "ID: {} -  Song: {} - Album: {} - Created At: {}",
                 row.0, row.1, row.2, row.4
-            )
-        });
+            );
+            Ok(())
+        })
+        .await?;
 
     Ok(())
 }
@@ -501,12 +498,12 @@ On the other hand, the "normal delete" just need the `Partition Key` to handle i
 
 ```rust
 use anyhow::Result;
-use chrono::{Duration, Utc, DateTime};
-use scylla::cql_to_rust::FromCqlVal;
-use scylla::frame::value::Timestamp;
-use scylla::{Session, SessionBuilder, IntoTypedRows};
-use std::{str::FromStr, time::Duration as ConnectionDuration};
-use uuid::{self, Uuid};
+use scylla::client::session::Session;
+use scylla::client::session_builder::SessionBuilder;
+use scylla::value::CqlTimestamp;
+use std::str::FromStr;
+use std::time::Duration;
+use uuid::Uuid;
 
 #[tokio::main]
 
@@ -517,7 +514,7 @@ async fn main() -> Result<()> {
             "node-1.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
             "node-2.aws-sa-east-1.5c3451e0374e0987b65f.clusters.scylla.cloud",
         ])
-        .connection_timeout(ConnectionDuration::from_secs(5))
+        .connection_timeout(Duration::from_secs(5))
         .user("scylla", "your-awesome-password")
         .build()
         .await
@@ -528,18 +525,18 @@ async fn main() -> Result<()> {
         "2022 em uma música",
         "Inutilismo",
         Uuid::from_str("d754f8d5-e037-4898-af75-44587b9cc424").unwrap(),
-        Timestamp(Duration::seconds(1691547115))
+        CqlTimestamp(1691547115 * 1000),
     );
-
-    
 
     session.use_keyspace("media_player", false).await?;
 
-    let prepared_query = session.prepare(
-        "DELETE FROM songs where id = ? and created_at = ?"
-    ).await?;
-        
-    session.execute(&prepared_query, (song_to_delete.3, song_to_delete.4,)).await?;
+    let prepared_query = session
+        .prepare("DELETE FROM songs where id = ? and created_at = ?")
+        .await?;
+
+    session
+        .execute_unpaged(&prepared_query, (song_to_delete.3, song_to_delete.4))
+        .await?;
     println!("Song deleted!");
 
     Ok(())
