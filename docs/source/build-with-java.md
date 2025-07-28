@@ -385,7 +385,7 @@ class Main {
 
 Yay! You now know how get started with ScyllaDB in Java.
 
-There is a simple project with this structure that you can check out [here](https://github.com/DanielHe4rt/scylladb-java-getting-started).
+There is a simple project with this structure that you can check out [here](https://github.com/scylladb/scylla-cloud-getting-started).
 
 If you think something can be improved, please open an issue and let's make it happen!
 
