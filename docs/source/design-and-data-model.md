@@ -62,7 +62,7 @@ Q2: Create a Table
             album text,
             artist text,
             created_at timestamp,
-            updated_at timestamp
+            updated_at timestamp,
             PRIMARY KEY (id, updated_at)
     );
 
