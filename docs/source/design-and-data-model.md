@@ -62,7 +62,7 @@ Q2: Create a Table
             album text,
             artist text,
             created_at timestamp,
-            updated_at timestamp
+            updated_at timestamp,
             PRIMARY KEY (id, updated_at)
     );
 
@@ -72,7 +72,7 @@ Q3: Insert a new song
 
 Q4: List all songs
 
-    SELECT * FROM pet WHERE songs
+    SELECT * FROM songs;
 
 Q5: Delete a specific song
 
