@@ -72,7 +72,7 @@ Q3: Insert a new song
 
 Q4: List all songs
 
-    SELECT * FROM pet WHERE songs
+    SELECT * FROM songs;
 
 Q5: Delete a specific song
 
