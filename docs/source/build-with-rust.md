@@ -253,7 +253,7 @@ async fn main() -> Result<()> {
                 album text,
                 artist text,
                 created_at timestamp,
-                PRIMARY KEY (id, updated_at)
+                PRIMARY KEY (id, created_at)
             )",
             &KEYSPACE, &TABLE
         );
