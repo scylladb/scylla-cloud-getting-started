@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CassandraCSharpDriver" Version="3.19.3" />
+      <PackageReference Include="ScyllaDBCSharpDriver" Version="3.22.0.1" />
     </ItemGroup>
 
 

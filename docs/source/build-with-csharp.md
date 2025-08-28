@@ -23,10 +23,10 @@ dotnet new console -n media_player && cd media_player
 First we'll install the required package to connect to scyllaDB with the following command:
 
 ```sh
-dotnet add package CassandraCSharpDriver
+dotnet add package ScyllaDBCSharpDriver
 ```
 
-This package can be found at [github](https://github.com/datastax/csharp-driver/)
+This package can be found at [github](https://github.com/scylladb/csharp-driver/)
 
 > Disclaimer: This package require system wide dependencies with the cassandra client, so it's required to install on your system (or run the whole application under a docker image). You can find the installation guide at: https://cassandra.apache.org/doc/latest/cassandra/getting_started/installing.html
 
