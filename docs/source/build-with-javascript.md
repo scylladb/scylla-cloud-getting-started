@@ -57,13 +57,9 @@ async function runKeyspace () {
         credentials: {username: 'scylla', password: 'your-awesome-password'},
     })
 
-    const newKeyspace = (keyspaceName, rf) => `
-        CREATE KEYSPACE ${keyspaceName}
-            WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '${rf}'} 
-            AND durable_writes = true;
-    `;
+    const newKeyspace = (keyspaceName) => `CREATE KEYSPACE ${keyspaceName};`;
 
-    await cluster.execute(newKeyspace('media_player', 3))
+    await cluster.execute(newKeyspace('media_player'))
     await cluster.shutdown()
 }
 

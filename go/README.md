@@ -39,11 +39,7 @@ Check which commands are currently available on this sample:
 All the CQL queries used on the project
 
 ```sql
-CREATE KEYSPACE media_player
-  WITH replication = {
-    'class': 'NetworkTopologyStrategy',
-    'replication_factor': '3'
-  } AND durable_writes = true
+CREATE KEYSPACE media_player;
 
 CREATE TABLE media_player.playlist (
   id uuid,

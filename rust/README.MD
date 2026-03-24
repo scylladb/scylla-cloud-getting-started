@@ -44,9 +44,7 @@ Check which commands are currently available on this sample:
 All the CQL queries used on the project
 
 ```sql
-CREATE KEYSPACE prod_media_player
-    WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
-    AND durable_writes = true;
+CREATE KEYSPACE prod_media_player;
 
 CREATE TABLE prod_media_player.songs (
     id uuid,

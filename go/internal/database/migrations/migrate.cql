@@ -1,4 +1,4 @@
-CREATE KEYSPACE IF NOT EXISTS media_player WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}  AND durable_writes = true;
+CREATE KEYSPACE IF NOT EXISTS media_player;
 
 CREATE TABLE IF NOT EXISTS media_player.playlist
 (
