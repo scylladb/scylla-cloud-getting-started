@@ -186,17 +186,7 @@ async fn main() -> Result<()> {
         .is_some();
 
     if !has_keyspace {
-        let new_keyspace_query = format!(
-            "
-        CREATE KEYSPACE {} 
-            WITH replication = {{
-                'class': 'NetworkTopologyStrategy',
-                    'replication_factor': '3'
-            }}
-            AND durable_writes = true
-    ",
-            keyspace
-        );
+        let new_keyspace_query = format!("CREATE KEYSPACE {};", keyspace);
 
         session.query_unpaged(new_keyspace_query, &[]).await?;
         println!("Keyspace {} created!", &keyspace)

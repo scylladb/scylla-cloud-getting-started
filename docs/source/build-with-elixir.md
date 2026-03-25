@@ -160,12 +160,7 @@ def create_keyspace(keyspace_name) do
     false ->
       cluster = start_link()
 
-      query = "CREATE KEYSPACE IF NOT EXISTS #{keyspace_name}
-                WITH REPLICATION = {
-                  'class': 'NetworkTopologyStrategy',
-                  'replication_factor': '3'
-                }
-                AND durable_writes = true;"
+      query = "CREATE KEYSPACE IF NOT EXISTS #{keyspace_name};"
 
       run_query(cluster, query)
 

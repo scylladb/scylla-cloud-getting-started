@@ -9,11 +9,7 @@ def migrate(session: Session) -> None:
 
     if not hasKeyspace:
         print('Creating keyspace:', enviroment['keyspace'])
-        session.execute(f"""
-        CREATE KEYSPACE {enviroment['keyspace']}
-            WITH replication = {{'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}} 
-            AND durable_writes = true;                  
-        """)
+        session.execute(f"CREATE KEYSPACE {enviroment['keyspace']};")
         
     for tableName, tableQuery in enviroment['tables'].items():
         

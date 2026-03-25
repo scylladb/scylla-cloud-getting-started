@@ -93,7 +93,7 @@ if err != nil {
     panic("Connection fail")
 }
 
-session.Query("CREATE KEYSPACE IF NOT EXISTS media_player WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}  AND durable_writes = true;", nil).Exec()
+session.Query("CREATE KEYSPACE IF NOT EXISTS media_player;", nil).Exec()
 ```
 
 ### 3.2 Creating a table

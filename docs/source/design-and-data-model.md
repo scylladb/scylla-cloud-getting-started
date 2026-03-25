@@ -50,9 +50,7 @@ Now we can detail the above queries in
 
 Q1: Create a Keyspace
 
-    CREATE KEYSPACE prod_media_player
-            WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'} 
-            AND durable_writes = true;
+    CREATE KEYSPACE prod_media_player;
 
 Q2: Create a Table
 

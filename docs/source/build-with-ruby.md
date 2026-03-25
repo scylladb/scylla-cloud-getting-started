@@ -122,14 +122,7 @@ has_keyspace = session.execute_async('select keyspace_name from system_schema.ke
                                      arguments: [keyspace]).join.rows.size
 
 if has_keyspace.zero?
-  new_keyspace_query = <<~SQL
-    CREATE KEYSPACE #{keyspace}
-    WITH replication = {
-      'class': 'NetworkTopologyStrategy',
-      'replication_factor': '3'
-    }
-    AND durable_writes = true
-  SQL
+  new_keyspace_query = "CREATE KEYSPACE #{keyspace};"
 
   session.execute_async(new_keyspace_query).join
 

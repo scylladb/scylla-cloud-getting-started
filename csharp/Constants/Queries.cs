@@ -2,7 +2,7 @@ namespace MediaPlayer.Constants;
 
 public static class Queries
 {
-    public static string CreateKeyspaceIfDoesntExistQuery => "CREATE KEYSPACE prod_media_player WITH replication = { 'class': 'NetworkTopologyStrategy', 'replication_factor': '3'} AND durable_writes = true";
+    public static string CreateKeyspaceIfDoesntExistQuery => "CREATE KEYSPACE prod_media_player;";
     public static string CheckKeyspaceQuery => "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name=?";
     public static string CreateTableSongExistQuery => "CREATE TABLE prod_media_player.songs (id uuid, title text, album text, artist text, created_at timestamp, PRIMARY KEY (id, created_at))";
     public static string CreateTableSongCounterQuery => "CREATE TABLE prod_media_player.song_counter (song_id uuid, times_played counter, PRIMARY KEY (song_id))";

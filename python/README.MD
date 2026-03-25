@@ -49,9 +49,7 @@ python cli.py
 All the CQL queries used in the project:
 
 ```sql
-CREATE KEYSPACE prod_media_player
-    WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
-    AND durable_writes = true;
+CREATE KEYSPACE prod_media_player;
 
 CREATE TABLE songs (
     id uuid,

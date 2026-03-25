@@ -117,9 +117,6 @@ class Main {
 
             String createKeyspaceQuery = createKeyspace("media_player")  
                 .ifNotExists()  
-                .with()  
-                .replication(ImmutableMap.of("class", "NetworkTopologyStrategy", "replication_factor", 3))  
-                .durableWrites(true)  
                 .getQueryString();
 
             session.execute(createKeyspaceQuery)
