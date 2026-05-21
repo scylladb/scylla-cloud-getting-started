@@ -27,7 +27,7 @@ while True:
         })
         
         
-        print(f'Admin: song {songName} added successfuly!')
+        print(f'Admin: song {songName} added successfully!')
         
     if command == "!list":
         print('Admin: Listing all the songs registered so far...')
@@ -61,4 +61,4 @@ while True:
             'created_at': songToDelete[1]['created_at']
         })
         
-        print(f'Admin: song ', songToDelete[1]['title'], ' deleted successfuly!')
+        print(f'Admin: song ', songToDelete[1]['title'], ' deleted successfully!')

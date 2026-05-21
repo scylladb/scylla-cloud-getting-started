@@ -5,7 +5,7 @@ Project to store songs that you like to listen daily and keep track of them usin
 ## Prerequisites
 
 * [Python 3.7+](https://www.python.org/downloads/)
-* [Virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
+* [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Running the project
 
@@ -13,23 +13,30 @@ Clone the repository:
 
 ```sh 
 git clone https://github.com/scylladb/scylla-cloud-getting-started.git
-cd scylla-cloud-getting-started
+cd scylla-cloud-getting-started/python
 ```
 
-Start a new virtual environment for the project:
+Create a virtual environment and install the driver:
 
 ```sh
-virtualenv env
-source env/bin/activate
+uv venv
+source .venv/bin/activate
+uv pip install scylla-driver python-dotenv
 ```
 
-Install the driver: 
+Copy `.env.example` to `.env` and fill in your ScyllaDB Cloud Cluster credentials:
 
 ```sh
-pip install scylla-driver
+cp .env.example .env
 ```
 
-Go to `environment.py` and set up your ScyllaDB Cloud Cluster credentials and run:
+```sh
+SCYLLADB_ADDRESS=node-0.your-cluster.clusters.scylla.cloud
+SCYLLADB_USERNAME=scylla
+SCYLLADB_PASSWORD=your-password
+```
+
+Run the app:
 
 ```sh
 python cli.py
@@ -49,7 +56,7 @@ python cli.py
 All the CQL queries used in the project:
 
 ```sql
-CREATE KEYSPACE prod_media_player;
+CREATE KEYSPACE prod_media_player WITH REPLICATION = {'class': 'NetworkTopologyStrategy', 'replication_factor': 3};
 
 CREATE TABLE songs (
     id uuid,
@@ -64,12 +71,12 @@ CREATE TABLE songs (
 CREATE TABLE recently_played_songs (
     song_id uuid,
     listened_at timestamp,
-    PRIMARY KEY (song_id, created_at)
+    PRIMARY KEY (song_id, listened_at)
 )
 
 CREATE TABLE played_songs_counter (
     song_id uuid,
-    times_played count,
+    times_played counter,
     PRIMARY KEY (song_id)
 )
 

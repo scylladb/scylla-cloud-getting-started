@@ -1,21 +1,23 @@
 from cassandra.cluster import Cluster, BatchStatement, ConsistencyLevel, SimpleStatement
 from cassandra.auth import PlainTextAuthProvider
 import uuid
+import os
 from datetime import datetime
-from helpers import migrate
-from environment import enviroment
+from dotenv import load_dotenv
+from migrate import migrate
 
+load_dotenv()
 
 cluster = Cluster(
-    contact_points=enviroment['contact_points'],
-    auth_provider=PlainTextAuthProvider(username=enviroment['username'], password=enviroment['password'])
+    contact_points=[os.environ['SCYLLADB_ADDRESS']],
+    auth_provider=PlainTextAuthProvider(username=os.environ['SCYLLADB_USERNAME'], password=os.environ['SCYLLADB_PASSWORD'])
 )
 
 session = cluster.connect()
 print('-------------------------')
-migrate(session)
-    
-session.set_keyspace(enviroment['keyspace'])
+keyspace = migrate(session)
+
+session.set_keyspace(keyspace)
 
 print('-------------------------')
 print('Admin: Welcome to MediaPlayer Metrics')
@@ -42,7 +44,7 @@ while True:
             datetime.now()
         ));
         
-        print(f'Admin: song {songName} added successfuly!')
+        print(f'Admin: song {songName} added successfully!')
     
     if command == "!delete":
         print('Admin: Listing all the songs registered so far...')
@@ -59,7 +61,7 @@ while True:
         songToDelete = enumSongList[songIndex]
         session.execute('DELETE FROM songs WHERE id = %s', ([songToDelete[1].id]))
         
-        print(f'Admin: song {songName} deleted successfuly!')
+        print(f'Admin: song {songToDelete[1].title} deleted successfully!')
         
     if command == "!listen":
         print('Admin: Listing all the songs registered so far...')
