@@ -1,6 +1,6 @@
 # ScyllaDB Cloud Media Player Metrics
 
-Project to store songs that you like to listen daily and keep track of them in a shape of a CLI!
+Project to store songs that you like to listen to daily and keep track of them via a CLI!
 
 ## Prerequisites
 
