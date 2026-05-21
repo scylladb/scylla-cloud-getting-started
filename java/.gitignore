@@ -2,3 +2,4 @@ target/
 .env
 *.class
 .m2/
+dependency-reduced-pom.xml
