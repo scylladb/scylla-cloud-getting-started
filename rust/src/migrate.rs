@@ -51,7 +51,10 @@ async fn create_keyspace(session: &Session, keyspace_name: &str) -> Result<(), a
         .is_some();
 
     if !has_keyspace {
-        let new_keyspace_query = format!("CREATE KEYSPACE {};", &keyspace_name);
+        let new_keyspace_query = format!(
+            "CREATE KEYSPACE {} WITH REPLICATION = {{'class': 'NetworkTopologyStrategy', 'replicationFactor': '3'}};",
+            &keyspace_name
+        );
 
         session.query_unpaged(new_keyspace_query, &[]).await?;
     }
