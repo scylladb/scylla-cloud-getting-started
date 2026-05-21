@@ -6,7 +6,6 @@ import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import io.github.cdimascio.dotenv.Dotenv;
-import io.github.cdimascio.dotenv.DotenvException;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
@@ -20,12 +19,7 @@ public class App {
     private static CqlSession session;
 
     public static void main(String[] args) {
-        Dotenv dotenv;
-        try {
-            dotenv = Dotenv.configure().ignoreIfMissing().load();
-        } catch (DotenvException e) {
-            dotenv = Dotenv.configure().ignoreIfMissing().load();
-        }
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
         String nodesEnv = getEnv(dotenv, "SCYLLADB_NODES", "");
         String username = getEnv(dotenv, "SCYLLADB_USERNAME", "scylla");
