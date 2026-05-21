@@ -4,7 +4,7 @@ Project to store songs that you like to listen daily and keep track of them in a
 
 ## Prerequisites
 
-* [Node.js](https://nodejs.org/) >= 16
+* [Node.js](https://nodejs.org/) >= 20
 * [npm](https://www.npmjs.com/)
 
 ## Running the project
