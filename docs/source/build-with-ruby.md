@@ -349,7 +349,7 @@ scylla@cqlsh> select * from media_player.playlist where id = 40450211-42cc-11ee-
 (1 rows)
 ```
 
-It only "updated" the field `title` and `created_at` (that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
+It updated the fields `title`, `album`, and `artist`. The `created_at` value is not being updated here; it is used in the `WHERE` clause as the Clustering Key to identify the specific row to update.
 
 ### 3.6 Deleting data
 
