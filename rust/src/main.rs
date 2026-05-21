@@ -9,7 +9,7 @@ use database::Database;
 use migrate::migrate_database;
 use std::{io, process, sync::Arc};
 
-/// Simple program to greet a person
+/// ScyllaDB media player CLI connection details
 #[derive(Parser, Default, Debug)]
 #[clap(author = "danielhe4rt", version, about)]
 pub struct ConnectionDetails {
