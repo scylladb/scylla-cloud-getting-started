@@ -85,5 +85,6 @@ fn display_help() {
     println!("  !list - list all songs");
     println!("  !delete - delete a specific song");
     println!("  !stress - stress testing with mocked data");
+    println!("  !q - quit");
     println!("------------------------------------");
 }
