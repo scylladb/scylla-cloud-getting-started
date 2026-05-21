@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-require 'async'
-
 module Cli
   class StressTestingCommand
+    TOTAL_RECORDS = 100_000
+    BATCH_SIZE = 1_000
+
     def initialize
       @repo = Application['database.connection']
     end
@@ -11,21 +12,20 @@ module Cli
     def call
       puts <<~DESC
         ------------------------------------
-        Inserting 100.000 records into the database...
+        Inserting #{TOTAL_RECORDS} records into the database...
         >    Starting...
       DESC
 
       start = Time.now
+      query = <<~SQL
+        INSERT INTO #{KEYSPACE_NAME}.#{PLAYLIST_TABLE_NAME} (id,title,artist,album,created_at) VALUES (now(),?,?,?,?);
+      SQL
 
-      Async do |task|
-        100_001.times do
-          task.async do
-            query = <<~SQL
-              INSERT INTO #{KEYSPACE_NAME}.#{PLAYLIST_TABLE_NAME} (id,title,artist,album,created_at) VALUES (now(),?,?,?,?);
-            SQL
-            @repo.execute_async(query, arguments: ['Test Song', 'Test Artist', 'Test Album', Time.now]).join
-          end
+      (TOTAL_RECORDS / BATCH_SIZE).times do
+        futures = BATCH_SIZE.times.map do
+          @repo.execute_async(query, arguments: ['Test Song', 'Test Artist', 'Test Album', Time.now])
         end
+        futures.each(&:join)
       end
 
       puts "Time taken: #{Time.now - start}"

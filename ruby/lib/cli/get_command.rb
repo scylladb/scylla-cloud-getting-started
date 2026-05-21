@@ -11,7 +11,7 @@ module Cli
       if cmd.empty?
         puts help_message
 
-        return get_command(help_message)
+        return self.call(help_message)
       end
 
       cmd
