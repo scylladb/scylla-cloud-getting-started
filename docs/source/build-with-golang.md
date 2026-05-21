@@ -1,269 +1,264 @@
 # Quick Start: Golang
 
-In this tutorial we're gonna build a simple Media Player to store our songs and build playlists
+In this tutorial we're going to build a simple Media Player to store our songs and build playlists.
 
 ## 1. Setup the Environment
 
-### 1.1 Downloading golang dependencies:
+### 1.1 Downloading Golang
 
-If you don't have golang installed already on your machine, you can install from the following sources:
+If you don't have Golang installed already on your machine, you can install it from the following sources:
 
 1. [Golang](https://go.dev/)
 
-### 1.2 Starting the project
+### 1.2 Cloning the project
 
-Now with the Golang installed, let's create a new project with the following command:
-
-```sh
-go mod init scylla-cloud-getting-started/golang
-```
-
-### 1.3 Setting the project dependencies
-
-First we'll install the required package to connect to scyllaDB with the following command:
+Clone the repository and navigate to the Go example:
 
 ```sh
-go get -u github.com/scylladb/gocqlx/v2
+git clone https://github.com/scylladb/scylla-cloud-getting-started.git
+cd scylla-cloud-getting-started/go
 ```
 
-This package can be found at [github](https://github.com/scylladb/gocqlx)
+### 1.3 Configuring credentials
+
+Copy `.env.example` to `.env` and fill in your ScyllaDB Cloud credentials:
+
+```sh
+cp .env.example .env
+```
+
+Edit `.env` with your cluster details:
+
+```sh
+NODES=node-0.aws-us-east-1.<cluster-id>.clusters.scylla.cloud
+CLUSTER_USERNAME=scylla
+CLUSTER_PASSWORD=your-password
+# Datacenter name from the ScyllaDB Cloud dashboard (Connect tab), e.g. AWS_US_EAST_1
+CLUSTER_REGION=AWS_US_EAST_1
+MIGRATE_PATH=./internal/database/migrations/migrate.cql
+```
+
+> You can find the node hostnames and datacenter name in the [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) under the **Connect** tab.
+
+### 1.4 Installing dependencies and running the project
+
+```sh
+go run ./cmd/...
+```
 
 ## 2. Connecting to the Cluster
 
-Make sure to get the right credentials on your [ScyllaDB Cloud Dashboard](https://cloud.scylladb.com/clusters) in the tab `Connect`.
+The connection is set up in `internal/database/connection.go`. It reads credentials from environment variables and configures a DC-aware load balancing policy for optimal performance:
 
 ```go
-func main() {
-    cluster := gocql.NewCluster("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud", "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud","node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
+func Connect() (*gocqlx.Session, error) {
+    nodes := os.Getenv("NODES")
+    username := os.Getenv("CLUSTER_USERNAME")
+    password := os.Getenv("CLUSTER_PASSWORD")
+    region := os.Getenv("CLUSTER_REGION")
 
-    cluster.Authenticator = gocql.PasswordAuthenticator{Username: "Canhassi", Password: "password123"}
-	cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy("AWS_US_EAST_1")
+    hosts := strings.Split(nodes, ",")
 
-	session, err := gocqlx.WrapSession(cluster.CreateSession())
+    cluster := gocql.NewCluster(hosts...)
 
-	if err != nil {
-		panic("Connection fail")
-	}
+    cluster.Authenticator = gocql.PasswordAuthenticator{Username: username, Password: password}
+    cluster.PoolConfig.HostSelectionPolicy = gocql.TokenAwareHostPolicy(gocql.DCAwareRoundRobinPolicy(region))
+
+    session, err := gocqlx.WrapSession(cluster.CreateSession())
+    if err != nil {
+        return nil, err
+    }
+
+    return &session, nil
 }
 ```
 
-> If the connection got refused, check if your IP Address is added into allowed IPs.
+> If the connection is refused, check that your IP address is added to the allowed IPs in the ScyllaDB Cloud dashboard.
 
 ## 3. Handling Queries
 
-Using the `gocqlx` package you can instantiate a session and then run fully queries.
+Using the `gocqlx` package you can instantiate a session and run CQL queries.
 
 ```go
 type Song struct {
-    Id string
-    Title string
-    Artist string
-    Album string
+    Id         string
+    Title      string
+    Artist     string
+    Album      string
     Created_at time.Time
 }
 
-func main() {
-    song := Song{}
-    
-    q := session.Query("SELECT * FROM media_player.playlist", nil)
-
-	if err := q.SelectRelease(&song); err != nil {
-	    panic("error in exec query to list playlists: %w", err)
-	}
-
-    println(song)
+func (s Song) String() string {
+    return fmt.Sprintf("Id: %s\nTitle: %s\nArtist: %s\nAlbum: %s\nCreated At: %s\n",
+        s.Id, s.Title, s.Artist, s.Album, s.Created_at)
 }
 ```
 
 ### 3.1 Creating a Keyspace
 
-The `keyspace` inside the ScyllaDB ecossystem can be interpreted as your `database` or `collection`.
+The `keyspace` in ScyllaDB is equivalent to a database or schema. The migration file at `internal/database/migrations/migrate.cql` creates it automatically on startup:
 
-On your connection boot, you don't need to provide it but you will use it later and also is able to create when you need.
-
-```go
-cluster := gocql.NewCluster("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud", "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud","node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
-
-cluster.Authenticator = gocql.PasswordAuthenticator{Username: "Canhassi", Password: "password123"}
-cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy("AWS_US_EAST_1")
-
-session, err := gocqlx.WrapSession(cluster.CreateSession())
-
-if err != nil {
-    panic("Connection fail")
-}
-
-session.Query("CREATE KEYSPACE IF NOT EXISTS media_player;", nil).Exec()
+```cql
+CREATE KEYSPACE IF NOT EXISTS media_player
+  WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
+  AND durable_writes = true;
 ```
 
 ### 3.2 Creating a table
 
-A table is used to store part or all the data of your app (depends on how you will build it). 
-Remember to add your `keyspace` into your connection and let's create a table to store our liked songs.
+A table stores the data for your app. The migration also creates the playlist table:
 
-```go
-cluster := gocql.NewCluster("node-0.aws-sa-east-1.xxx.clusters.scylla.cloud", "node-1.aws-sa-east-1.xxx.clusters.scylla.cloud","node-2.aws-sa-east-1.xxx.clusters.scylla.cloud")
-
-cluster.Authenticator = gocql.PasswordAuthenticator{Username: "Canhassi", Password: "password123"}
-cluster.PoolConfig.HostSelectionPolicy = gocql.DCAwareRoundRobinPolicy("AWS_US_EAST_1")
-
-session, err := gocqlx.WrapSession(cluster.CreateSession())
-
-if err != nil {
-    panic("Connection fail")
-}
-
-session.Query("CREATE TABLE IF NOT EXISTS media_player.playlist (id uuid,title text,album text,artist text,created_at timestamp,PRIMARY KEY (id, created_at)) WITH CLUSTERING ORDER BY (created_at DESC)", nil).Exec()
+```sql
+CREATE TABLE IF NOT EXISTS media_player.playlist (
+    id uuid,
+    title text,
+    album text,
+    artist text,
+    created_at timestamp,
+    PRIMARY KEY (id, created_at)
+) WITH CLUSTERING ORDER BY (created_at DESC);
 ```
 
 ### 3.3 Inserting data
 
-Now that we have the keyspace and a table inside of it, we need to bring some good songs and populate it.
+Now that we have the keyspace and a table, we can add songs to the playlist:
 
 ```go
-type Song struct {
-    Id string
-    Title string
-    Artist string
-    Album string
-    Created_at time.Time
-}
+func (c *SongController) Insert(song *database.Song) error {
+    q := c.Session.Query(
+        `INSERT INTO media_player.playlist (id, title, artist, album, created_at) VALUES (now(), ?, ?, ?, ?)`,
+        []string{":title", ":artist", ":album", ":created_at"}).
+        BindMap(map[string]interface{}{
+            ":title":      song.Title,
+            ":artist":     song.Artist,
+            ":album":      song.Album,
+            ":created_at": time.Now(),
+        })
 
-song := Song{}
+    if err := q.Exec(); err != nil {
+        return fmt.Errorf("error in exec query to insert a song in playlist %w", err)
+    }
 
-q := session.Query(
-    `INSERT INTO media_player.playlist (id,title,artist,album,created_at) VALUES (now(),?,?,?,?)`,
-    []string{":title", ":artist", ":album", ":created_at"}).
-    BindMap(map[string]interface{} {
-        ":title":      song.Title,
-        ":artist":     song.Artist,
-        ":album":      song.Album,
-        ":created_at": time.Now(),
-    })
-
-err := q.Exec(); if err != nil {
-    panic("error in exec query to insert a song in playlist %w", err)
+    return nil
 }
 ```
+
+Use the `!add` command in the CLI to add a song interactively.
 
 ### 3.4 Reading data
 
-Since probably we added more than 3 songs into our database, let's list it into our terminal.
+List all songs stored in the playlist:
 
 ```go
-type Song struct {
-    Id string
-    Title string
-    Artist string
-    Album string
-    Created_at time.Time
+func (c *SongController) List() ([]database.Song, error) {
+    songs := []database.Song{}
+
+    q := c.Session.Query("SELECT * FROM media_player.playlist", nil)
+
+    if err := q.SelectRelease(&songs); err != nil {
+        return songs, fmt.Errorf("error in exec query to list playlists: %w", err)
+    }
+
+    return songs, nil
 }
-
-func (s Song) String() string {
-	return fmt.Sprintf("Id: %s\nTitle: %s\nArtist: %s\nAlbum: %s\nCreated At: %s\n", s.Id, s.Title, s.Artist, s.Album, s.Created_at)
-}
-
-song := Song{}
-
-q := session.Query("SELECT * FROM media_player.playlist", nil)
-
-if err := q.SelectRelease(&song); err != nil {
-    panic("error in exec query to list playlists: %w", err)
-}
-
-println(song)
 ```
 
-The result will look like:
+Use the `!list` command in the CLI to display all songs. Each entry will look like:
 
 ```
 Id: a1500b3b-5a38-11ee-97d6-4495929e9df0
-Title: title teste
-Artist: artist teste
-Album: album teste
+Title: My Favourite Song
+Artist: Some Artist
+Album: Great Album
 Created At: 2023-09-23 17:42:56.541 +0000 UTC
 ```
 
-### 3.5 Updating data
+### 3.5 Deleting data
 
-Ok, almost there! Now we're going to learn about update but here's a disclaimer: 
-> INSERT and UPDATES are not equals!
-
-There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
-
-If you want to read more about it, [click here.](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
-
-As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check the snippet below: 
+Delete a row by its partition key:
 
 ```go
-q := session.Query(
-    `UPDATE media_player.playlist SET 
-        id = :id,
-        title = :title,
-        artist = :artist,
-        album = :album,
-        created_ad = :created_at
-        WHERE id = :id`,
-    []string{":id", ":title", ":artist", ":album", ":created_at"}).
-    BindMap(map[string]interface{} {
-        ":id":         "40450211-42cc-11ee-b14c-3da98b5024c0",
-        ":title":      "CPFMGD",
-        ":artist":     "Canhassi",
-        ":album":      "Canhas desu",
-        ":created_at": time.Now(),
-    })
+func (c *SongController) Delete() error {
+    songs, err := c.List()
+    if err != nil {
+        return err
+    }
 
-err := q.Exec(); if err != nil {
-    panic("error in exec update query")
+    index, err := c.selectSongToDelete(songs)
+    if err != nil {
+        return err
+    }
+
+    if index >= 0 && index < len(songs) {
+        songToDelete := songs[index]
+
+        q := c.Session.Query(`DELETE FROM media_player.playlist WHERE id = ?`,
+            []string{":id"}).
+            BindMap(map[string]interface{}{
+                ":id": songToDelete.Id,
+            })
+
+        if err := q.Exec(); err != nil {
+            return fmt.Errorf("error to exec delete query %w", err)
+        }
+    }
+
+    return nil
 }
 ```
 
-After updated, let's query for the ID and see the results:
+Use the `!delete` command in the CLI to select and delete a song interactively.
 
-```
-scylla@cqlsh:media_player> select * from media_player.playlist where id = 40450211-42cc-11ee-b14c-3da98b5024c0;
+### 3.6 Stress testing
 
-
- id                                   | created_at                      | album             | artist          | title
---------------------------------------+---------------------------------+-------------------+-----------------+---------------------------------
- 40450211-42cc-11ee-b14c-3da98b5024c0 | 2023-09-16 18:22:56.397000+0000 |    Canhas desu    |     Canhassi    | CPFMGD
-
-(1 rows)
-```
-
-It only "updated" the field `title`, `album` and `artist`(that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
-
-### 3.5 Deleting data
-
-Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
-
-```sql 
--- Deletes a single row
-DELETE FROM songs WHERE id = 40450211-42cc-11ee-b14c-3da98b5024c0;
-
--- Deletes a whole column
-DELETE artist FROM songs WHERE id = 40450211-42cc-11ee-b14c-3da98b5024c0;
-```
-
-If you want to erase a specific column, you also should pass as parameter the `Clustering Key` and be very specific in which register you want to delete something. 
-On the other hand, the "normal delete" just need the `Partition Key` to handle it. Just remember: if you use the statement "DELETE FROM keyspace.table_name" it will delete ALL the rows that you stored with that ID. 
+The `!stress` command inserts 100,000 records concurrently to test cluster throughput:
 
 ```go
-q := session.Query(`DELETE FROM media_player.playlist WHERE id = ?`,
-    []string{":id"}).
-    BindMap(map[string]interface{} {
-        ":id": songToDelete.Id,
-    })
+func (c *StressController) Stress() error {
+    fmt.Println("Inserting 100,000 records into the database...")
 
-err := q.Exec(); if err != nil {
-    return fmt.Errorf("error to exec delete query %w", err)
+    start := time.Now()
+
+    var wg sync.WaitGroup
+    sem := make(chan bool, 550)
+
+    for i := 0; i < 100_000; i++ {
+        sem <- true
+        wg.Add(1)
+        go func() {
+            defer func() {
+                <-sem
+                wg.Done()
+            }()
+
+            q := c.Session.Query(
+                `INSERT INTO media_player.playlist (id, title, artist, album, created_at) VALUES (now(), ?, ?, ?, ?)`,
+                []string{":title", ":artist", ":album", ":created_at"}).
+                BindMap(map[string]interface{}{
+                    ":title":      "title teste",
+                    ":artist":     "artist teste",
+                    ":album":      "album teste",
+                    ":created_at": time.Now(),
+                })
+
+            if err := q.Exec(); err != nil {
+                fmt.Println(err.Error())
+            }
+        }()
+    }
+
+    wg.Wait()
+    fmt.Println("Time taken:", time.Since(start))
+
+    return nil
 }
 ```
 
 ## Conclusion
 
-Yay! You now have the knowledge to use the basics of ScyllaDB with Golang.
+You now have the knowledge to use the basics of ScyllaDB with Golang.
 
-If you thinks that something can be improved, please open an issue and let's make it happen!
+If you think something can be improved, please open an issue and let's make it happen!
 
-Did you like the content? Dont forget to star the repo and follow us on socials.
+Did you like the content? Don't forget to star the repo and follow us on socials.
+
