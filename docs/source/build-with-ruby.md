@@ -4,7 +4,7 @@ In this tutorial we're gonna build a simple Media Player to store our songs and 
 
 ## 1. Setup the Environment
 
-### 1.1 Downloading rust and dependencies:
+### 1.1 Downloading Ruby and dependencies:
 
 If you don't have ruby installed already on your machine, you can install from two possible sources:
 
@@ -45,7 +45,10 @@ A sample `Gemfile` will be like this:
 source 'https://rubygems.org'
 
 gem 'cassandra-driver', '~> 3.2'
+gem 'sorted_set', '~> 1.0'
 ```
+
+> Note: `sorted_set` is required because `cassandra-driver 3.2.x` relies on `SortedSet`, which was removed from the Ruby standard library in Ruby 3.x.
 
 ## 2. Connecting to the Cluster
 
@@ -54,15 +57,16 @@ Make sure to get the right credentials on your [ScyllaDB Cloud Dashboard](https:
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
 
 cluster = Cassandra.cluster(
   username: 'scylla',
   password: 'a-very-secure-password',
   hosts: [
-    'node-0.aws-sa-east-1.xxx.clusters.scylla.cloud',
-    'node-1.aws-sa-east-1.xxx.clusters.scylla.cloud',
-    'node-2.aws-sa-east-1.xxx.clusters.scylla.cloud'
+    'node-0.aws-us-east-1.xxx.clusters.scylla.cloud',
+    'node-1.aws-us-east-1.xxx.clusters.scylla.cloud',
+    'node-2.aws-us-east-1.xxx.clusters.scylla.cloud'
   ]
 )
 ```
@@ -101,6 +105,7 @@ On your connection boot, you don't need to provide it but you will use it later 
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
 
 cluster = Cassandra.cluster(
@@ -122,7 +127,11 @@ has_keyspace = session.execute_async('select keyspace_name from system_schema.ke
                                      arguments: [keyspace]).join.rows.size
 
 if has_keyspace.zero?
-  new_keyspace_query = "CREATE KEYSPACE #{keyspace};"
+  new_keyspace_query = <<~SQL
+    CREATE KEYSPACE #{keyspace}
+      WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
+      AND durable_writes = true;
+  SQL
 
   session.execute_async(new_keyspace_query).join
 
@@ -143,6 +152,7 @@ Remember to add your `keyspace` into your connection and let's create a table to
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
 
 cluster = Cassandra.cluster(
@@ -170,9 +180,9 @@ if has_table.zero?
       title text,
       album text,
       artist text,
-      created_at timestamp
+      created_at timestamp,
       PRIMARY KEY (id, created_at)
-    )
+    ) WITH CLUSTERING ORDER BY (created_at DESC)
   SQL
 
   session.execute_async(new_table_query).join
@@ -190,6 +200,7 @@ Now that we have the keyspace and a table inside of it, we need to bring some go
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
 
 cluster = Cassandra.cluster(
@@ -228,12 +239,12 @@ song_list = [
   }
 ]
 
-insert_query = "INSERT INTO #{table} (now(),title,album,artist,created_at) VALUES (?,?,?,?)"
+insert_query = "INSERT INTO #{keyspace}.#{table} (id,title,album,artist,created_at) VALUES (now(),?,?,?,?)"
 
 song_list.each do |song|
   session.execute_async(insert_query,
                         arguments: [song[:title], song[:album], song[:artist],
-                                    song[:created_at]]).join.rows.size
+                                    song[:created_at]]).join
 end
 ```
 
@@ -244,6 +255,7 @@ Since probably we added more than 3 songs into our database, let's list it into 
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
 
 cluster = Cassandra.cluster(
@@ -261,10 +273,10 @@ table = 'playlist'
 
 session = cluster.connect(keyspace)
 
-future = session.execute_async("SELECT id, title, album, artist, created_at FROM #{table}")
+future = session.execute_async("SELECT id, title, album, artist, created_at FROM #{keyspace}.#{table}")
 future.on_success do |rows|
   rows.each do |row|
-    puts "ID: #{song['id']} | Song: #{song['title']} | Album: #{song['album']} | Created At: #{song['created_at']}"
+    puts "ID: #{row['id']} | Song: #{row['title']} | Album: #{row['album']} | Created At: #{row['created_at']}"
   end
 end
 
@@ -293,8 +305,8 @@ As we can see, the `UPDATE QUERY` takes two fields on `WHERE` (PK and CK). Check
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
-require 'securerandom'
 
 cluster = Cassandra.cluster(
   username: 'scylla',
@@ -313,9 +325,9 @@ session = cluster.connect(keyspace)
 
 song = {
     title: 'Smells Like Teen Spirit Updated',
-    album: 'Nevermind Updaetd',
+    album: 'Nevermind Updated',
     artist: 'Nirvana Updated',
-    created_at: Time.new('2023-08-24 22:19:11.091000+0000')
+    created_at: Time.at(1692918551)
 }
 
 update_query = "UPDATE #{keyspace}.#{table} SET title = ?, album = ?, artist = ? where id = ? and created_at = ?"
@@ -337,9 +349,9 @@ scylla@cqlsh> select * from media_player.playlist where id = 40450211-42cc-11ee-
 (1 rows)
 ```
 
-It only "updated" the field `title` and `updated_at` (that is our Clustering Key) and since we didn't inputted the rest of the data, it will not be replicated as expected.
+It updated the fields `title`, `album`, and `artist`. The `created_at` value is not being updated here; it is used in the `WHERE` clause as the Clustering Key to identify the specific row to update.
 
-### 3.5 Deleting data
+### 3.6 Deleting data
 
 Let's understand what we can DELETE with this statement. There's the normal `DELETE` statement that focus on `ROWS` and other one that delete data only from `COLUMNS` and the syntax is very similar.
 
@@ -357,8 +369,8 @@ On the other hand, the "normal delete" just need the `Partition Key` to handle i
 ```ruby
 # frozen_string_literal: true
 
+require 'sorted_set'
 require 'cassandra'
-require 'securerandom'
 
 cluster = Cassandra.cluster(
   username: 'scylla',
@@ -376,10 +388,7 @@ table = 'playlist'
 session = cluster.connect(keyspace)
 
 song = {
-    title: 'Smells Like Teen Spirit Updated',
-    album: 'Nevermind Updaetd',
-    artist: 'Nirvana Updated',
-    created_at: Time.new('2023-08-24 22:19:11.091000+0000')
+    created_at: Time.at(1692918551)
 }
 
 delete_query = "DELETE FROM #{keyspace}.#{table} where id = ? and created_at = ?"

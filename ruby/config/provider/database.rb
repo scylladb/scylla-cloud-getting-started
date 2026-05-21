@@ -2,7 +2,9 @@
 
 Application.register_provider(:database) do
   prepare do
+    require 'sorted_set'
     require 'cassandra'
+    require_relative '../patches/cassandra_driver'
   end
 
   start do

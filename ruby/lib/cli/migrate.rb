@@ -26,7 +26,11 @@ module Cli
     # @param keyspace_name [String]
     # @return [void]
     def self.create_keyspace(session:)
-      new_keyspace_query = "CREATE KEYSPACE #{KEYSPACE_NAME};"
+      new_keyspace_query = <<~SQL
+        CREATE KEYSPACE #{KEYSPACE_NAME}
+          WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
+          AND durable_writes = true;
+      SQL
 
       session.execute_async(new_keyspace_query).join
     end

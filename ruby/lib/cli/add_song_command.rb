@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'uuid'
-
 module Cli
   class AddSongCommand
     def initialize
