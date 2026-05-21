@@ -98,7 +98,7 @@ func (s Song) String() string {
 
 The `keyspace` in ScyllaDB is equivalent to a database or schema. The migration file at `internal/database/migrations/migrate.cql` creates it automatically on startup:
 
-```sql
+```cql
 CREATE KEYSPACE IF NOT EXISTS media_player
   WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'}
   AND durable_writes = true;
