@@ -1,0 +1,13 @@
+{
+  "name": "scylladb-media-player",
+  "version": "1.0.0",
+  "description": "ScyllaDB Cloud Media Player CLI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cassandra-driver": "^4.7.2",
+    "dotenv": "^16.4.5"
+  }
+}
