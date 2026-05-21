@@ -57,7 +57,8 @@ async function runKeyspace () {
         credentials: {username: 'scylla', password: 'your-awesome-password'},
     })
 
-    const newKeyspace = (keyspaceName) => `CREATE KEYSPACE ${keyspaceName};`;
+    const newKeyspace = (keyspaceName) =>
+        `CREATE KEYSPACE IF NOT EXISTS ${keyspaceName} WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor': '3'};`;
 
     await cluster.execute(newKeyspace('media_player'))
     await cluster.shutdown()
@@ -84,18 +85,18 @@ async function runKeyspace (keyspace = null) {
     })
 
     const createSongsTableQuery = `
-        CREATE TABLE songs (
-            id int,
+        CREATE TABLE IF NOT EXISTS songs (
+            id uuid,
             title text,
             album text,
             artist text,
             created_at timestamp,
-            updated_at timestamp
+            updated_at timestamp,
             PRIMARY KEY (id, updated_at)
         )
     `;
 
-    await cluster.execute(createSongsTableQuery))
+    await cluster.execute(createSongsTableQuery)
     await cluster.shutdown()
 }
 
@@ -108,12 +109,12 @@ runKeyspace('media_player');
 Now that you have created a keyspace and a table, you need to insert some songs to populate the table. 
 
 ```js
-async function insertSongs () {
+async function insertSongs (keyspace = 'media_player') {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
         credentials: {username: 'scylla', password: 'your-awesome-password'},
-        keyspace: keyspace ?? 'media_player'
+        keyspace: keyspace
     })
 
     let songList = [
@@ -144,7 +145,7 @@ async function insertSongs () {
     ];
 
     const newSongQuery = (song) => {
-        return `INSERT INTO songs (id, title, album, artist) 
+        return `INSERT INTO songs (id, title, album, artist, created_at, updated_at) 
                     VALUES (${song.id}, '${song.title}', '${song.album}', '${song.artist}', '${song.createdAt}', '${song.updatedAt}')`
 
     }
@@ -163,13 +164,13 @@ async function insertSongs () {
 Since probably we added more than 3 songs into our database, let's list it into our terminal.
 
 ```js
-const listSongs = async () => {
+const listSongs = async (keyspace = 'media_player') => {
     
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
         credentials: {username: 'scylla', password: 'your-awesome-password'},
-        keyspace: keyspace ?? 'media_player'
+        keyspace: keyspace
     })
 
     let results = await cluster.execute("SELECT * FROM songs");
@@ -222,7 +223,7 @@ const songToUpdate = {
     artist: 'Joji',
 };
 
-const updateSong = async (songToUpdate) => {
+const updateSong = async (song) => {
     const cluster = new cassandra.Client({
         contactPoints: ["your-node-url.clusters.scylla.cloud", "your-node-url.clusters.scylla.cloud", ...],
         localDataCenter: 'your-data-center', // Eg: AWS_SA_EAST_1
@@ -235,7 +236,7 @@ const updateSong = async (songToUpdate) => {
 
     let songToUpdate = rows.find((row) => row.id.toString() === song.id)
     
-    let query = await cluster.execute(`UPDATE songs set title = 'Glimpse of US - Inutilismo' where id = ${songToUpdate.id} AND updated_at = '2023-03-02 23:10:00.00+0000';`);
+    await cluster.execute(`UPDATE songs set title = 'Glimpse of US - Inutilismo' where id = ${songToUpdate.id} AND updated_at = '2023-03-02 23:10:00.00+0000';`);
 
     await cluster.shutdown()
 }
