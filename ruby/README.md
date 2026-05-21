@@ -36,6 +36,7 @@ Check which commands are currently available on this sample:
 | !list    | List all songs in your liked songs list   |
 | !delete  | Delete a specific song from your liked songs list   |
 | !stress  | Retrieve all songs and create a 'stressing' loop to test a ScyllaDB Cloud Cluster |
+| !q       | Quit the CLI |
 
 ## CQL Queries
 
