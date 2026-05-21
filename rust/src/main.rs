@@ -7,14 +7,14 @@ mod songs;
 use clap::Parser;
 use database::Database;
 use migrate::migrate_database;
-use std::{io, sync::Arc};
+use std::{io, process, sync::Arc};
 
 /// Simple program to greet a person
 #[derive(Parser, Default, Debug)]
 #[clap(author = "danielhe4rt", version, about)]
 pub struct ConnectionDetails {
-    /// Scylla Cloud Node URL's
-    #[arg(num_args = 3, value_parser, value_delimiter = ',')]
+    /// Scylla Cloud Node URL's (one or more, space- or comma-separated)
+    #[arg(num_args = 1.., value_parser, value_delimiter = ',')]
     pub nodes: Vec<String>,
 
     /// Cluster Username
@@ -52,7 +52,10 @@ async fn main() -> Result<(), anyhow::Error> {
             "!list" => commands::list_songs(&database).await,
             "!delete" => commands::delete_song(&database).await,
             "!stress" => commands::stress(Arc::clone(&database)).await,
-            "!q" => panic!("See ya!"),
+            "!q" => {
+                println!("See ya!");
+                process::exit(0);
+            }
             _ => Ok(()),
         };
         display_help();

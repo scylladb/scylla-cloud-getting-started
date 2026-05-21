@@ -22,10 +22,13 @@ cd scylla-cloud-getting-started/rust
 Install the project dependencies and run the project: 
 
 ```sh
-cargo run --  --username scylla --password your-cluster-password "node-0.aws-sa-east-1.1.clusters.scylla.cloud", "node-1.aws-sa-east-1.1.clusters.scylla.cloud", "node-2.aws-sa-east-1.1.clusters.scylla.cloud"
+cargo run -- --username scylla --password your-cluster-password \
+  node-0.aws-sa-east-1.1.clusters.scylla.cloud \
+  node-1.aws-sa-east-1.1.clusters.scylla.cloud \
+  node-2.aws-sa-east-1.1.clusters.scylla.cloud
 ```
 
-> Replace the variables with your cluster information
+> Replace the variables with your cluster information. You can also provide a single node — the driver will discover the rest automatically.
 
 
 ## Available Commands
@@ -34,17 +37,18 @@ Check which commands are currently available on this sample:
 
 | Command  | Description |
 |---|---|
-| !new   | Add a new song to your liked songs list   |
+| !add     | Add a new song to your liked songs list   |
+| !list    | List all songs in your liked songs list   |
 | !delete  | Delete a specific song from your liked songs list   |
-| !listen  | Creates a register of which song and when you listened to it  |
 | !stress  | Retrieve all songs and create a 'stressing' loop to test a ScyllaDB Cloud Cluster |
+| !q       | Quit the application |
 
 ## CQL Queries
 
 All the CQL queries used on the project
 
 ```sql
-CREATE KEYSPACE prod_media_player;
+CREATE KEYSPACE prod_media_player WITH REPLICATION = {'class': 'NetworkTopologyStrategy', 'replicationFactor': '3'};
 
 CREATE TABLE prod_media_player.songs (
     id uuid,
@@ -55,18 +59,11 @@ CREATE TABLE prod_media_player.songs (
     PRIMARY KEY (id, created_at)
 );
 
-CREATE TABLE prod_media_player.song_counter (
-    song_id uuid,
-    times_played counter,
-    PRIMARY KEY (song_id)
-);
-
 SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = ?
 SELECT keyspace_name,table_name FROM system_schema.tables WHERE keyspace_name = ? AND table_name = ?
 
-SELECT * FROM songs
-INSERT INTO recently_played_songs (song_id, listened_at) VALUES (?, ?)
-UPDATE played_songs_counter SET times_played = times_played + 1 WHERE song_id = ?
-DELETE FROM songs WHERE id = ?
+SELECT id, title, album, artist, created_at FROM prod_media_player.songs LIMIT 10
+INSERT INTO prod_media_player.songs (id, title, artist, album, created_at) VALUES (?, ?, ?, ?, ?)
+DELETE FROM prod_media_player.songs WHERE id = ?
 
 ```
