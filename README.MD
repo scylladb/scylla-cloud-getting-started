@@ -29,7 +29,6 @@ You can find language-specific implementations in their corresponding folder:
 - [Java](/docs/source/build-with-java.md)
 - [Python](/docs/source/build-with-python.md)
 - [Rust](/docs/source/build-with-rust.md)
-- [Ruby](/docs/source/build-with-ruby.md)
 - [Elixir](/docs/source/build-with-elixir.md)
 - [Csharp](/docs/source/build-with-csharp.md)
 - [Go](/docs/source/build-with-golang.md)
@@ -73,4 +72,3 @@ help the maintainer to fix the bug that you've discovered quicker:
 ### Pull requests
 
 If you're able to fix a bug yourself, you can [fork the repository](https://help.github.com/articles/fork-a-repo/) and [submit a pull request](https://help.github.com/articles/using-pull-requests/) with the fix.
-

@@ -82,12 +82,6 @@
   :class: large-4
 
 .. topic-box::
-  :title: Build with Ruby
-  :image: /_static/img/programming_languages/ruby.png
-  :link: build-with-ruby
-  :class: large-4
-
-.. topic-box::
   :title: Build with Elixir
   :image: /_static/img/programming_languages/elixir.png
   :link: build-with-elixir
@@ -172,7 +166,6 @@
    Build with Java <build-with-java>
    Build with Elixir <build-with-elixir>
    Build with Python <build-with-python>
-   Build with Ruby <build-with-ruby>
    Build with Rust <build-with-rust>
    Build with Csharp <build-with-csharp>
    Build with Golang <build-with-golang>
@@ -186,4 +179,3 @@
    Alternator: Build with PHP <alternator/build-with-php>
    Alternator: Build with Python <alternator/build-with-python>
    Getting Started GitHub Repository <https://github.com/scylladb/scylla-cloud-getting-started>
-
