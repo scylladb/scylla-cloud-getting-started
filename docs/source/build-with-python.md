@@ -6,7 +6,7 @@ In this tutorial you'll build a Media Player app to store your songs and create 
 
 ### 1.1 Prerequisites:
 * [Python 3.7+](https://www.python.org/downloads/)
-* [Virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
+* [Virtualenv](https://virtualenv.pypa.io/en/latest/how-to/install.html)
 
 
 ### 2.2 Set up the environment
@@ -352,6 +352,6 @@ Yay! You now know how get started with ScyllaDB in Python.
 
 If you think something can be improved, please open an issue and let's make it happen!
 
-There is a sample project that you can learn more about the concepts and also have a good time testing our ScyllaDB Cloud Cluster, check it out [here](https://github.com/scylladb/scylla-cloud-getting-started/python).
+There is a sample project that you can learn more about the concepts and also have a good time testing our ScyllaDB Cloud Cluster, check it out [here](https://github.com/scylladb/scylla-cloud-getting-started/tree/main/python).
 
 Did you like the content? Don't forget to star the repo and follow us on socials.
