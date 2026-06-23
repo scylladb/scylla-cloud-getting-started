@@ -3,20 +3,20 @@
 
 ## 1. Introduction
 
-This guide will show you how to create a Cluster into ScyllaDB Cloud, create an Media Player app from scratch and configure it
+This guide will show you how to create a cluster in ScyllaDB Cloud, create a Media Player app from scratch, and configure it
 to use Scylla as the backend datastore. It'll walk you through all the stages
 of the development process, from gathering requirements to building and running
 the application.
 
 As an example, you will use an application called Media Player. Media Player stores all the tracks
-that you want to listen and count how many times you listened to. The application consists of three parts:
+you want to listen to and counts how many times you have listened to them. The application consists of three parts:
 -   Validate if you have the Keyspace and Table needed to start storing your tracks/songs;
--   Access to an REPL with commands to store/list/delete songs;
--   Run a simple stresser into ScyllaDB Cloud.
+-   Access a REPL with commands to store/list/delete songs;
+-   Run a simple stressor against ScyllaDB Cloud.
 
 ## 2. Requirements
 
-Before start your first project with Scylla Alternator API, we need to setup your environment.
+Before starting your first project with the ScyllaDB Alternator API, we need to set up your environment.
 
 ### 2.1 Create a ScyllaDB Cloud account
 
@@ -26,32 +26,33 @@ Before you start coding the project, you should create an account at [ScyllaDB C
 
 ### 2.2 Create a Sandbox Cluster 
 
-After create and login into your ScyllaDB Cloud account, click on "New Cluster" tab. There, you should:
+After creating and logging in to your ScyllaDB Cloud account, click on the "New Cluster" tab. There, you should:
 
-- Give your cluster a cool name for this project;
-- Select "ScyllaDB Alternator - DynamoDB API " on the **Scylla Version**;
-- Select the nearest region for your cluster.
+- Give your cluster a name
+- Select "Standard" cluster type for small tests, otherwise select "X Cloud" for maximum elasticity
+- Select "Amazon DynamoDB API compatible" in the **ScyllaDB API** section;
+- Select the nearest region for your cluster
 
 
 ![ScyllaDB Creating a new instance](/_static/img/alternator/getting-started/scylladb-1.png)
 
-After that, check the **"t3.micro"** model (Sandbox) and click in "Next".
+After that, check the **"t3.micro"** model (Sandbox, only available in Standard clusters) and click "Next".
 
 ![ScyllaDB Cloud Registration Page](/_static/img/alternator/getting-started/scylladb-2.png)
 
 
-On the network tab, just make sure that your IP Address is correct and click in "Launch Cluster".
+On the network tab, make sure your IP address is correct and click "Launch Cluster".
 
 
 ![Cluster creating in progress page](/_static/img/alternator/getting-started/scylladb-creating-cluster.png)
 
-## 3. Connecting into your cluster
+## 3. Connecting to your cluster
 
 Now that you have the ScyllaDB Alternator running, you will see a panel like the picture below. It will be a three node cluster.
 
 ![Cluster Overview page](/_static/img/alternator/getting-started/scylladb-cluster-overview.png)
 
-As you can see on the first node, the ip "18.231.92.93" will be used to connect on the "Endpoint URL" at any DynamoDB SDK or API. 
+As you can see on the first node, the IP "100.51.91.97" will be used to connect to the "Endpoint URL" in any DynamoDB SDK or API. 
 
 Examples: 
 
@@ -74,7 +75,7 @@ $alternatorClient = new DynamoDbClient([
 ]);
 ```
 
-Now you are able to send requests to your ScyllaDB Alternator instance! Select the SDK on the language of your preference and happy coding!
+Now you are able to send requests to your ScyllaDB Alternator instance. Select the SDK for the language of your choice and start building!
 
 ## 4. Next Steps
 
