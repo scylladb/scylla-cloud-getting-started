@@ -288,7 +288,7 @@ ID: e59da413-d185-4065-9b7c-ae36f5203e90 | Song: I Write Sins Not Tragedies | Al
 Ok, almost there! Now we're going to learn about update but here's a disclaimer: 
 > INSERT and UPDATES are not equals!
 
-There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
+There's a myth in ScyllaDB/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
 If you want to read more about it, [click here.](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
 
