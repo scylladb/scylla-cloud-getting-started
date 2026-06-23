@@ -4,7 +4,7 @@
 ## 1. Introduction
 
 This guide will show you how to create a cluster in ScyllaDB Cloud, create a Media Player app from scratch, and configure it
-to use Scylla as the backend datastore. It'll walk you through all the stages
+to use ScyllaDB as the backend datastore. It'll walk you through all the stages
 of the development process, from gathering requirements to building and running
 the application.
 

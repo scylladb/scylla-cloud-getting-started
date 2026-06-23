@@ -209,7 +209,7 @@ Ok, almost there! Now we're going to learn about `UPDATE` but here's a disclaime
 
 > INSERT and UPDATES are not the same!
 
-There's a myth in Scylla/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
+There's a myth in ScyllaDB/Cassandra community that it's the same for the fact that you just need the `Partition Key` and `Clustering Key` (if you have one) and query it.
 
 Read more about [`INSERT` and `UPDATE`](https://docs.scylladb.com/stable/using-scylla/cdc/cdc-basic-operations.html)
 
