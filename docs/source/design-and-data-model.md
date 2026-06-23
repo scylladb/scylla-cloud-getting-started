@@ -1,8 +1,8 @@
 # Design and Data Model
 
-You can learn more about Data Modeling in Scylla (and NoSQL) by taking
-[this course](https://university.scylladb.com/courses/data-modeling/) on Scylla
-University. The main goal of data modeling in Scylla is to perform queries fast,
+You can learn more about Data Modeling in ScyllaDB (and NoSQL) by taking
+[this course](https://university.scylladb.com/courses/data-modeling/) on ScyllaDB
+University. The main goal of data modeling in ScyllaDB is to perform queries fast,
 even if we sometimes have to duplicate data.
 
 Let's build our schema around the queries we are going to run against our domain
@@ -32,7 +32,7 @@ and the relationships between them. Our application is focused in a single entit
 
 Next, we move on to the Application Workflow. In this part, we identify the main
 queries or what questions we will ask the database. This part is important in
-Scylla, and other NoSQL databases and, as opposed to relational databases is
+ScyllaDB, and other NoSQL databases and, as opposed to relational databases is
 performed early on in the data modeling process. Remember that our data modeling
 is built around the queries.
 
@@ -86,7 +86,7 @@ User-Defined[Types](https://university.scylladb.com/courses/data-modeling/lesson
 (UDT), expiring data with [time to live (TTL)](https://university.scylladb.com/courses/data-modeling/lessons/advanced-data-modeling/topic/expiring-data-with-ttl-time-to-live/),
 and [Counters](https://university.scylladb.com/courses/data-modeling/lessons/advanced-data-modeling/topic/counters/).
 
-To summarize, when data modeling with Scylla, we have to know our data, think
+To summarize, when data modeling with ScyllaDB, we have to know our data, think
 about our queries, pay attention to the primary key and clustering key
 selection, and not be afraid to duplicate data.
 

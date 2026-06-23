@@ -16,8 +16,8 @@
   :button_text: Source code
   :button_style: bold
 
-  This tutorial is a step-by-step guide to build an Media Player project connected to Scylla Cloud.
-  After completing the project, you will be able to create back-end services that share data through a Scylla Cloud cluster.
+  This tutorial is a step-by-step guide to build an Media Player project connected to ScyllaDB Cloud.
+  After completing the project, you will be able to create back-end services that share data through a ScyllaDB Cloud cluster.
 
 .. raw:: html
 
@@ -31,7 +31,7 @@
 
 
 .. topic-box::
-  :title: Getting Started with Scylla Cloud
+  :title: Getting Started with ScyllaDB Cloud
   :link: getting-started
   :icon: icon-play-circle
   :class: large-4
@@ -114,7 +114,7 @@
   <div class="grid-x grid-margin-x">
   
 .. topic-box::
-  :title: Getting Started with Scylla Alternator
+  :title: Getting Started with ScyllaDB Alternator
   :link: alternator/getting-started
   :icon: icon-play-circle
   :class: large-4
