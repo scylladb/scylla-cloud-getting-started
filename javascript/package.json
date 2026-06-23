@@ -7,7 +7,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "cassandra-driver": "^4.7.2",
+    "@scylladb/driver": "^0.6.1",
     "dotenv": "^16.4.5"
   }
 }

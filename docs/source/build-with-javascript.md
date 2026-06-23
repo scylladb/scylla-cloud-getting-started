@@ -4,12 +4,12 @@ In this tutorial you'll build a Media Player to store your songs and build playl
 
 ## 1. Getting the Driver
 
-Install the [JavaScript Cassandra driver](https://github.com/datastax/nodejs-driver/) that also works with ScyllaDB.
+Install the [ScyllaDB Node.js RS Driver](https://github.com/scylladb/nodejs-rs-driver), a native ScyllaDB driver built on top of the ScyllaDB Rust driver.
 
 ```sh
-$ npm install cassandra-driver
+$ npm install @scylladb/driver
 
-$ yarn install cassandra-driver
+$ yarn add @scylladb/driver
 ```
 
 ## 2. Connect to the cluster

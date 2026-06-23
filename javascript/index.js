@@ -1,7 +1,7 @@
 'use strict';
 
 require('dotenv').config();
-const cassandra = require('cassandra-driver');
+const cassandra = require('@scylladb/driver');
 const readline = require('readline');
 
 // Line reader that works correctly with both interactive TTY and piped stdin.
