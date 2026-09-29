@@ -24,22 +24,14 @@ Before you start coding the project, you should create an account at [ScyllaDB C
 
 ![ScyllaDB Cloud Registration Page](/_static/img/alternator/getting-started/scylla-registration-page.png)
 
-### 2.2 Create a Sandbox Cluster 
+### 2.2 Create a Cluster
 
-After creating and logging in to your ScyllaDB Cloud account, click on the "New Cluster" tab. There, you should:
+After creating and logging in to your ScyllaDB Cloud account, click **Free Trial** (or **New Cluster** > **Dedicated VM**). There, you should:
 
 - Give your cluster a name
-- Select "Standard" cluster type for small tests, otherwise select "X Cloud" for maximum elasticity
-- Select "Amazon DynamoDB API compatible" in the **ScyllaDB API** section;
+- Select "Amazon DynamoDB API compatible" in the **ScyllaDB API** section
 - Select the nearest region for your cluster
-
-
-![ScyllaDB Creating a new instance](/_static/img/alternator/getting-started/scylladb-1.png)
-
-After that, check the **"t3.micro"** model (Sandbox, only available in Standard clusters) and click "Next".
-
-![ScyllaDB Cloud Registration Page](/_static/img/alternator/getting-started/scylladb-2.png)
-
+- Keep the default auto-scaling policy. ScyllaDB Cloud scales the cluster automatically, so you don't need to pick a node size.
 
 On the network tab, make sure your IP address is correct and click "Launch Cluster".
 
