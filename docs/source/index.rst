@@ -37,7 +37,7 @@
   :class: large-4
   :anchor: Get Started
 
-  Create a Sandbox Cluster configure it to use ScyllaDB as the backend datastore.
+  Create a ScyllaDB Cloud cluster and configure it to use ScyllaDB as the backend datastore.
 
 .. topic-box::
   :title: Design and Data Model
@@ -120,7 +120,7 @@
   :class: large-4
   :anchor: Get Started
 
-  Create a Sandbox Cluster configure it to use ScyllaDB as the backend datastore.
+  Create a ScyllaDB Cloud cluster and configure it to use ScyllaDB as the backend datastore.
 
 .. topic-box::
   :title: Design and Data Model
